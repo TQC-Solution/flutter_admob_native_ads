@@ -59,10 +59,134 @@ dependencies {
 <string>ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy</string>
 ```
 
-2. Thêm vào `Podfile` của bạn:
+2. Khởi tạo Google Mobile Ads SDK trong `AppDelegate.swift`:
+
+```swift
+import GoogleMobileAds
+
+@main
+@objc class AppDelegate: FlutterAppDelegate {
+  override func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+  ) -> Bool {
+    GADMobileAds.sharedInstance().start(completionHandler: nil)
+    GeneratedPluginRegistrant.register(with: self)
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+}
+```
+
+3. Thêm vào `Podfile` của bạn:
 
 ```ruby
 pod 'Google-Mobile-Ads-SDK', '~> 11.0'
+```
+
+4. Xử lý các thư viện liên kết tĩnh (statically linked binaries):
+
+Nếu bạn gặp cảnh báo "The 'Pods-Runner' target has transitive dependencies that include statically linked binaries", hãy cập nhật Podfile của bạn như sau:
+
+```ruby
+target 'Runner' do
+  use_frameworks! :linkage => :static
+  
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+  
+  # Fix for statically linked binaries warning
+  pod 'Google-Mobile-Ads-SDK', :modular_headers => true
+  pod 'GoogleUserMessagingPlatform', :modular_headers => true
+  
+  target 'RunnerTests' do
+    inherit! :search_paths
+  end
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+    
+    # Fix for statically linked binaries warning
+    if target.name == 'Google-Mobile-Ads-SDK' || target.name == 'GoogleUserMessagingPlatform'
+      target.build_configurations.each do |config|
+        config.build_settings['MACH_O_TYPE'] = 'staticlib'
+      end
+    end
+  end
+end
+```
+
+5. Đảm bảo chỉ định platform iOS:
+
+```ruby
+platform :ios, '13.0'
+```
+
+6. Quyền riêng tư cho iOS 17+:
+
+Để tuân thủ yêu cầu quyền riêng tư của iOS 17+, hãy đảm bảo file `PrivacyInfo.xcprivacy` được bao gồm trong plugin của bạn với các quyền cần thiết cho Google Mobile Ads SDK:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategorySystemBootTime</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>35F9.1</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>C617.1</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryDeviceID</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>35F9.1</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeDeviceID</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSPrivacyTracking</key>
+	<false/>
+</dict>
+</plist>
+```
+
+Đảm bảo file này được tham chiếu trong podspec của plugin:
+
+```ruby
+# Privacy manifest
+s.resource_bundles = {'flutter_admob_native_ads_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
 ```
 
 ## Khởi động nhanh
@@ -814,6 +938,42 @@ ios:
    - Đơn vị quảng cáo không tồn tại hoặc bị vô hiệu hóa trong bảng điều khiển AdMob
    - Ứng dụng chưa được Google phê duyệt để hiển thị quảng cáo
    - Emulator không được nhận dạng làm thiết bị kiểm tra
+
+### Lỗi GADInvalidInitializationException
+
+Nếu bạn gặp lỗi `GADInvalidInitializationException` với thông báo "The Google Mobile Ads SDK was initialized without an application ID", hãy thực hiện các bước sau:
+
+1. **Kiểm tra ID ứng dụng trong Info.plist:**
+   ```xml
+   <key>GADApplicationIdentifier</key>
+   <string>ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy</string>
+   ```
+
+2. **Khởi tạo SDK trong AppDelegate.swift:**
+   ```swift
+   import GoogleMobileAds
+
+   @main
+   @objc class AppDelegate: FlutterAppDelegate {
+     override func application(
+       _ application: UIApplication,
+       didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+     ) -> Bool {
+       GADMobileAds.sharedInstance().start(completionHandler: nil)
+       GeneratedPluginRegistrant.register(with: self)
+       return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+     }
+   }
+   ```
+
+3. **Xử lý các thư viện liên kết tĩnh:**
+   Nếu bạn gặp cảnh báo "The 'Pods-Runner' target has transitive dependencies that include statically linked binaries", hãy cập nhật Podfile của bạn như được mô tả trong phần cấu hình iOS ở trên.
+
+4. **Sử dụng ID ứng dụng thử nghiệm:**
+   Trong quá trình phát triển, bạn có thể sử dụng ID ứng dụng thử nghiệm của Google:
+   ```
+   ca-app-pub-3940256099942544~1458002511
+   ```
 
 ### Lỗi xây dựng
 

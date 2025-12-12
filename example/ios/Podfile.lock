@@ -1,0 +1,41 @@
+PODS:
+  - Flutter (1.0.0)
+  - flutter_admob_native_ads (1.0.0):
+    - Flutter
+    - Google-Mobile-Ads-SDK (~> 11.0)
+  - Google-Mobile-Ads-SDK (11.13.0):
+    - GoogleUserMessagingPlatform (>= 1.1)
+  - GoogleUserMessagingPlatform (3.1.0)
+  - integration_test (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - flutter_admob_native_ads (from `.symlinks/plugins/flutter_admob_native_ads/ios`)
+  - Google-Mobile-Ads-SDK
+  - GoogleUserMessagingPlatform
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+
+SPEC REPOS:
+  trunk:
+    - Google-Mobile-Ads-SDK
+    - GoogleUserMessagingPlatform
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  flutter_admob_native_ads:
+    :path: ".symlinks/plugins/flutter_admob_native_ads/ios"
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+
+SPEC CHECKSUMS:
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_admob_native_ads: 7dea1660b7441fc63b42445b0b26d80a7dd8d67c
+  Google-Mobile-Ads-SDK: 14f57f2dc33532a24db288897e26494640810407
+  GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
+  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
+
+PODFILE CHECKSUM: 54103f349a186c10a5150daffd6a53006c98c34f
+
+COCOAPODS: 1.16.2

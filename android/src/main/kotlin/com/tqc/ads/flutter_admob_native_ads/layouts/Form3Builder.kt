@@ -223,7 +223,7 @@ object Form3Builder {
         val ratingBar = RatingBar(context, null, android.R.attr.ratingBarStyleSmall).apply {
             id = ID_RATING
             numStars = 5
-            isIndicator = true
+            setIsIndicator(true)
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT

@@ -25,5 +25,5 @@ full media layout types with comprehensive styling options.
   s.swift_version = '5.0'
 
   # Privacy manifest
-  # s.resource_bundles = {'flutter_admob_native_ads_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
+  s.resource_bundles = {'flutter_admob_native_ads_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
 end
