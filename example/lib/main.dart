@@ -31,7 +31,6 @@ class NativeAdsDemo extends StatefulWidget {
 }
 
 class _NativeAdsDemoState extends State<NativeAdsDemo> {
-  NativeAdLayoutType _selectedLayout = NativeAdLayoutType.standard;
   bool _isDarkTheme = false;
 
   // Test ad unit IDs from Google
@@ -60,42 +59,9 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Layout selector
-            const Text(
-              'Select Layout Type:',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            SegmentedButton<NativeAdLayoutType>(
-              segments: const [
-                ButtonSegment(
-                  value: NativeAdLayoutType.compact,
-                  label: Text('Compact'),
-                ),
-                ButtonSegment(
-                  value: NativeAdLayoutType.standard,
-                  label: Text('Standard'),
-                ),
-                ButtonSegment(
-                  value: NativeAdLayoutType.fullMedia,
-                  label: Text('Full Media'),
-                ),
-              ],
-              selected: {_selectedLayout},
-              onSelectionChanged: (selection) {
-                setState(() {
-                  _selectedLayout = selection.first;
-                });
-              },
-            ),
-            const SizedBox(height: 24),
-
             // Ad preview
             const Text(
-              'Ad Preview:',
+              'Native Ad with Custom Layout:',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -127,12 +93,12 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      'Current Layout: ${_selectedLayout.name}',
-                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    const Text(
+                      'Layout: FormExample (Fully customizable)',
+                      style: TextStyle(fontWeight: FontWeight.w500),
                     ),
                     Text(
-                      'Recommended Height: ${_selectedLayout.recommendedHeight}dp',
+                      'Recommended Height: ${NativeAdLayoutType.formExample.recommendedHeight}dp',
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                   ],
@@ -146,16 +112,16 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
   }
 
   Widget _buildAdWidget() {
-    // Rebuild widget when layout or theme changes
+    // Rebuild widget when theme changes
     return NativeAdWidget(
-      key: ValueKey('$_selectedLayout-$_isDarkTheme'),
+      key: ValueKey('formExample-$_isDarkTheme'),
       options: NativeAdOptions(
         adUnitId: _testAdUnitId,
-        layoutType: _selectedLayout,
+        layoutType: NativeAdLayoutType.formExample,
         style: _isDarkTheme ? NativeAdStyle.dark() : NativeAdStyle.light(),
         enableDebugLogs: true,
       ),
-      height: _selectedLayout.recommendedHeight,
+      height: NativeAdLayoutType.formExample.recommendedHeight,
       onAdLoaded: () {
         debugPrint('Ad loaded successfully!');
       },
