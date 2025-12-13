@@ -6,18 +6,17 @@ import com.tqc.ads.flutter_admob_native_ads.styling.AdStyleManager
 import com.tqc.ads.flutter_admob_native_ads.styling.AdStyleOptions
 
 /**
- * Factory for building native ad layouts based on form type.
+ * Factory for building native ad layouts.
+ * Now only supports FormExample layout.
  */
 object AdLayoutBuilder {
 
-    const val LAYOUT_COMPACT = 1
-    const val LAYOUT_STANDARD = 2
-    const val LAYOUT_FULL_MEDIA = 3
+    const val LAYOUT_FORM_EXAMPLE = 1
 
     /**
-     * Builds a NativeAdView based on the specified layout type.
+     * Builds a NativeAdView using FormExample layout.
      *
-     * @param layoutType The layout type (1 = compact, 2 = standard, 3 = full media)
+     * @param layoutType The layout type (currently only supports FormExample)
      * @param context Android context
      * @param styleOptions Style options for the layout
      * @return Configured NativeAdView
@@ -28,24 +27,14 @@ object AdLayoutBuilder {
         styleOptions: AdStyleOptions
     ): NativeAdView {
         val styleManager = AdStyleManager(context, styleOptions)
-
-        return when (layoutType) {
-            LAYOUT_COMPACT -> Form1Builder.build(context, styleManager)
-            LAYOUT_STANDARD -> Form2Builder.build(context, styleManager)
-            LAYOUT_FULL_MEDIA -> Form3Builder.build(context, styleManager)
-            else -> Form2Builder.build(context, styleManager)
-        }
+        return FormExampleBuilder.build(context, styleManager)
     }
 
     /**
      * Gets the layout type from a string name.
+     * All names now map to FormExample layout.
      */
     fun getLayoutType(name: String?): Int {
-        return when (name?.lowercase()) {
-            "compact" -> LAYOUT_COMPACT
-            "standard" -> LAYOUT_STANDARD
-            "fullmedia", "full_media" -> LAYOUT_FULL_MEDIA
-            else -> LAYOUT_STANDARD
-        }
+        return LAYOUT_FORM_EXAMPLE
     }
 }

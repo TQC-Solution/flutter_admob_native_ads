@@ -10,10 +10,8 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
 
     private static let channelName = "flutter_admob_native_ads"
 
-    // View type identifiers
-    private static let viewTypeCompact = "flutter_admob_native_ads_compact"
-    private static let viewTypeStandard = "flutter_admob_native_ads_standard"
-    private static let viewTypeFullMedia = "flutter_admob_native_ads_fullMedia"
+    // View type identifier
+    private static let viewTypeFormExample = "flutter_admob_native_ads_formExample"
 
     private var channel: FlutterMethodChannel?
     private var adLoaders: [String: NativeAdLoader] = [:]
@@ -28,23 +26,13 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
         instance.channel = channel
         registrar.addMethodCallDelegate(instance, channel: channel)
 
-        // Register platform view factories
+        // Register FormExample platform view factory
         registrar.register(
-            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "compact"),
-            withId: viewTypeCompact
+            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "formExample"),
+            withId: viewTypeFormExample
         )
 
-        registrar.register(
-            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "standard"),
-            withId: viewTypeStandard
-        )
-
-        registrar.register(
-            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "fullMedia"),
-            withId: viewTypeFullMedia
-        )
-
-        print("[FlutterAdmobNativeAds] Plugin registered")
+        print("[FlutterAdmobNativeAds] Plugin registered with FormExample layout")
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

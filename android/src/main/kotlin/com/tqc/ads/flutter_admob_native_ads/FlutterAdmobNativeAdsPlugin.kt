@@ -23,10 +23,8 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
         private const val TAG = "FlutterAdmobNativeAds"
         private const val CHANNEL_NAME = "flutter_admob_native_ads"
 
-        // View type identifiers
-        private const val VIEW_TYPE_COMPACT = "flutter_admob_native_ads_compact"
-        private const val VIEW_TYPE_STANDARD = "flutter_admob_native_ads_standard"
-        private const val VIEW_TYPE_FULL_MEDIA = "flutter_admob_native_ads_fullMedia"
+        // View type identifier
+        private const val VIEW_TYPE_FORM_EXAMPLE = "flutter_admob_native_ads_formExample"
     }
 
     private lateinit var channel: MethodChannel
@@ -51,25 +49,13 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     private fun registerPlatformViews(binding: FlutterPlugin.FlutterPluginBinding) {
-        // Register compact layout factory
+        // Register FormExample layout factory
         binding.platformViewRegistry.registerViewFactory(
-            VIEW_TYPE_COMPACT,
-            NativeAdViewFactory(messenger, "compact")
+            VIEW_TYPE_FORM_EXAMPLE,
+            NativeAdViewFactory(messenger, "formExample")
         )
 
-        // Register standard layout factory
-        binding.platformViewRegistry.registerViewFactory(
-            VIEW_TYPE_STANDARD,
-            NativeAdViewFactory(messenger, "standard")
-        )
-
-        // Register full media layout factory
-        binding.platformViewRegistry.registerViewFactory(
-            VIEW_TYPE_FULL_MEDIA,
-            NativeAdViewFactory(messenger, "fullMedia")
-        )
-
-        Log.d(TAG, "Platform view factories registered")
+        Log.d(TAG, "Platform view factory registered: FormExample")
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {

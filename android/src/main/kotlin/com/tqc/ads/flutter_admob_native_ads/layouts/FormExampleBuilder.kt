@@ -66,9 +66,9 @@ object FormExampleBuilder {
 
     // Custom dimensions
     private const val CARD_CORNER_RADIUS = 16f
-    private const val MEDIA_HEIGHT_DP = 200f
-    private const val ICON_SIZE_DP = 60f
-    private const val ICON_BORDER_WIDTH = 4f
+    private const val MEDIA_HEIGHT_DP = 140f  // Reduced from 200 to fit in 300dp container
+    private const val ICON_SIZE_DP = 50f      // Reduced from 60 to fit better
+    private const val ICON_BORDER_WIDTH = 3f
     private const val CTA_CORNER_RADIUS = 24f
     private const val ELEVATION_DP = 8f
 
@@ -235,7 +235,7 @@ object FormExampleBuilder {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            val padding = DimensionUtils.dpToPx(context, 16f)
+            val padding = DimensionUtils.dpToPx(context, 12f)  // Reduced from 16 for tighter spacing
             setPadding(padding, padding, padding, padding)
         }
 

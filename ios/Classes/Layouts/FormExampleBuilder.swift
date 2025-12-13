@@ -38,12 +38,12 @@ enum FormExampleBuilder {
 
     // Custom dimensions
     private static let cardCornerRadius: CGFloat = 16
-    private static let mediaHeight: CGFloat = 200
-    private static let iconSize: CGFloat = 60
-    private static let iconBorderWidth: CGFloat = 4
+    private static let mediaHeight: CGFloat = 140  // Reduced from 200 to fit in 300px container
+    private static let iconSize: CGFloat = 50      // Reduced from 60 to fit better
+    private static let iconBorderWidth: CGFloat = 3
     private static let ctaCornerRadius: CGFloat = 24
     private static let cardPadding: CGFloat = 8
-    private static let contentPadding: CGFloat = 16
+    private static let contentPadding: CGFloat = 12  // Reduced from 16 for tighter spacing
 
     static func build(styleManager: AdStyleManager) -> GADNativeAdView {
         let nativeAdView = GADNativeAdView()
@@ -54,6 +54,13 @@ enum FormExampleBuilder {
 
         // Content vertical stack
         let contentStack = createVerticalStack(spacing: 0, alignment: .fill)
+        contentStack.isLayoutMarginsRelativeArrangement = true
+        contentStack.layoutMargins = UIEdgeInsets(
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0
+        )
 
         // === HEADER SECTION (Media + Icon Overlay) ===
         let (headerView, mediaView, iconView) = createHeaderSection()
@@ -63,9 +70,21 @@ enum FormExampleBuilder {
         let (infoStack, headlineLabel, ratingContainer, advertiserLabel, bodyLabel, priceLabel, storeLabel) = createInfoSection()
         contentStack.addArrangedSubview(infoStack)
 
-        // === CTA BUTTON ===
+        // === CTA BUTTON (wrapped in container for margins) ===
         let ctaButton = createCtaButton()
-        contentStack.addArrangedSubview(ctaButton)
+        let ctaContainer = UIView()
+        ctaContainer.translatesAutoresizingMaskIntoConstraints = false
+        ctaContainer.addSubview(ctaButton)
+
+        NSLayoutConstraint.activate([
+            ctaButton.topAnchor.constraint(equalTo: ctaContainer.topAnchor, constant: 0),
+            ctaButton.leadingAnchor.constraint(equalTo: ctaContainer.leadingAnchor, constant: contentPadding),
+            ctaButton.trailingAnchor.constraint(equalTo: ctaContainer.trailingAnchor, constant: -contentPadding),
+            ctaButton.bottomAnchor.constraint(equalTo: ctaContainer.bottomAnchor, constant: -contentPadding),
+            ctaButton.heightAnchor.constraint(equalToConstant: 48)
+        ])
+
+        contentStack.addArrangedSubview(ctaContainer)
 
         // Add content to main container
         mainContainer.addSubview(contentStack)
@@ -371,11 +390,6 @@ enum FormExampleBuilder {
             contentStack.leadingAnchor.constraint(equalTo: mainContainer.leadingAnchor),
             contentStack.trailingAnchor.constraint(equalTo: mainContainer.trailingAnchor),
             contentStack.bottomAnchor.constraint(equalTo: mainContainer.bottomAnchor),
-
-            // CTA button constraints
-            ctaButton.heightAnchor.constraint(equalToConstant: 48),
-            ctaButton.leadingAnchor.constraint(equalTo: mainContainer.leadingAnchor, constant: contentPadding),
-            ctaButton.trailingAnchor.constraint(equalTo: mainContainer.trailingAnchor, constant: -contentPadding),
 
             // Ad badge (top right)
             adBadge.topAnchor.constraint(equalTo: mainContainer.topAnchor, constant: 12),

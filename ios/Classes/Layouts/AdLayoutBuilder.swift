@@ -1,17 +1,16 @@
 import UIKit
 import GoogleMobileAds
 
-/// Factory for building native ad layouts based on form type.
+/// Factory for building native ad layouts.
+/// Now only supports FormExample layout.
 enum AdLayoutBuilder {
 
-    static let layoutCompact = 1
-    static let layoutStandard = 2
-    static let layoutFullMedia = 3
+    static let layoutFormExample = 1
 
-    /// Builds a GADNativeAdView based on the specified layout type.
+    /// Builds a GADNativeAdView using FormExample layout.
     ///
     /// - Parameters:
-    ///   - layoutType: The layout type (1 = compact, 2 = standard, 3 = full media)
+    ///   - layoutType: The layout type (currently only supports FormExample)
     ///   - styleOptions: Style options for the layout
     /// - Returns: Configured GADNativeAdView
     static func buildLayout(
@@ -19,30 +18,12 @@ enum AdLayoutBuilder {
         styleOptions: AdStyleOptions
     ) -> GADNativeAdView {
         let styleManager = AdStyleManager(options: styleOptions)
-
-        switch layoutType {
-        case layoutCompact:
-            return Form1Builder.build(styleManager: styleManager)
-        case layoutStandard:
-            return Form2Builder.build(styleManager: styleManager)
-        case layoutFullMedia:
-            return Form3Builder.build(styleManager: styleManager)
-        default:
-            return Form2Builder.build(styleManager: styleManager)
-        }
+        return FormExampleBuilder.build(styleManager: styleManager)
     }
 
     /// Gets the layout type from a string name.
+    /// All names now map to FormExample layout.
     static func getLayoutType(from name: String?) -> Int {
-        switch name?.lowercased() {
-        case "compact":
-            return layoutCompact
-        case "standard":
-            return layoutStandard
-        case "fullmedia", "full_media":
-            return layoutFullMedia
-        default:
-            return layoutStandard
-        }
+        return layoutFormExample
     }
 }
