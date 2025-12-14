@@ -113,17 +113,6 @@ object Form2Builder {
 
         // CTA Button
         val ctaButton = Button(context).apply {
-            textSize = 13f
-            setTextColor(Color.WHITE)
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            isAllCaps = false
-            background = GradientDrawable().apply {
-                setColor(Color.parseColor("#4285F4"))
-                cornerRadius = DimensionUtils.dpToPx(context, 18f).toFloat()
-            }
-            val padH = DimensionUtils.dpToPx(context, 16f)
-            val padV = DimensionUtils.dpToPx(context, 8f)
-            setPadding(padH, padV, padH, padV)
             minWidth = 0
             minimumWidth = 0
             minHeight = 0
@@ -133,6 +122,7 @@ object Form2Builder {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply { marginStart = DimensionUtils.dpToPx(context, 8f) }
         }
+        styleManager.styleButton(ctaButton)
         mainContainer.addView(ctaButton)
 
         nativeAdView.addView(mainContainer)

@@ -20,11 +20,7 @@ enum Form9Builder {
         
         // CTA at top
         let ctaButton = UIButton(type: .system)
-        ctaButton.titleLabel?.font = .systemFont(ofSize: 14, weight: .bold)
-        ctaButton.setTitleColor(.white, for: .normal)
-        ctaButton.backgroundColor = UIColor(red: 0.26, green: 0.52, blue: 0.96, alpha: 1)
-        ctaButton.layer.cornerRadius = 24
-        ctaButton.heightAnchor.constraint(equalToConstant: 48).isActive = true
+        styleManager.styleButton(ctaButton)
         mainStack.addArrangedSubview(ctaButton)
         
         let headerRow = UIStackView()

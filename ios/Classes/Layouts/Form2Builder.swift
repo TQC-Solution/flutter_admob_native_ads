@@ -71,12 +71,8 @@ enum Form2Builder {
         // CTA Button
         let ctaButton = UIButton(type: .system)
         ctaButton.translatesAutoresizingMaskIntoConstraints = false
-        ctaButton.titleLabel?.font = .systemFont(ofSize: 13, weight: .bold)
-        ctaButton.setTitleColor(.white, for: .normal)
-        ctaButton.backgroundColor = UIColor(red: 0.26, green: 0.52, blue: 0.96, alpha: 1)
-        ctaButton.layer.cornerRadius = 18
-        ctaButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
         ctaButton.setContentHuggingPriority(.required, for: .horizontal)
+        styleManager.styleButton(ctaButton)
         mainStack.addArrangedSubview(ctaButton)
         
         nativeAdView.addSubview(mainStack)

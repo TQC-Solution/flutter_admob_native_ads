@@ -213,7 +213,8 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
       options: NativeAdOptions(
         adUnitId: _testAdUnitId,
         layoutType: _selectedLayout,
-        style: _isDarkTheme ? NativeAdStyle.dark() : NativeAdStyle.light(),
+        // style: _isDarkTheme ? NativeAdStyle.dark() : NativeAdStyle.light(),
+        style: NativeAdStyle(ctaBackgroundColor: Color(0xFFD6FFC9)),
         enableDebugLogs: true,
       ),
       height: _selectedLayout.recommendedHeight,

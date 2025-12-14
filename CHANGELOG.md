@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2024-12-14
+
+### Fixed
+- **CRITICAL:** Fixed CTA button styling not working - All `NativeAdStyle` properties for CTA button (`ctaBackgroundColor`, `ctaTextColor`, `ctaCornerRadius`, `ctaPadding`, etc.) were being ignored
+- Refactored all 24 layout builders (12 Android + 12 iOS) to properly apply styles via `styleManager.styleButton()`
+- CTA buttons previously always displayed with hardcoded color `#4285F4` regardless of style settings
+- Affected files:
+  - Android: `Form1Builder.kt` through `Form12Builder.kt`
+  - iOS: `Form1Builder.swift` through `Form12Builder.swift`
+
+### Technical Details
+- Before: Layout builders created CTA buttons with hardcoded colors and styles
+- After: Layout builders delegate all styling to `AdStyleManager.styleButton()` which correctly applies `NativeAdStyle` properties
+- This fix ensures proper styling customization for all 12 form layouts on both platforms
+
 ## [1.0.0] - 2024-12-12
 
 ### Added
