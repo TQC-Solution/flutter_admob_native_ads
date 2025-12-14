@@ -15,11 +15,10 @@ import com.tqc.ads.flutter_admob_native_ads.styling.AdStyleManager
 import com.tqc.ads.flutter_admob_native_ads.utils.DimensionUtils
 
 /**
- * Form3 Builder - Vertical Card with Large Media Bottom (ad_3.png)
- * Layout: [Icon + Ad + Title + Body] → [Large Media] → [CTA]
- * Height: ~320dp
+ * Form5 Builder - Vertical Card Icon Top (ad_5.png)
+ * Layout: [Icon + Ad + Title] → [Body] → [Media] → [CTA]
  */
-object Form3Builder {
+object Form5Builder {
 
     fun build(context: Context, styleManager: AdStyleManager): NativeAdView {
         val nativeAdView = NativeAdView(context).apply {
@@ -43,7 +42,7 @@ object Form3Builder {
             }
         }
 
-        // Header row: Icon + Ad + Title + Arrow
+        // Header row
         val headerRow = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -96,7 +95,6 @@ object Form3Builder {
         headerRow.addView(headlineView)
         mainContainer.addView(headerRow)
 
-        // Body text
         val bodyView = TextView(context).apply {
             textSize = 12f
             setTextColor(Color.parseColor("#757575"))
@@ -105,20 +103,15 @@ object Form3Builder {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                topMargin = DimensionUtils.dpToPx(context, 4f)
-            }
+            ).apply { topMargin = DimensionUtils.dpToPx(context, 4f) }
         }
         mainContainer.addView(bodyView)
 
-        // Media View - Large
         val mediaView = MediaView(context).apply {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                DimensionUtils.dpToPx(context, 180f)
-            ).apply {
-                topMargin = DimensionUtils.dpToPx(context, 12f)
-            }
+                DimensionUtils.dpToPx(context, 140f)
+            ).apply { topMargin = DimensionUtils.dpToPx(context, 12f) }
             background = GradientDrawable().apply {
                 setColor(Color.parseColor("#f0f0f0"))
                 cornerRadius = DimensionUtils.dpToPx(context, 8f).toFloat()
@@ -127,7 +120,6 @@ object Form3Builder {
         }
         mainContainer.addView(mediaView)
 
-        // CTA Button
         val ctaButton = Button(context).apply {
             textSize = 14f
             setTextColor(Color.WHITE)
@@ -140,9 +132,7 @@ object Form3Builder {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 DimensionUtils.dpToPx(context, 48f)
-            ).apply {
-                topMargin = DimensionUtils.dpToPx(context, 12f)
-            }
+            ).apply { topMargin = DimensionUtils.dpToPx(context, 12f) }
         }
         mainContainer.addView(ctaButton)
 

@@ -1,48 +1,62 @@
 import UIKit
 import GoogleMobileAds
 
-/// Factory for building native ad layouts based on form type.
+/**
+ * Factory for building native ad layouts.
+ * Supports 12 different layout forms.
+ */
 enum AdLayoutBuilder {
-
-    static let layoutCompact = 1
-    static let layoutStandard = 2
-    static let layoutFullMedia = 3
-
-    /// Builds a GADNativeAdView based on the specified layout type.
-    ///
-    /// - Parameters:
-    ///   - layoutType: The layout type (1 = compact, 2 = standard, 3 = full media)
-    ///   - styleOptions: Style options for the layout
-    /// - Returns: Configured GADNativeAdView
-    static func buildLayout(
-        layoutType: Int,
-        styleOptions: AdStyleOptions
-    ) -> GADNativeAdView {
+    
+    static func buildLayout(layoutType: Int, styleOptions: AdStyleOptions) -> GADNativeAdView {
         let styleManager = AdStyleManager(options: styleOptions)
-
+        
         switch layoutType {
-        case layoutCompact:
+        case 1:
             return Form1Builder.build(styleManager: styleManager)
-        case layoutStandard:
+        case 2:
             return Form2Builder.build(styleManager: styleManager)
-        case layoutFullMedia:
+        case 3:
             return Form3Builder.build(styleManager: styleManager)
+        case 4:
+            return Form4Builder.build(styleManager: styleManager)
+        case 5:
+            return Form5Builder.build(styleManager: styleManager)
+        case 6:
+            return Form6Builder.build(styleManager: styleManager)
+        case 7:
+            return Form7Builder.build(styleManager: styleManager)
+        case 8:
+            return Form8Builder.build(styleManager: styleManager)
+        case 9:
+            return Form9Builder.build(styleManager: styleManager)
+        case 10:
+            return Form10Builder.build(styleManager: styleManager)
+        case 11:
+            return Form11Builder.build(styleManager: styleManager)
+        case 12:
+            return Form12Builder.build(styleManager: styleManager)
         default:
-            return Form2Builder.build(styleManager: styleManager)
+            return Form1Builder.build(styleManager: styleManager)
         }
     }
-
-    /// Gets the layout type from a string name.
+    
     static func getLayoutType(from name: String?) -> Int {
-        switch name?.lowercased() {
-        case "compact":
-            return layoutCompact
-        case "standard":
-            return layoutStandard
-        case "fullmedia", "full_media":
-            return layoutFullMedia
-        default:
-            return layoutStandard
+        guard let name = name?.lowercased() else { return 1 }
+        
+        switch name {
+        case "form1": return 1
+        case "form2": return 2
+        case "form3": return 3
+        case "form4": return 4
+        case "form5": return 5
+        case "form6": return 6
+        case "form7": return 7
+        case "form8": return 8
+        case "form9": return 9
+        case "form10": return 10
+        case "form11": return 11
+        case "form12": return 12
+        default: return 1
         }
     }
 }

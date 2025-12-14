@@ -23,10 +23,19 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
         private const val TAG = "FlutterAdmobNativeAds"
         private const val CHANNEL_NAME = "flutter_admob_native_ads"
 
-        // View type identifiers
-        private const val VIEW_TYPE_COMPACT = "flutter_admob_native_ads_compact"
-        private const val VIEW_TYPE_STANDARD = "flutter_admob_native_ads_standard"
-        private const val VIEW_TYPE_FULL_MEDIA = "flutter_admob_native_ads_fullMedia"
+        // View type identifiers for all 12 forms
+        private const val VIEW_TYPE_FORM_1 = "flutter_admob_native_ads_form1"
+        private const val VIEW_TYPE_FORM_2 = "flutter_admob_native_ads_form2"
+        private const val VIEW_TYPE_FORM_3 = "flutter_admob_native_ads_form3"
+        private const val VIEW_TYPE_FORM_4 = "flutter_admob_native_ads_form4"
+        private const val VIEW_TYPE_FORM_5 = "flutter_admob_native_ads_form5"
+        private const val VIEW_TYPE_FORM_6 = "flutter_admob_native_ads_form6"
+        private const val VIEW_TYPE_FORM_7 = "flutter_admob_native_ads_form7"
+        private const val VIEW_TYPE_FORM_8 = "flutter_admob_native_ads_form8"
+        private const val VIEW_TYPE_FORM_9 = "flutter_admob_native_ads_form9"
+        private const val VIEW_TYPE_FORM_10 = "flutter_admob_native_ads_form10"
+        private const val VIEW_TYPE_FORM_11 = "flutter_admob_native_ads_form11"
+        private const val VIEW_TYPE_FORM_12 = "flutter_admob_native_ads_form12"
     }
 
     private lateinit var channel: MethodChannel
@@ -51,25 +60,57 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     private fun registerPlatformViews(binding: FlutterPlugin.FlutterPluginBinding) {
-        // Register compact layout factory
+        // Register all 12 form layout factories
         binding.platformViewRegistry.registerViewFactory(
-            VIEW_TYPE_COMPACT,
-            NativeAdViewFactory(messenger, "compact")
+            VIEW_TYPE_FORM_1,
+            NativeAdViewFactory(messenger, "form1")
+        )
+        binding.platformViewRegistry.registerViewFactory(
+            VIEW_TYPE_FORM_2,
+            NativeAdViewFactory(messenger, "form2")
+        )
+        binding.platformViewRegistry.registerViewFactory(
+            VIEW_TYPE_FORM_3,
+            NativeAdViewFactory(messenger, "form3")
+        )
+        binding.platformViewRegistry.registerViewFactory(
+            VIEW_TYPE_FORM_4,
+            NativeAdViewFactory(messenger, "form4")
+        )
+        binding.platformViewRegistry.registerViewFactory(
+            VIEW_TYPE_FORM_5,
+            NativeAdViewFactory(messenger, "form5")
+        )
+        binding.platformViewRegistry.registerViewFactory(
+            VIEW_TYPE_FORM_6,
+            NativeAdViewFactory(messenger, "form6")
+        )
+        binding.platformViewRegistry.registerViewFactory(
+            VIEW_TYPE_FORM_7,
+            NativeAdViewFactory(messenger, "form7")
+        )
+        binding.platformViewRegistry.registerViewFactory(
+            VIEW_TYPE_FORM_8,
+            NativeAdViewFactory(messenger, "form8")
+        )
+        binding.platformViewRegistry.registerViewFactory(
+            VIEW_TYPE_FORM_9,
+            NativeAdViewFactory(messenger, "form9")
+        )
+        binding.platformViewRegistry.registerViewFactory(
+            VIEW_TYPE_FORM_10,
+            NativeAdViewFactory(messenger, "form10")
+        )
+        binding.platformViewRegistry.registerViewFactory(
+            VIEW_TYPE_FORM_11,
+            NativeAdViewFactory(messenger, "form11")
+        )
+        binding.platformViewRegistry.registerViewFactory(
+            VIEW_TYPE_FORM_12,
+            NativeAdViewFactory(messenger, "form12")
         )
 
-        // Register standard layout factory
-        binding.platformViewRegistry.registerViewFactory(
-            VIEW_TYPE_STANDARD,
-            NativeAdViewFactory(messenger, "standard")
-        )
-
-        // Register full media layout factory
-        binding.platformViewRegistry.registerViewFactory(
-            VIEW_TYPE_FULL_MEDIA,
-            NativeAdViewFactory(messenger, "fullMedia")
-        )
-
-        Log.d(TAG, "Platform view factories registered")
+        Log.d(TAG, "Platform view factories registered: Form1-Form12")
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {

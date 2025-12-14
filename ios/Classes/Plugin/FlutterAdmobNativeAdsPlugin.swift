@@ -10,10 +10,19 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
 
     private static let channelName = "flutter_admob_native_ads"
 
-    // View type identifiers
-    private static let viewTypeCompact = "flutter_admob_native_ads_compact"
-    private static let viewTypeStandard = "flutter_admob_native_ads_standard"
-    private static let viewTypeFullMedia = "flutter_admob_native_ads_fullMedia"
+    // View type identifiers for all 12 forms
+    private static let viewTypeForm1 = "flutter_admob_native_ads_form1"
+    private static let viewTypeForm2 = "flutter_admob_native_ads_form2"
+    private static let viewTypeForm3 = "flutter_admob_native_ads_form3"
+    private static let viewTypeForm4 = "flutter_admob_native_ads_form4"
+    private static let viewTypeForm5 = "flutter_admob_native_ads_form5"
+    private static let viewTypeForm6 = "flutter_admob_native_ads_form6"
+    private static let viewTypeForm7 = "flutter_admob_native_ads_form7"
+    private static let viewTypeForm8 = "flutter_admob_native_ads_form8"
+    private static let viewTypeForm9 = "flutter_admob_native_ads_form9"
+    private static let viewTypeForm10 = "flutter_admob_native_ads_form10"
+    private static let viewTypeForm11 = "flutter_admob_native_ads_form11"
+    private static let viewTypeForm12 = "flutter_admob_native_ads_form12"
 
     private var channel: FlutterMethodChannel?
     private var adLoaders: [String: NativeAdLoader] = [:]
@@ -28,23 +37,57 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
         instance.channel = channel
         registrar.addMethodCallDelegate(instance, channel: channel)
 
-        // Register platform view factories
+        // Register all 12 form platform view factories
         registrar.register(
-            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "compact"),
-            withId: viewTypeCompact
+            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "form1"),
+            withId: viewTypeForm1
+        )
+        registrar.register(
+            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "form2"),
+            withId: viewTypeForm2
+        )
+        registrar.register(
+            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "form3"),
+            withId: viewTypeForm3
+        )
+        registrar.register(
+            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "form4"),
+            withId: viewTypeForm4
+        )
+        registrar.register(
+            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "form5"),
+            withId: viewTypeForm5
+        )
+        registrar.register(
+            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "form6"),
+            withId: viewTypeForm6
+        )
+        registrar.register(
+            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "form7"),
+            withId: viewTypeForm7
+        )
+        registrar.register(
+            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "form8"),
+            withId: viewTypeForm8
+        )
+        registrar.register(
+            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "form9"),
+            withId: viewTypeForm9
+        )
+        registrar.register(
+            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "form10"),
+            withId: viewTypeForm10
+        )
+        registrar.register(
+            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "form11"),
+            withId: viewTypeForm11
+        )
+        registrar.register(
+            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "form12"),
+            withId: viewTypeForm12
         )
 
-        registrar.register(
-            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "standard"),
-            withId: viewTypeStandard
-        )
-
-        registrar.register(
-            NativeAdViewFactory(messenger: registrar.messenger(), layoutType: "fullMedia"),
-            withId: viewTypeFullMedia
-        )
-
-        print("[FlutterAdmobNativeAds] Plugin registered")
+        print("[FlutterAdmobNativeAds] Plugin registered with Form1-Form12 layouts")
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

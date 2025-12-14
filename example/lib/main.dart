@@ -31,19 +31,64 @@ class NativeAdsDemo extends StatefulWidget {
 }
 
 class _NativeAdsDemoState extends State<NativeAdsDemo> {
-  NativeAdLayoutType _selectedLayout = NativeAdLayoutType.standard;
   bool _isDarkTheme = false;
+  NativeAdLayoutType _selectedLayout = NativeAdLayoutType.form1;
 
   // Test ad unit IDs from Google
   String get _testAdUnitId => Platform.isAndroid
       ? 'ca-app-pub-3940256099942544/2247696110'
       : 'ca-app-pub-3940256099942544/3986624511';
 
+  // All available layout types
+  final List<NativeAdLayoutType> _layouts = [
+    NativeAdLayoutType.form1,
+    NativeAdLayoutType.form2,
+    NativeAdLayoutType.form3,
+    NativeAdLayoutType.form4,
+    NativeAdLayoutType.form5,
+    NativeAdLayoutType.form6,
+    NativeAdLayoutType.form7,
+    NativeAdLayoutType.form8,
+    NativeAdLayoutType.form9,
+    NativeAdLayoutType.form10,
+    NativeAdLayoutType.form11,
+    NativeAdLayoutType.form12,
+  ];
+
+  String _getLayoutDescription(NativeAdLayoutType layout) {
+    switch (layout) {
+      case NativeAdLayoutType.form1:
+        return 'Compact horizontal: Icon + Title + CTA';
+      case NativeAdLayoutType.form2:
+        return 'Compact: Large Media + Title + CTA';
+      case NativeAdLayoutType.form3:
+        return 'Vertical: Title + Media + CTA';
+      case NativeAdLayoutType.form4:
+        return 'Vertical: Media + Icon + Title + CTA';
+      case NativeAdLayoutType.form5:
+        return 'Vertical: Icon + Title + Media + CTA';
+      case NativeAdLayoutType.form6:
+        return 'Card: Icon + Title + Media + CTA';
+      case NativeAdLayoutType.form7:
+        return 'Horizontal: Video/Media + Title + CTA';
+      case NativeAdLayoutType.form8:
+        return 'Compact horizontal: Media + Title + CTA';
+      case NativeAdLayoutType.form9:
+        return 'Vertical: CTA + Icon + Title + Media';
+      case NativeAdLayoutType.form10:
+        return 'Minimal: Title + Description + CTA';
+      case NativeAdLayoutType.form11:
+        return 'Vertical: Ad Label + Title + Media + CTA';
+      case NativeAdLayoutType.form12:
+        return 'Vertical: Ad Label + Title + Media + CTA (Alt)';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Native Ads Demo'),
+        title: const Text('Native Ads Demo - 12 Forms'),
         actions: [
           IconButton(
             icon: Icon(_isDarkTheme ? Icons.light_mode : Icons.dark_mode),
@@ -55,92 +100,108 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Layout selector
-            const Text(
-              'Select Layout Type:',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            SegmentedButton<NativeAdLayoutType>(
-              segments: const [
-                ButtonSegment(
-                  value: NativeAdLayoutType.compact,
-                  label: Text('Compact'),
+      body: Column(
+        children: [
+          // Layout selector
+          Container(
+            padding: const EdgeInsets.all(16),
+            color: Colors.grey[100],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Select Layout Type:',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                ButtonSegment(
-                  value: NativeAdLayoutType.standard,
-                  label: Text('Standard'),
-                ),
-                ButtonSegment(
-                  value: NativeAdLayoutType.fullMedia,
-                  label: Text('Full Media'),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 50,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _layouts.length,
+                    itemBuilder: (context, index) {
+                      final layout = _layouts[index];
+                      final isSelected = layout == _selectedLayout;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ChoiceChip(
+                          label: Text('Form${index + 1}'),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            if (selected) {
+                              setState(() {
+                                _selectedLayout = layout;
+                              });
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ],
-              selected: {_selectedLayout},
-              onSelectionChanged: (selection) {
-                setState(() {
-                  _selectedLayout = selection.first;
-                });
-              },
             ),
-            const SizedBox(height: 24),
-
-            // Ad preview
-            const Text(
-              'Ad Preview:',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            _buildAdWidget(),
-
-            const SizedBox(height: 24),
-
-            // Info card
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'About this demo',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+          ),
+          // Ad preview area
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Preview: ${_selectedLayout.name.toUpperCase()}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _getLayoutDescription(_selectedLayout),
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildAdWidget(),
+                  const SizedBox(height: 24),
+                  // Info card
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Layout Info',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Layout: ${_selectedLayout.name}',
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Recommended Height: ${_selectedLayout.recommendedHeight}dp',
+                            style: TextStyle(color: Colors.grey[600]),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Description: ${_getLayoutDescription(_selectedLayout)}',
+                            style: TextStyle(color: Colors.grey[600]),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'This demo uses Google\'s test ad unit IDs. '
-                      'In production, replace with your actual ad unit IDs.',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Current Layout: ${_selectedLayout.name}',
-                      style: const TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                    Text(
-                      'Recommended Height: ${_selectedLayout.recommendedHeight}dp',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -148,7 +209,7 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
   Widget _buildAdWidget() {
     // Rebuild widget when layout or theme changes
     return NativeAdWidget(
-      key: ValueKey('$_selectedLayout-$_isDarkTheme'),
+      key: ValueKey('${_selectedLayout.name}-$_isDarkTheme'),
       options: NativeAdOptions(
         adUnitId: _testAdUnitId,
         layoutType: _selectedLayout,

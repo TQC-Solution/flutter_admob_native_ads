@@ -6,7 +6,6 @@ import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.google.android.gms.ads.nativead.MediaView
@@ -15,11 +14,10 @@ import com.tqc.ads.flutter_admob_native_ads.styling.AdStyleManager
 import com.tqc.ads.flutter_admob_native_ads.utils.DimensionUtils
 
 /**
- * Form3 Builder - Vertical Card with Large Media Bottom (ad_3.png)
- * Layout: [Icon + Ad + Title + Body] → [Large Media] → [CTA]
- * Height: ~320dp
+ * Form8 Builder - Vertical Media Banner (ad_8.png)
+ * Layout: [Wide Media Banner] → [Ad + Title] → [Body] → [CTA]
  */
-object Form3Builder {
+object Form8Builder {
 
     fun build(context: Context, styleManager: AdStyleManager): NativeAdView {
         val nativeAdView = NativeAdView(context).apply {
@@ -43,29 +41,21 @@ object Form3Builder {
             }
         }
 
-        // Header row: Icon + Ad + Title + Arrow
-        val headerRow = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
+        // Media View - Wide Banner
+        val mediaView = MediaView(context).apply {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
+                DimensionUtils.dpToPx(context, 100f)
             )
-        }
-
-        val iconView = ImageView(context).apply {
-            scaleType = ImageView.ScaleType.CENTER_CROP
-            val size = DimensionUtils.dpToPx(context, 36f)
-            layoutParams = LinearLayout.LayoutParams(size, size).apply {
-                marginEnd = DimensionUtils.dpToPx(context, 8f)
-            }
             background = GradientDrawable().apply {
                 setColor(Color.parseColor("#f0f0f0"))
                 cornerRadius = DimensionUtils.dpToPx(context, 8f).toFloat()
             }
+            clipToOutline = true
         }
-        headerRow.addView(iconView)
+        mainContainer.addView(mediaView)
 
+        // Content below
         val adLabel = TextView(context).apply {
             text = "Ad"
             textSize = 10f
@@ -81,53 +71,35 @@ object Form3Builder {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply { marginEnd = DimensionUtils.dpToPx(context, 8f) }
+            ).apply { topMargin = DimensionUtils.dpToPx(context, 12f) }
         }
-        headerRow.addView(adLabel)
+        mainContainer.addView(adLabel)
 
         val headlineView = TextView(context).apply {
-            textSize = 14f
+            textSize = 15f
             setTextColor(Color.BLACK)
             setTypeface(null, android.graphics.Typeface.BOLD)
-            maxLines = 1
-            ellipsize = android.text.TextUtils.TruncateAt.END
-            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-        }
-        headerRow.addView(headlineView)
-        mainContainer.addView(headerRow)
-
-        // Body text
-        val bodyView = TextView(context).apply {
-            textSize = 12f
-            setTextColor(Color.parseColor("#757575"))
             maxLines = 1
             ellipsize = android.text.TextUtils.TruncateAt.END
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                topMargin = DimensionUtils.dpToPx(context, 4f)
-            }
+            ).apply { topMargin = DimensionUtils.dpToPx(context, 4f) }
+        }
+        mainContainer.addView(headlineView)
+
+        val bodyView = TextView(context).apply {
+            textSize = 12f
+            setTextColor(Color.parseColor("#757575"))
+            maxLines = 2
+            ellipsize = android.text.TextUtils.TruncateAt.END
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = DimensionUtils.dpToPx(context, 4f) }
         }
         mainContainer.addView(bodyView)
 
-        // Media View - Large
-        val mediaView = MediaView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                DimensionUtils.dpToPx(context, 180f)
-            ).apply {
-                topMargin = DimensionUtils.dpToPx(context, 12f)
-            }
-            background = GradientDrawable().apply {
-                setColor(Color.parseColor("#f0f0f0"))
-                cornerRadius = DimensionUtils.dpToPx(context, 8f).toFloat()
-            }
-            clipToOutline = true
-        }
-        mainContainer.addView(mediaView)
-
-        // CTA Button
         val ctaButton = Button(context).apply {
             textSize = 14f
             setTextColor(Color.WHITE)
@@ -140,17 +112,14 @@ object Form3Builder {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 DimensionUtils.dpToPx(context, 48f)
-            ).apply {
-                topMargin = DimensionUtils.dpToPx(context, 12f)
-            }
+            ).apply { topMargin = DimensionUtils.dpToPx(context, 12f) }
         }
         mainContainer.addView(ctaButton)
 
         nativeAdView.addView(mainContainer)
-        nativeAdView.iconView = iconView
+        nativeAdView.mediaView = mediaView
         nativeAdView.headlineView = headlineView
         nativeAdView.bodyView = bodyView
-        nativeAdView.mediaView = mediaView
         nativeAdView.callToActionView = ctaButton
 
         return nativeAdView

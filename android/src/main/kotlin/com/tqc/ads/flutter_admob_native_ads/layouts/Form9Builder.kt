@@ -15,11 +15,10 @@ import com.tqc.ads.flutter_admob_native_ads.styling.AdStyleManager
 import com.tqc.ads.flutter_admob_native_ads.utils.DimensionUtils
 
 /**
- * Form3 Builder - Vertical Card with Large Media Bottom (ad_3.png)
- * Layout: [Icon + Ad + Title + Body] → [Large Media] → [CTA]
- * Height: ~320dp
+ * Form9 Builder - CTA Top Layout (ad_9.png)
+ * Layout: [CTA] → [Icon + Ad + Title] → [Body] → [Media]
  */
-object Form3Builder {
+object Form9Builder {
 
     fun build(context: Context, styleManager: AdStyleManager): NativeAdView {
         val nativeAdView = NativeAdView(context).apply {
@@ -43,14 +42,31 @@ object Form3Builder {
             }
         }
 
-        // Header row: Icon + Ad + Title + Arrow
+        // CTA Button at Top
+        val ctaButton = Button(context).apply {
+            textSize = 14f
+            setTextColor(Color.WHITE)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            isAllCaps = false
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#4285F4"))
+                cornerRadius = DimensionUtils.dpToPx(context, 24f).toFloat()
+            }
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                DimensionUtils.dpToPx(context, 48f)
+            )
+        }
+        mainContainer.addView(ctaButton)
+
+        // Header row
         val headerRow = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            ).apply { topMargin = DimensionUtils.dpToPx(context, 12f) }
         }
 
         val iconView = ImageView(context).apply {
@@ -96,7 +112,6 @@ object Form3Builder {
         headerRow.addView(headlineView)
         mainContainer.addView(headerRow)
 
-        // Body text
         val bodyView = TextView(context).apply {
             textSize = 12f
             setTextColor(Color.parseColor("#757575"))
@@ -105,20 +120,15 @@ object Form3Builder {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                topMargin = DimensionUtils.dpToPx(context, 4f)
-            }
+            ).apply { topMargin = DimensionUtils.dpToPx(context, 4f) }
         }
         mainContainer.addView(bodyView)
 
-        // Media View - Large
         val mediaView = MediaView(context).apply {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                DimensionUtils.dpToPx(context, 180f)
-            ).apply {
-                topMargin = DimensionUtils.dpToPx(context, 12f)
-            }
+                DimensionUtils.dpToPx(context, 140f)
+            ).apply { topMargin = DimensionUtils.dpToPx(context, 12f) }
             background = GradientDrawable().apply {
                 setColor(Color.parseColor("#f0f0f0"))
                 cornerRadius = DimensionUtils.dpToPx(context, 8f).toFloat()
@@ -126,25 +136,6 @@ object Form3Builder {
             clipToOutline = true
         }
         mainContainer.addView(mediaView)
-
-        // CTA Button
-        val ctaButton = Button(context).apply {
-            textSize = 14f
-            setTextColor(Color.WHITE)
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            isAllCaps = false
-            background = GradientDrawable().apply {
-                setColor(Color.parseColor("#4285F4"))
-                cornerRadius = DimensionUtils.dpToPx(context, 24f).toFloat()
-            }
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                DimensionUtils.dpToPx(context, 48f)
-            ).apply {
-                topMargin = DimensionUtils.dpToPx(context, 12f)
-            }
-        }
-        mainContainer.addView(ctaButton)
 
         nativeAdView.addView(mainContainer)
         nativeAdView.iconView = iconView

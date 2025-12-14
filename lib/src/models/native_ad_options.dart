@@ -10,7 +10,7 @@ import 'native_ad_style.dart';
 /// ```dart
 /// NativeAdOptions(
 ///   adUnitId: 'ca-app-pub-xxx/xxx',
-///   layoutType: NativeAdLayoutType.standard,
+///   layoutType: NativeAdLayoutType.form1,
 ///   style: NativeAdStyle.light(),
 /// )
 /// ```
@@ -22,7 +22,7 @@ class NativeAdOptions {
   /// [style] provides styling customization for the ad components.
   const NativeAdOptions({
     required this.adUnitId,
-    this.layoutType = NativeAdLayoutType.standard,
+    this.layoutType = NativeAdLayoutType.form1,
     this.style = const NativeAdStyle(),
     this.enableDebugLogs = false,
     this.requestTimeout,
@@ -111,7 +111,7 @@ class NativeAdOptions {
 
   /// Creates options for Android test ads.
   factory NativeAdOptions.testAndroid({
-    NativeAdLayoutType layoutType = NativeAdLayoutType.standard,
+    NativeAdLayoutType layoutType = NativeAdLayoutType.form1,
     NativeAdStyle style = const NativeAdStyle(),
   }) {
     return NativeAdOptions(
@@ -124,7 +124,7 @@ class NativeAdOptions {
 
   /// Creates options for iOS test ads.
   factory NativeAdOptions.testIOS({
-    NativeAdLayoutType layoutType = NativeAdLayoutType.standard,
+    NativeAdLayoutType layoutType = NativeAdLayoutType.form1,
     NativeAdStyle style = const NativeAdStyle(),
   }) {
     return NativeAdOptions(

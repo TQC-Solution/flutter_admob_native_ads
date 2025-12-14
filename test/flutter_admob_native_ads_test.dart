@@ -4,37 +4,24 @@ import 'package:flutter_admob_native_ads/flutter_admob_native_ads.dart';
 
 void main() {
   group('NativeAdLayoutType', () {
-    test('toInt returns correct values', () {
-      expect(NativeAdLayoutType.compact.toInt(), 1);
-      expect(NativeAdLayoutType.standard.toInt(), 2);
-      expect(NativeAdLayoutType.fullMedia.toInt(), 3);
+    test('toInt returns correct value', () {
+      expect(NativeAdLayoutType.form1.toInt(), 1);
     });
 
-    test('fromInt returns correct enum values', () {
-      expect(NativeAdLayoutType.fromInt(1), NativeAdLayoutType.compact);
-      expect(NativeAdLayoutType.fromInt(2), NativeAdLayoutType.standard);
-      expect(NativeAdLayoutType.fromInt(3), NativeAdLayoutType.fullMedia);
-      expect(NativeAdLayoutType.fromInt(99), NativeAdLayoutType.standard);
+    test('fromInt returns form1 for all values', () {
+      expect(NativeAdLayoutType.fromInt(1), NativeAdLayoutType.form1);
+      expect(NativeAdLayoutType.fromInt(2), NativeAdLayoutType.form1);
+      expect(NativeAdLayoutType.fromInt(99), NativeAdLayoutType.form1);
     });
 
-    test('recommendedHeight returns expected values', () {
-      expect(NativeAdLayoutType.compact.recommendedHeight, 135);
-      expect(NativeAdLayoutType.standard.recommendedHeight, 275);
-      expect(NativeAdLayoutType.fullMedia.recommendedHeight, 375);
+    test('recommendedHeight returns expected value', () {
+      expect(NativeAdLayoutType.form1.recommendedHeight, 300);
     });
 
-    test('viewType returns correct identifiers', () {
+    test('viewType returns correct identifier', () {
       expect(
-        NativeAdLayoutType.compact.viewType,
-        'flutter_admob_native_ads_compact',
-      );
-      expect(
-        NativeAdLayoutType.standard.viewType,
-        'flutter_admob_native_ads_standard',
-      );
-      expect(
-        NativeAdLayoutType.fullMedia.viewType,
-        'flutter_admob_native_ads_fullMedia',
+        NativeAdLayoutType.form1.viewType,
+        'flutter_admob_native_ads_form1',
       );
     });
   });
@@ -46,7 +33,7 @@ void main() {
       );
 
       expect(options.adUnitId, 'ca-app-pub-xxx/xxx');
-      expect(options.layoutType, NativeAdLayoutType.standard);
+      expect(options.layoutType, NativeAdLayoutType.form1);
       expect(options.enableDebugLogs, false);
     });
 
@@ -65,7 +52,7 @@ void main() {
     test('toMap returns correct structure', () {
       const options = NativeAdOptions(
         adUnitId: 'test-ad-unit',
-        layoutType: NativeAdLayoutType.compact,
+        layoutType: NativeAdLayoutType.form1,
         enableDebugLogs: true,
       );
 
@@ -73,7 +60,7 @@ void main() {
 
       expect(map['adUnitId'], 'test-ad-unit');
       expect(map['layoutType'], 1);
-      expect(map['layoutTypeName'], 'compact');
+      expect(map['layoutTypeName'], 'form1');
       expect(map['enableDebugLogs'], true);
       expect(map['style'], isA<Map>());
     });
@@ -81,16 +68,15 @@ void main() {
     test('copyWith creates new instance with updated values', () {
       const options = NativeAdOptions(
         adUnitId: 'original-ad-unit',
-        layoutType: NativeAdLayoutType.standard,
+        layoutType: NativeAdLayoutType.form1,
       );
 
       final copied = options.copyWith(
-        layoutType: NativeAdLayoutType.compact,
         enableDebugLogs: true,
       );
 
       expect(copied.adUnitId, 'original-ad-unit');
-      expect(copied.layoutType, NativeAdLayoutType.compact);
+      expect(copied.layoutType, NativeAdLayoutType.form1);
       expect(copied.enableDebugLogs, true);
     });
 
