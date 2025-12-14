@@ -1,70 +1,68 @@
 import UIKit
 import GoogleMobileAds
 
+/// Form7 Builder - Horizontal Large Media Left (ad_7.png)
 enum Form7Builder {
-    
     static func build(styleManager: AdStyleManager) -> GADNativeAdView {
         let nativeAdView = GADNativeAdView()
         nativeAdView.translatesAutoresizingMaskIntoConstraints = false
         
         let mainStack = UIStackView()
         mainStack.translatesAutoresizingMaskIntoConstraints = false
-        mainStack.axis = .vertical
+        mainStack.axis = .horizontal
         mainStack.spacing = 12
-        mainStack.alignment = .fill
-        mainStack.distribution = .fill
+        mainStack.alignment = .center
         mainStack.layoutMargins = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
         mainStack.isLayoutMarginsRelativeArrangement = true
         mainStack.backgroundColor = .white
         mainStack.layer.cornerRadius = 12
         mainStack.clipsToBounds = true
         
-        // Media View
         let mediaView = GADMediaView()
-        mediaView.translatesAutoresizingMaskIntoConstraints = false
         mediaView.backgroundColor = UIColor(white: 0.94, alpha: 1)
         mediaView.layer.cornerRadius = 8
         mediaView.clipsToBounds = true
-        mediaView.heightAnchor.constraint(equalToConstant: 160).isActive = true
+        mediaView.widthAnchor.constraint(equalToConstant: 120).isActive = true
+        mediaView.heightAnchor.constraint(equalToConstant: 120).isActive = true
         mainStack.addArrangedSubview(mediaView)
         
-        // Icon
-        let iconView = UIImageView()
-        iconView.translatesAutoresizingMaskIntoConstraints = false
-        iconView.contentMode = .scaleAspectFill
-        iconView.backgroundColor = UIColor(white: 0.94, alpha: 1)
-        iconView.layer.cornerRadius = 20
-        iconView.clipsToBounds = true
-        iconView.widthAnchor.constraint(equalToConstant: 40).isActive = true
-        iconView.heightAnchor.constraint(equalToConstant: 40).isActive = true
-        mainStack.addArrangedSubview(iconView)
+        let rightStack = UIStackView()
+        rightStack.axis = .vertical
+        rightStack.spacing = 4
+        rightStack.alignment = .leading
         
-        // Headline
+        let adLabel = UILabel()
+        adLabel.text = "Ad"
+        adLabel.font = .systemFont(ofSize: 10, weight: .bold)
+        adLabel.textColor = UIColor(red: 0.36, green: 0.25, blue: 0.22, alpha: 1)
+        adLabel.backgroundColor = UIColor(red: 1.0, green: 0.88, blue: 0.7, alpha: 1)
+        adLabel.layer.cornerRadius = 3
+        adLabel.clipsToBounds = true
+        rightStack.addArrangedSubview(adLabel)
+        
         let headlineLabel = UILabel()
-        headlineLabel.font = .systemFont(ofSize: 15, weight: .bold)
+        headlineLabel.font = .systemFont(ofSize: 14, weight: .bold)
         headlineLabel.textColor = .black
         headlineLabel.numberOfLines = 2
-        mainStack.addArrangedSubview(headlineLabel)
+        rightStack.addArrangedSubview(headlineLabel)
         
-        // Body
         let bodyLabel = UILabel()
         bodyLabel.font = .systemFont(ofSize: 12)
-        bodyLabel.textColor = UIColor(white: 0.4, alpha: 1)
+        bodyLabel.textColor = UIColor(white: 0.46, alpha: 1)
         bodyLabel.numberOfLines = 2
-        mainStack.addArrangedSubview(bodyLabel)
+        rightStack.addArrangedSubview(bodyLabel)
         
-        // CTA Button
         let ctaButton = UIButton(type: .system)
-        ctaButton.translatesAutoresizingMaskIntoConstraints = false
-        ctaButton.titleLabel?.font = .systemFont(ofSize: 14, weight: .bold)
+        ctaButton.titleLabel?.font = .systemFont(ofSize: 13, weight: .bold)
         ctaButton.setTitleColor(.white, for: .normal)
-        ctaButton.backgroundColor = UIColor(red: 30.0/255.0, green: 136.0/255.0, blue: 229.0/255.0, alpha: 1.0)
-        ctaButton.layer.cornerRadius = 24
-        ctaButton.heightAnchor.constraint(equalToConstant: 48).isActive = true
-        mainStack.addArrangedSubview(ctaButton)
+        ctaButton.backgroundColor = UIColor(red: 0.26, green: 0.52, blue: 0.96, alpha: 1)
+        ctaButton.layer.cornerRadius = 18
+        ctaButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+        rightStack.addArrangedSubview(ctaButton)
+        
+        mainStack.addArrangedSubview(rightStack)
         
         nativeAdView.addSubview(mainStack)
-        
         NSLayoutConstraint.activate([
             mainStack.topAnchor.constraint(equalTo: nativeAdView.topAnchor),
             mainStack.leadingAnchor.constraint(equalTo: nativeAdView.leadingAnchor),
@@ -72,13 +70,10 @@ enum Form7Builder {
             mainStack.bottomAnchor.constraint(equalTo: nativeAdView.bottomAnchor)
         ])
         
-        // Map views
         nativeAdView.mediaView = mediaView
-        nativeAdView.iconView = iconView
         nativeAdView.headlineView = headlineLabel
         nativeAdView.bodyView = bodyLabel
         nativeAdView.callToActionView = ctaButton
-        
         return nativeAdView
     }
 }

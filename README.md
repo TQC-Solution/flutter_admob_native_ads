@@ -1,6 +1,6 @@
 # Flutter AdMob Native Ads
 
-Plugin Flutter sẵn sàng sản xuất cho phép hiển thị Google AdMob Native Ads với bố cục có thể tùy chỉnh cao và kiểu khai báo theo phong cách SwiftUI. Cung cấp rendering 100% native thông qua Platform Views với parity đầy đủ giữa các triển khai Android và iOS.
+Plugin Flutter sẵn sàng sản xuất cho phép hiển thị Google AdMob Native Ads với 12 bố cục đa dạng và kiểu khai báo theo phong cách SwiftUI. Cung cấp rendering 100% native thông qua Platform Views với parity đầy đủ giữa các triển khai Android và iOS.
 
 **Phiên bản:** 1.0.0
 **Giấy phép:** MIT
@@ -8,7 +8,7 @@ Plugin Flutter sẵn sàng sản xuất cho phép hiển thị Google AdMob Nati
 
 ## Các tính năng
 
-- **3 Loại bố cục Responsive**: Compact (120-150dp), Standard (250-300dp), Full Media (350-400dp)
+- **12 Bố cục Đa dạng**: Từ compact (80dp) đến full media (320dp), phù hợp với mọi trường hợp sử dụng
 - **Kiểu dáng Toàn diện**: 30+ thuộc tính có thể tùy chỉnh cho mọi thành phần giao diện
 - **API Khai báo kiểu SwiftUI**: Cấu hình kiểu dáng sạch sẽ, dễ đọc, an toàn với kiểu
 - **100% Native Rendering**: Platform Views với triển khai native Android và iOS
@@ -17,6 +17,43 @@ Plugin Flutter sẵn sàng sản xuất cho phép hiển thị Google AdMob Nati
 - **Quản lý trạng thái**: NativeAdController tích hợp để kiểm soát vòng đời nâng cao
 - **Sẵn sàng sản xuất**: Bảo phủ kiểm tra toàn diện, xử lý lỗi và ghi nhật ký gỡ lỗi
 - **Parity Đa nền tảng**: Hành vi và kiểu dáng giống nhau trên Android 21+ và iOS 13.0+
+
+## Cập nhật quan trọng (v1.0.0)
+
+### Thay đổi từ hệ thống 3 layouts cũ
+
+Plugin đã được refactor hoàn toàn để cung cấp **12 forms layout** thay vì 3 layouts cũ (compact, standard, fullMedia):
+
+| Cũ | Mới tương đương | Lưu ý |
+|-----|----------------|-------|
+| `compact` | `form1` | Compact horizontal với icon |
+| `standard` | `form6` | Standard feed card |
+| `fullMedia` | `form3` hoặc `form4` | Vertical layout với media lớn |
+
+**Migration code:**
+```dart
+// Cũ
+layoutType: NativeAdLayoutType.compact
+// Mới
+layoutType: NativeAdLayoutType.form1
+
+// Cũ
+layoutType: NativeAdLayoutType.standard
+// Mới
+layoutType: NativeAdLayoutType.form6
+
+// Cũ
+layoutType: NativeAdLayoutType.fullMedia
+// Mới
+layoutType: NativeAdLayoutType.form3  // hoặc form4
+```
+
+### Lợi ích của 12 Forms
+
+- **Đa dạng hơn**: Nhiều tùy chọn layout cho mọi use case
+- **Tối ưu hóa**: Mỗi form được thiết kế cho mục đích cụ thể
+- **Linh hoạt**: Từ compact 80dp đến full media 320dp
+- **Tương thích ngược**: Dễ dàng migration từ hệ thống cũ
 
 ## Cài đặt
 
@@ -194,11 +231,11 @@ s.resource_bundles = {'flutter_admob_native_ads_privacy' => ['Resources/PrivacyI
 ```dart
 import 'package:flutter_admob_native_ads/flutter_admob_native_ads.dart';
 
-// Simple usage
+// Sử dụng đơn giản
 NativeAdWidget(
   options: NativeAdOptions(
     adUnitId: 'ca-app-pub-xxx/xxx',
-    layoutType: NativeAdLayoutType.standard,
+    layoutType: NativeAdLayoutType.form1,
     style: NativeAdStyle.light(),
   ),
   onAdLoaded: () => print('Ad loaded'),
@@ -206,43 +243,196 @@ NativeAdWidget(
 )
 ```
 
-## Các loại bố cục
+## Các loại bố cục (12 Forms)
 
-### Compact (120-150dp)
-Bố cục tối giản lý tưởng cho các mục danh sách và tích hợp feed.
+Plugin cung cấp 12 mẫu bố cục khác nhau, mỗi mẫu được tối ưu hóa cho các trường hợp sử dụng cụ thể:
 
-```dart
-NativeAdWidget(
-  options: NativeAdOptions(
-    adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.compact,
-  ),
-)
-```
+> **Tham khảo hình ảnh:** Các mẫu thiết kế của 12 forms có sẵn trong thư mục [ads_template_native/](ads_template_native/). Xem file [ads_template_native/ad_full.png](ads_template_native/ad_full.png) để tham khảo tất cả các layout.
 
-### Standard (250-300dp)
-Bố cục cân bằng với chế độ xem phương tiện, phù hợp với hầu hết các trường hợp sử dụng.
+### Form 1 - Compact Horizontal (80dp)
+Bố cục ngang tối giản với Icon + Title + Description + CTA.
+**Phù hợp với:** Mục danh sách, vị trí compact.
 
 ```dart
 NativeAdWidget(
   options: NativeAdOptions(
     adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.standard,
+    layoutType: NativeAdLayoutType.form1,
   ),
+  height: 80,
 )
 ```
 
-### Full Media (350-400dp)
-Bố cục phong phú tập trung vào phương tiện cho các vị trí mức độ tham gia cao.
+### Form 2 - Media Compact (90dp)
+Bố cục ngang với Large Media + Title + Description + CTA.
+**Phù hợp với:** Mục danh sách với media preview.
 
 ```dart
 NativeAdWidget(
   options: NativeAdOptions(
     adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.fullMedia,
+    layoutType: NativeAdLayoutType.form2,
   ),
+  height: 90,
 )
 ```
+
+### Form 3 - Vertical Story (320dp)
+Bố cục dọc với Title + Description + Large Media + CTA ở dưới.
+**Phù hợp với:** Feed cards, story layout.
+
+```dart
+NativeAdWidget(
+  options: NativeAdOptions(
+    adUnitId: 'your-ad-unit-id',
+    layoutType: NativeAdLayoutType.form3,
+  ),
+  height: 320,
+)
+```
+
+### Form 4 - Media-First Card (300dp)
+Bố cục dọc với Large Media + Icon + Title + Description + CTA.
+**Phù hợp với:** Product cards, media-first layout.
+
+```dart
+NativeAdWidget(
+  options: NativeAdOptions(
+    adUnitId: 'your-ad-unit-id',
+    layoutType: NativeAdLayoutType.form4,
+  ),
+  height: 300,
+)
+```
+
+### Form 5 - Article Card (300dp)
+Bố cục dọc với Icon + Title + Description + Large Media + CTA.
+**Phù hợp với:** Article cards, blog posts.
+
+```dart
+NativeAdWidget(
+  options: NativeAdOptions(
+    adUnitId: 'your-ad-unit-id',
+    layoutType: NativeAdLayoutType.form5,
+  ),
+  height: 300,
+)
+```
+
+### Form 6 - Standard Feed Card (280dp)
+Bố cục dọc tiêu chuẩn với Icon + Title + Description + Media + CTA.
+**Phù hợp với:** Standard feed cards.
+
+```dart
+NativeAdWidget(
+  options: NativeAdOptions(
+    adUnitId: 'your-ad-unit-id',
+    layoutType: NativeAdLayoutType.form6,
+  ),
+  height: 280,
+)
+```
+
+### Form 7 - Video Horizontal (140dp)
+Bố cục ngang với Video/Media (Left) + Title + Description + CTA (Right).
+**Phù hợp với:** Video ads, horizontal scrolling.
+
+```dart
+NativeAdWidget(
+  options: NativeAdOptions(
+    adUnitId: 'your-ad-unit-id',
+    layoutType: NativeAdLayoutType.form7,
+  ),
+  height: 140,
+)
+```
+
+### Form 8 - Compact Horizontal Media (100dp)
+Bố cục ngang compact với Media (Left) + Title + Description + CTA (Right).
+**Phù hợp với:** Compact horizontal cards.
+
+```dart
+NativeAdWidget(
+  options: NativeAdOptions(
+    adUnitId: 'your-ad-unit-id',
+    layoutType: NativeAdLayoutType.form8,
+  ),
+  height: 100,
+)
+```
+
+### Form 9 - Action-First (280dp)
+Bố cục dọc với CTA (Top) + Icon + Title + Description + Media.
+**Phù hợp với:** Action-first layout.
+
+```dart
+NativeAdWidget(
+  options: NativeAdOptions(
+    adUnitId: 'your-ad-unit-id',
+    layoutType: NativeAdLayoutType.form9,
+  ),
+  height: 280,
+)
+```
+
+### Form 10 - Text-Only Minimal (120dp)
+Bố cục tối giản với Title + Description + CTA (không có media).
+**Phù hợp với:** Text-only ads, minimal design.
+
+```dart
+NativeAdWidget(
+  options: NativeAdOptions(
+    adUnitId: 'your-ad-unit-id',
+    layoutType: NativeAdLayoutType.form10,
+  ),
+  height: 120,
+)
+```
+
+### Form 11 - Clean Vertical (280dp)
+Bố cục dọc sạch sẽ với Ad Label (Top) + Title + Media + CTA (Bottom).
+**Phù hợp với:** Clean vertical layout.
+
+```dart
+NativeAdWidget(
+  options: NativeAdOptions(
+    adUnitId: 'your-ad-unit-id',
+    layoutType: NativeAdLayoutType.form11,
+  ),
+  height: 280,
+)
+```
+
+### Form 12 - Alternative Vertical (280dp)
+Bố cục dọc phong cách thay thế với Ad Label (Top) + Title + Media + CTA (Bottom).
+**Phù hợp với:** Alternative vertical layout.
+
+```dart
+NativeAdWidget(
+  options: NativeAdOptions(
+    adUnitId: 'your-ad-unit-id',
+    layoutType: NativeAdLayoutType.form12,
+  ),
+  height: 280,
+)
+```
+
+### Bảng So sánh Nhanh
+
+| Form | Chiều cao | Kiểu | Phù hợp với |
+|------|-----------|------|-------------|
+| Form1 | 80dp | Horizontal compact | List items |
+| Form2 | 90dp | Horizontal media | List with media |
+| Form3 | 320dp | Vertical story | Feed cards |
+| Form4 | 300dp | Vertical media-first | Product cards |
+| Form5 | 300dp | Vertical article | Article cards |
+| Form6 | 280dp | Vertical standard | Standard feeds |
+| Form7 | 140dp | Horizontal video | Video ads |
+| Form8 | 100dp | Horizontal compact | Compact cards |
+| Form9 | 280dp | Vertical action-first | CTA focused |
+| Form10 | 120dp | Text-only minimal | Text ads |
+| Form11 | 280dp | Vertical clean | Clean layout |
+| Form12 | 280dp | Vertical alternative | Alt layout |
 
 ## Kiểu dáng tùy chỉnh
 
@@ -425,19 +615,29 @@ flutter_admob_native_ads/
 
 ### NativeAdLayoutType
 
-Enum với ba tùy chọn bố cục responsive:
+Enum với 12 tùy chọn bố cục được thiết kế sẵn:
 
-| Loại | Phạm vi chiều cao | Trường hợp sử dụng được đề xuất | Loại chế độ xem |
-|------|--------------|---------------------|-----------|
-| `compact` | 120-150dp | Mục danh sách, tích hợp feed, quảng cáo sidebar | `native_ad_view_compact` |
-| `standard` | 250-300dp | Mục đích chung, ngắt nội dung, trong feed | `native_ad_view_standard` |
-| `fullMedia` | 350-400dp | Vị trí cao cấp, dưới bài viết, mức độ tham gia cao | `native_ad_view_fullMedia` |
+| Loại | Chiều cao | Mô tả | Loại chế độ xem |
+|------|-----------|-------|----------------|
+| `form1` | 80dp | Compact horizontal: Icon + Title + CTA | `flutter_admob_native_ads_form1` |
+| `form2` | 90dp | Horizontal với large media | `flutter_admob_native_ads_form2` |
+| `form3` | 320dp | Vertical story layout | `flutter_admob_native_ads_form3` |
+| `form4` | 300dp | Media-first vertical card | `flutter_admob_native_ads_form4` |
+| `form5` | 300dp | Article card layout | `flutter_admob_native_ads_form5` |
+| `form6` | 280dp | Standard feed card | `flutter_admob_native_ads_form6` |
+| `form7` | 140dp | Horizontal video layout | `flutter_admob_native_ads_form7` |
+| `form8` | 100dp | Compact horizontal media | `flutter_admob_native_ads_form8` |
+| `form9` | 280dp | Action-first vertical | `flutter_admob_native_ads_form9` |
+| `form10` | 120dp | Text-only minimal | `flutter_admob_native_ads_form10` |
+| `form11` | 280dp | Clean vertical layout | `flutter_admob_native_ads_form11` |
+| `form12` | 280dp | Alternative vertical | `flutter_admob_native_ads_form12` |
 
 **Các phương thức chính:**
-- `toInt()`: Trả về số nhận dạng số nguyên (1, 2, 3)
-- `fromInt(int)`: Phân tích cú pháp số nguyên thành loại bố cục (mặc định là standard)
-- `recommendedHeight`: Trả về Map với giá trị chiều cao min/max
+- `toInt()`: Trả về số nhận dạng số nguyên (1-12)
+- `fromInt(int)`: Phân tích cú pháp số nguyên thành loại bố cục (mặc định là form1)
+- `recommendedHeight`: Trả về chiều cao đề xuất (double)
 - `viewType`: Trả về chuỗi nhận dạng chế độ xem nền tảng
+- `name`: Trả về tên form (form1, form2, ...)
 
 ### NativeAdOptions
 
@@ -446,7 +646,7 @@ Lớp cấu hình để tải quảng cáo và hành vi.
 | Thuộc tính | Loại | Mặc định | Mô tả |
 |----------|------|---------|-------------|
 | `adUnitId` | String | bắt buộc | ID đơn vị quảng cáo Google AdMob (định dạng: `ca-app-pub-...`) |
-| `layoutType` | NativeAdLayoutType | standard | Một trong: compact, standard, fullMedia |
+| `layoutType` | NativeAdLayoutType | form1 | Một trong 12 forms: form1, form2, ..., form12 |
 | `style` | NativeAdStyle? | null | Cấu hình kiểu dáng; sử dụng mặc định nếu null |
 | `enableDebugLogs` | bool | false | Bật ghi nhật ký chi tiết Logcat/console |
 | `requestTimeout` | Duration? | null | Thời gian chờ tải quảng cáo |
@@ -694,7 +894,7 @@ Giao tiếp Platform Channel:
 │  Android: Kotlin + Google Ads SDK   │
 │  iOS: Swift + Google Mobile Ads     │
 │  - Các phiên bản AdLoader           │
-│  - Layout Builders (3 loại)         │
+│  - Layout Builders (12 forms)       │
 │  - Platform Views                   │
 └─────────────────────────────────────┘
 ```
@@ -707,9 +907,7 @@ Giao tiếp Platform Channel:
 - `FlutterAdmobNativeAdsPlugin`: Điểm vào plugin và trình xử lý phương thức
 - `NativeAdLoader`: Bao bọc API `AdLoader` của Google, quản lý vòng đời tải
 - `AdLayoutBuilder`: Mô hình Factory để tạo các chế độ xem dành riêng cho bố cục
-  - `Form1Builder`: Bố cục ngang compact
-  - `Form2Builder`: Bố cục dọc tiêu chuẩn
-  - `Form3Builder`: Bố cục phương tiện nổi bật
+  - `Form1Builder` đến `Form12Builder`: 12 bố cục đa dạng
 - `NativeAdPlatformView`: Triển khai PlatformView tùy chỉnh
 - `NativeAdViewFactory`: Tạo các phiên bản chế độ xem nền tảng
 - `AdStyleManager`: Áp dụng kiểu dáng cho các chế độ xem native
@@ -739,9 +937,7 @@ Giao tiếp Platform Channel:
 - `FlutterAdmobNativeAdsPlugin`: Điểm vào plugin, trình xử lý phương thức
 - `NativeAdLoader`: Bao bọc `GADAdLoader` của Google, quản lý vòng đời
 - `AdLayoutBuilder`: Factory cho các phân cấp UIView dành riêng cho bố cục
-  - `Form1Builder`: Stack ngang compact
-  - `Form2Builder`: Stack dọc tiêu chuẩn
-  - `Form3Builder`: Stack tập trung vào phương tiện đầy đủ
+  - `Form1Builder` đến `Form12Builder`: 12 bố cục đa dạng
 - `NativeAdPlatformView`: PlatformView tùy chỉnh với phân cấp UIView
 - `NativeAdViewFactory`: Tạo các phiên bản chế độ xem nền tảng
 - `AdStyleManager`: Áp dụng kiểu dáng thông qua auto layout và thuộc tính
@@ -820,7 +1016,7 @@ flutter_admob_native_ads/
 │   └── src/main/kotlin/com/tqc/ads/flutter_admob_native_ads/
 │       ├── FlutterAdmobNativeAdsPlugin.kt
 │       ├── ad_loader/
-│       ├── layouts/                     # Form1, Form2, Form3
+│       ├── layouts/                     # Form1-Form12 builders
 │       ├── platform_view/
 │       ├── styling/
 │       └── utils/
@@ -828,7 +1024,7 @@ flutter_admob_native_ads/
 │   └── Classes/
 │       ├── Plugin/
 │       ├── AdLoader/
-│       ├── Layouts/                     # Form1, Form2, Form3
+│       ├── Layouts/                     # Form1-Form12 builders
 │       ├── PlatformView/
 │       ├── Styling/
 │       └── Utils/
@@ -881,27 +1077,28 @@ ios:
 
 ### Thêm loại bố cục mới
 
-Để thêm bố cục tùy chỉnh:
+Plugin hiện có 12 forms được thiết kế sẵn. Để thêm bố cục tùy chỉnh (Form13+):
 
 1. Tạo lớp builder mới:
-   - `android/src/main/kotlin/.../layouts/Form4Builder.kt`
-   - `ios/Classes/Layouts/Form4Builder.swift`
+   - `android/src/main/kotlin/.../layouts/Form13Builder.kt`
+   - `ios/Classes/Layouts/Form13Builder.swift`
 
-2. Cập nhật factory `AdLayoutBuilder` để dispatch đến builder mới
+2. Cập nhật factory `AdLayoutBuilder` để dispatch đến builder mới (cả Android và iOS)
 
-3. Thêm giá trị enum mới vào `NativeAdLayoutType`:
+3. Thêm giá trị enum mới vào `NativeAdLayoutType` trong [lib/src/models/ad_layout_type.dart](lib/src/models/ad_layout_type.dart):
    ```dart
    enum NativeAdLayoutType {
-     compact(1),
-     standard(2),
-     fullMedia(3),
-     custom(4);  // Bố cục mới
+     form1,
+     form2,
+     ...
+     form12,
+     form13;  // Bố cục mới
    }
    ```
 
-4. Cập nhật `recommendedHeight` và `viewType` cho bố cục mới
+4. Cập nhật các phương thức `toInt()`, `fromInt()`, `recommendedHeight` và `viewType` cho form mới
 
-5. Thêm các trường hợp kiểm tra tương ứng
+5. Thêm các trường hợp kiểm tra tương ứng trong [test/flutter_admob_native_ads_test.dart](test/flutter_admob_native_ads_test.dart)
 
 ### Mở rộng kiểu dáng
 
