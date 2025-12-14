@@ -5,23 +5,23 @@ import 'package:flutter_admob_native_ads/flutter_admob_native_ads.dart';
 void main() {
   group('NativeAdLayoutType', () {
     test('toInt returns correct value', () {
-      expect(NativeAdLayoutType.formExample.toInt(), 1);
+      expect(NativeAdLayoutType.form1.toInt(), 1);
     });
 
-    test('fromInt returns formExample for all values', () {
-      expect(NativeAdLayoutType.fromInt(1), NativeAdLayoutType.formExample);
-      expect(NativeAdLayoutType.fromInt(2), NativeAdLayoutType.formExample);
-      expect(NativeAdLayoutType.fromInt(99), NativeAdLayoutType.formExample);
+    test('fromInt returns form1 for all values', () {
+      expect(NativeAdLayoutType.fromInt(1), NativeAdLayoutType.form1);
+      expect(NativeAdLayoutType.fromInt(2), NativeAdLayoutType.form1);
+      expect(NativeAdLayoutType.fromInt(99), NativeAdLayoutType.form1);
     });
 
     test('recommendedHeight returns expected value', () {
-      expect(NativeAdLayoutType.formExample.recommendedHeight, 300);
+      expect(NativeAdLayoutType.form1.recommendedHeight, 300);
     });
 
     test('viewType returns correct identifier', () {
       expect(
-        NativeAdLayoutType.formExample.viewType,
-        'flutter_admob_native_ads_formExample',
+        NativeAdLayoutType.form1.viewType,
+        'flutter_admob_native_ads_form1',
       );
     });
   });
@@ -33,7 +33,7 @@ void main() {
       );
 
       expect(options.adUnitId, 'ca-app-pub-xxx/xxx');
-      expect(options.layoutType, NativeAdLayoutType.formExample);
+      expect(options.layoutType, NativeAdLayoutType.form1);
       expect(options.enableDebugLogs, false);
     });
 
@@ -52,7 +52,7 @@ void main() {
     test('toMap returns correct structure', () {
       const options = NativeAdOptions(
         adUnitId: 'test-ad-unit',
-        layoutType: NativeAdLayoutType.formExample,
+        layoutType: NativeAdLayoutType.form1,
         enableDebugLogs: true,
       );
 
@@ -60,7 +60,7 @@ void main() {
 
       expect(map['adUnitId'], 'test-ad-unit');
       expect(map['layoutType'], 1);
-      expect(map['layoutTypeName'], 'formExample');
+      expect(map['layoutTypeName'], 'form1');
       expect(map['enableDebugLogs'], true);
       expect(map['style'], isA<Map>());
     });
@@ -68,7 +68,7 @@ void main() {
     test('copyWith creates new instance with updated values', () {
       const options = NativeAdOptions(
         adUnitId: 'original-ad-unit',
-        layoutType: NativeAdLayoutType.formExample,
+        layoutType: NativeAdLayoutType.form1,
       );
 
       final copied = options.copyWith(
@@ -76,7 +76,7 @@ void main() {
       );
 
       expect(copied.adUnitId, 'original-ad-unit');
-      expect(copied.layoutType, NativeAdLayoutType.formExample);
+      expect(copied.layoutType, NativeAdLayoutType.form1);
       expect(copied.enableDebugLogs, true);
     });
 
