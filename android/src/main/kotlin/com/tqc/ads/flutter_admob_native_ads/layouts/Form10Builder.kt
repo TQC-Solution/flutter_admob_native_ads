@@ -81,19 +81,12 @@ object Form10Builder {
         mainContainer.addView(bodyView)
 
         val ctaButton = Button(context).apply {
-            textSize = 14f
-            setTextColor(Color.WHITE)
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            isAllCaps = false
-            background = GradientDrawable().apply {
-                setColor(Color.parseColor("#4285F4"))
-                cornerRadius = DimensionUtils.dpToPx(context, 24f).toFloat()
-            }
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                DimensionUtils.dpToPx(context, 44f)
+                ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply { topMargin = DimensionUtils.dpToPx(context, 12f) }
         }
+        styleManager.styleButton(ctaButton)
         mainContainer.addView(ctaButton)
 
         nativeAdView.addView(mainContainer)

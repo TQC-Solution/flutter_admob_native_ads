@@ -44,19 +44,12 @@ object Form9Builder {
 
         // CTA Button at Top
         val ctaButton = Button(context).apply {
-            textSize = 14f
-            setTextColor(Color.WHITE)
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            isAllCaps = false
-            background = GradientDrawable().apply {
-                setColor(Color.parseColor("#4285F4"))
-                cornerRadius = DimensionUtils.dpToPx(context, 24f).toFloat()
-            }
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                DimensionUtils.dpToPx(context, 48f)
+                ViewGroup.LayoutParams.WRAP_CONTENT
             )
         }
+        styleManager.styleButton(ctaButton)
         mainContainer.addView(ctaButton)
 
         // Header row

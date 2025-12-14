@@ -2,7 +2,7 @@
 
 Plugin Flutter sẵn sàng sản xuất cho phép hiển thị Google AdMob Native Ads với 12 bố cục đa dạng và kiểu khai báo theo phong cách SwiftUI. Cung cấp rendering 100% native thông qua Platform Views với parity đầy đủ giữa các triển khai Android và iOS.
 
-**Phiên bản:** 1.0.0
+**Phiên bản:** 1.0.1
 **Giấy phép:** MIT
 **Repository:** https://github.com/tqc/flutter_admob_native_ads
 
@@ -1218,6 +1218,38 @@ Giấy phép MIT - xem tệp LICENSE để biết chi tiết.
 - **Repository**: https://github.com/tqc/flutter_admob_native_ads
 - **Issues**: Báo cáo qua GitHub Issues
 - **Pull Requests**: Hoan nghênh với mô tả chi tiết
+
+## Bug Fixes quan trọng
+
+### Fix: ctaBackgroundColor và các style properties không hoạt động (v1.0.1)
+
+**Vấn đề:** Khi set các thuộc tính styling như `ctaBackgroundColor`, `ctaTextColor`, `ctaCornerRadius` trong `NativeAdStyle`, màu sắc và kiểu dáng không được apply cho CTA button.
+
+**Nguyên nhân:** Tất cả 24 layout form builders (12 Android + 12 iOS) đều hardcode màu sắc và kiểu dáng của CTA button thay vì sử dụng `styleManager.styleButton()` để apply styles từ `NativeAdStyle`.
+
+**Giải pháp:** Đã refactor toàn bộ 24 layout builders để gọi `styleManager.styleButton()` thay vì hardcode styles.
+
+**Files đã sửa:**
+- Android: `Form1Builder.kt` đến `Form12Builder.kt` (12 files)
+- iOS: `Form1Builder.swift` đến `Form12Builder.swift` (12 files)
+
+**Ví dụ sử dụng sau khi fix:**
+```dart
+NativeAdWidget(
+  options: NativeAdOptions(
+    adUnitId: 'your-ad-unit-id',
+    layoutType: NativeAdLayoutType.form1,
+    style: NativeAdStyle(
+      ctaBackgroundColor: Color(0xFFD6FFC9),  // ✅ Bây giờ hoạt động!
+      ctaTextColor: Colors.black,
+      ctaCornerRadius: 12,
+      ctaPadding: EdgeInsets.all(16),
+    ),
+  ),
+)
+```
+
+Trước đây, các style properties này bị ignore và CTA button luôn hiển thị với màu mặc định `#4285F4` (Google Blue).
 
 ## Changelog
 
