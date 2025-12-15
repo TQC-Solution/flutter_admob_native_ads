@@ -207,6 +207,7 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
   }
 
   Widget _buildAdWidget() {
+    String hexColor = '0E4DD0';
     // Rebuild widget when layout or theme changes
     return NativeAdWidget(
       key: ValueKey('${_selectedLayout.name}-$_isDarkTheme'),
@@ -214,7 +215,9 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
         adUnitId: _testAdUnitId,
         layoutType: _selectedLayout,
         // style: _isDarkTheme ? NativeAdStyle.dark() : NativeAdStyle.light(),
-        style: NativeAdStyle(ctaBackgroundColor: Color(0xFFD6FFC9)),
+        style: NativeAdStyle(
+          ctaBackgroundColor: Color(int.parse('0xFF$hexColor')),
+        ),
         enableDebugLogs: true,
       ),
       height: _selectedLayout.recommendedHeight,

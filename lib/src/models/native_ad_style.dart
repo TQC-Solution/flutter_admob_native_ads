@@ -33,7 +33,7 @@ class NativeAdStyle {
     this.ctaTextColor = const Color(0xFFFFFFFF),
     this.ctaFontSize = 14,
     this.ctaFontWeight = FontWeight.w600,
-    this.ctaCornerRadius = 8,
+    this.ctaCornerRadius = 99,
     this.ctaPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
     this.ctaBorderColor,
     this.ctaBorderWidth,

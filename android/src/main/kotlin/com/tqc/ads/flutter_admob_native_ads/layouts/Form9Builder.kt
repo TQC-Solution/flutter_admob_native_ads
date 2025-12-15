@@ -16,7 +16,7 @@ import com.tqc.ads.flutter_admob_native_ads.utils.DimensionUtils
 
 /**
  * Form9 Builder - CTA Top Layout (ad_9.png)
- * Layout: [CTA] → [Icon + Ad + Title] → [Body] → [Media]
+ * Layout: [CTA] → [Icon + Column[Ad + Title, Body]] → [Media]
  */
 object Form9Builder {
 
@@ -52,10 +52,10 @@ object Form9Builder {
         styleManager.styleButton(ctaButton)
         mainContainer.addView(ctaButton)
 
-        // Header row
-        val headerRow = LinearLayout(context).apply {
+        // Content row: Icon + Column[Row[Ad + Title] + Body]
+        val contentRow = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
+            gravity = Gravity.TOP
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
@@ -73,7 +73,27 @@ object Form9Builder {
                 cornerRadius = DimensionUtils.dpToPx(context, 8f).toFloat()
             }
         }
-        headerRow.addView(iconView)
+        contentRow.addView(iconView)
+
+        // Right column: Row[Ad + Title] + Body
+        val rightColumn = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                1f
+            )
+        }
+
+        // Inner row: Ad + Title
+        val adTitleRow = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
 
         val adLabel = TextView(context).apply {
             text = "Ad"
@@ -92,7 +112,7 @@ object Form9Builder {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply { marginEnd = DimensionUtils.dpToPx(context, 8f) }
         }
-        headerRow.addView(adLabel)
+        adTitleRow.addView(adLabel)
 
         val headlineView = TextView(context).apply {
             textSize = 14f
@@ -102,8 +122,8 @@ object Form9Builder {
             ellipsize = android.text.TextUtils.TruncateAt.END
             layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
         }
-        headerRow.addView(headlineView)
-        mainContainer.addView(headerRow)
+        adTitleRow.addView(headlineView)
+        rightColumn.addView(adTitleRow)
 
         val bodyView = TextView(context).apply {
             textSize = 12f
@@ -115,7 +135,10 @@ object Form9Builder {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply { topMargin = DimensionUtils.dpToPx(context, 4f) }
         }
-        mainContainer.addView(bodyView)
+        rightColumn.addView(bodyView)
+
+        contentRow.addView(rightColumn)
+        mainContainer.addView(contentRow)
 
         val mediaView = MediaView(context).apply {
             layoutParams = LinearLayout.LayoutParams(

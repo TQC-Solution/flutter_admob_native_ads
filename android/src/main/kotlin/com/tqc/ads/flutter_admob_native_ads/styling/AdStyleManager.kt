@@ -53,9 +53,17 @@ class AdStyleManager(
      * Applies styles to the CTA button.
      */
     fun styleButton(button: Button) {
+        // Calculate estimated button height based on font size and padding
+        // This ensures cornerRadius doesn't exceed half the button height (pill shape)
+        // Font size needs line height factor (~1.4) to approximate actual text height
+        val textHeight = options.ctaFontSize * 1.4f
+        val estimatedHeightDp = textHeight + options.ctaPaddingTop + options.ctaPaddingBottom
+        val maxCornerRadius = estimatedHeightDp / 2
+        val effectiveCornerRadius = minOf(options.ctaCornerRadius, maxCornerRadius)
+
         val background = GradientDrawable().apply {
             setColor(options.ctaBackgroundColor)
-            cornerRadius = DimensionUtils.dpToPx(context, options.ctaCornerRadius).toFloat()
+            cornerRadius = DimensionUtils.dpToPx(context, effectiveCornerRadius).toFloat()
 
             options.ctaBorderColor?.let { borderColor ->
                 options.ctaBorderWidth?.let { borderWidth ->

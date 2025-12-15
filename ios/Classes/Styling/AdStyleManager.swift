@@ -45,7 +45,12 @@ class AdStyleManager {
             weight: options.ctaFontWeight,
             family: nil
         )
-        button.layer.cornerRadius = options.ctaCornerRadius
+
+        // Calculate estimated button height based on font size and padding
+        // This ensures cornerRadius doesn't exceed half the button height (pill shape)
+        let estimatedHeight = options.ctaFontSize + options.ctaPadding.top + options.ctaPadding.bottom
+        let maxCornerRadius = estimatedHeight / 2
+        button.layer.cornerRadius = min(options.ctaCornerRadius, maxCornerRadius)
         button.clipsToBounds = true
 
         button.contentEdgeInsets = options.ctaPadding
