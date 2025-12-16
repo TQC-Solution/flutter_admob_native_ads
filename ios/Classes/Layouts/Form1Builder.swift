@@ -16,11 +16,7 @@ enum Form1Builder {
         mainStack.spacing = 12
         mainStack.alignment = .center
         mainStack.distribution = .fill
-        mainStack.layoutMargins = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
-        mainStack.isLayoutMarginsRelativeArrangement = true
-        mainStack.backgroundColor = .white
-        mainStack.layer.cornerRadius = 8
-        mainStack.clipsToBounds = true
+        styleManager.styleMainContainer(mainStack)
         
         // Icon (Left)
         let iconView = UIImageView()

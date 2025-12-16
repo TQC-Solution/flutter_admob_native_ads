@@ -12,11 +12,7 @@ enum Form12Builder {
         mainStack.axis = .vertical
         mainStack.spacing = 12
         mainStack.alignment = .fill
-        mainStack.layoutMargins = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
-        mainStack.isLayoutMarginsRelativeArrangement = true
-        mainStack.backgroundColor = UIColor(white: 0.96, alpha: 1)
-        mainStack.layer.cornerRadius = 12
-        mainStack.clipsToBounds = true
+        styleManager.styleMainContainer(mainStack)
         
         let titleRow = UIStackView()
         titleRow.axis = .horizontal

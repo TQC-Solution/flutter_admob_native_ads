@@ -190,6 +190,35 @@ class AdStyleManager {
         return label
     }
 
+    // MARK: - Main Container Styling
+
+    /// Applies styles to the main container (UIStackView).
+    func styleMainContainer(_ stackView: UIStackView) {
+        stackView.backgroundColor = options.containerBackgroundColor
+        stackView.layer.cornerRadius = options.containerCornerRadius
+        stackView.clipsToBounds = true
+        stackView.layoutMargins = options.containerPadding
+        stackView.isLayoutMarginsRelativeArrangement = true
+
+        if let borderColor = options.containerBorderColor,
+           let borderWidth = options.containerBorderWidth {
+            stackView.layer.borderColor = borderColor.cgColor
+            stackView.layer.borderWidth = borderWidth
+        }
+    }
+
+    var containerCornerRadius: CGFloat {
+        return options.containerCornerRadius
+    }
+
+    var containerBackgroundColor: UIColor {
+        return options.containerBackgroundColor
+    }
+
+    var containerPadding: UIEdgeInsets {
+        return options.containerPadding
+    }
+
     // MARK: - Helpers
 
     var shouldShowAdLabel: Bool {

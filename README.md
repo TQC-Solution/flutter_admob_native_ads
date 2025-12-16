@@ -455,7 +455,7 @@ NativeAdStyle.minimal()
 NativeAdWidget(
   options: NativeAdOptions(
     adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.standard,
+    layoutType: NativeAdLayoutType.form6,
     style: NativeAdStyle(
       // CTA Button
       ctaBackgroundColor: Colors.blue,
@@ -467,6 +467,8 @@ NativeAdWidget(
       containerBackgroundColor: Colors.white,
       containerCornerRadius: 12,
       containerPadding: EdgeInsets.all(12),
+      containerBorderColor: Colors.blue[200],  // Border màu xanh nhạt
+      containerBorderWidth: 2,                  // Border 2px
       containerShadowColor: Colors.black.withOpacity(0.1),
       containerShadowRadius: 8,
 
@@ -681,15 +683,15 @@ ctaElevation: double?            // Độ cao Android
 
 #### Thuộc tính Container
 ```dart
-containerBackgroundColor: Color
-containerCornerRadius: double
-containerPadding: EdgeInsets
-containerMargin: EdgeInsets
-containerBorderColor: Color?
-containerBorderWidth: double?
-containerShadowColor: Color?
-containerShadowRadius: double?
-containerShadowOffset: Offset?
+containerBackgroundColor: Color         // Màu nền container (mặc định: white)
+containerCornerRadius: double           // Độ bo góc (mặc định: 8)
+containerPadding: EdgeInsets            // Padding bên trong (mặc định: all 12)
+containerMargin: EdgeInsets             // Margin bên ngoài (mặc định: zero)
+containerBorderColor: Color?            // Màu viền (mặc định: #C1B5B5)
+containerBorderWidth: double?           // Độ dày viền (mặc định: 1)
+containerShadowColor: Color?            // Màu shadow (mặc định: null)
+containerShadowRadius: double?          // Độ mờ shadow (mặc định: null)
+containerShadowOffset: Offset?          // Vị trí shadow (mặc định: null)
 ```
 
 #### Thuộc tính Văn bản (Headline, Body, Price, Store, Advertiser)
@@ -1250,6 +1252,78 @@ NativeAdWidget(
 ```
 
 Trước đây, các style properties này bị ignore và CTA button luôn hiển thị với màu mặc định `#4285F4` (Google Blue).
+
+### Fix: Border và Border Radius được render trong Native Platform Views (v1.0.2)
+
+**Vấn đề:** Border và border radius của container được apply từ Flutter layer (Container widget), không phải từ native platform views. Điều này gây ra vấn đề với rendering và performance.
+
+**Nguyên nhân:**
+- Flutter code sử dụng `Container` với `decoration` để apply border và borderRadius
+- Native platform views (Android LinearLayout và iOS UIStackView) chỉ có background color và corner radius được hardcoded
+
+**Giải pháp:**
+1. **Chuyển border/radius sang native rendering:**
+   - Thêm `styleMainContainer()` method vào `AdStyleManager` trên cả Android và iOS
+   - Method này apply backgroundColor, cornerRadius, borderColor và borderWidth từ `NativeAdStyle`
+   - Cập nhật 24 Form Builders (12 Android + 12 iOS) để sử dụng `styleManager.styleMainContainer()`
+
+2. **Xóa border/radius từ Flutter:**
+   - Loại bỏ `Container` với `decoration` trong `NativeAdWidget`
+   - Border và radius giờ được render hoàn toàn bởi native views
+
+3. **Giá trị mặc định mới:**
+   - `containerCornerRadius`: 8 (thay vì 12)
+   - `containerBorderColor`: `#C1B5B5` (màu xám nhạt)
+   - `containerBorderWidth`: 1
+
+**Files đã sửa:**
+- `lib/src/widgets/native_ad_widget.dart`: Xóa Container decoration
+- `lib/src/models/native_ad_style.dart`: Cập nhật giá trị mặc định
+- `android/.../styling/AdStyleManager.kt`: Thêm `styleMainContainer()`
+- `ios/Classes/Styling/AdStyleManager.swift`: Thêm `styleMainContainer()`
+- Android: `Form1Builder.kt` đến `Form12Builder.kt` (12 files)
+- iOS: `Form1Builder.swift` đến `Form12Builder.swift` (12 files)
+
+**Ví dụ sử dụng:**
+```dart
+// Sử dụng giá trị mặc định (border xám nhạt, corner radius 8)
+NativeAdWidget(
+  options: NativeAdOptions(
+    adUnitId: 'your-ad-unit-id',
+    layoutType: NativeAdLayoutType.form1,
+  ),
+)
+
+// Tùy chỉnh border và corner radius
+NativeAdWidget(
+  options: NativeAdOptions(
+    adUnitId: 'your-ad-unit-id',
+    layoutType: NativeAdLayoutType.form1,
+    style: NativeAdStyle(
+      containerBorderColor: Colors.blue,      // ✅ Border màu xanh
+      containerBorderWidth: 2,                 // ✅ Độ dày 2px
+      containerCornerRadius: 16,               // ✅ Bo góc 16
+    ),
+  ),
+)
+
+// Loại bỏ border
+NativeAdWidget(
+  options: NativeAdOptions(
+    adUnitId: 'your-ad-unit-id',
+    layoutType: NativeAdLayoutType.form1,
+    style: NativeAdStyle(
+      containerBorderWidth: null,  // ✅ Không có border
+    ),
+  ),
+)
+```
+
+**Lợi ích:**
+- ✅ Rendering 100% native, không còn layer phụ từ Flutter
+- ✅ Performance tốt hơn
+- ✅ Nhất quán giữa Android và iOS
+- ✅ Dễ dàng tùy chỉnh border/radius qua `NativeAdStyle`
 
 ## Changelog
 

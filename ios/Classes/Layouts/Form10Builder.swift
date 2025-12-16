@@ -12,11 +12,7 @@ enum Form10Builder {
         mainStack.axis = .vertical
         mainStack.spacing = 8
         mainStack.alignment = .fill
-        mainStack.layoutMargins = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
-        mainStack.isLayoutMarginsRelativeArrangement = true
-        mainStack.backgroundColor = .white
-        mainStack.layer.cornerRadius = 8
-        mainStack.clipsToBounds = true
+        styleManager.styleMainContainer(mainStack)
         
         let headlineLabel = UILabel()
         headlineLabel.font = .systemFont(ofSize: 16, weight: .bold)

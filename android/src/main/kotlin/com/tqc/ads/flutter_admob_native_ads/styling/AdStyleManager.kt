@@ -228,6 +228,44 @@ class AdStyleManager(
     }
 
     /**
+     * Applies styles to the main container (LinearLayout).
+     */
+    fun styleMainContainer(container: android.widget.LinearLayout) {
+        val background = GradientDrawable().apply {
+            setColor(options.containerBackgroundColor)
+            cornerRadius = DimensionUtils.dpToPx(context, options.containerCornerRadius).toFloat()
+
+            options.containerBorderColor?.let { borderColor ->
+                options.containerBorderWidth?.let { borderWidth ->
+                    setStroke(DimensionUtils.dpToPx(context, borderWidth), borderColor)
+                }
+            }
+        }
+        container.background = background
+        container.clipToOutline = true
+    }
+
+    /**
+     * Gets container corner radius in pixels.
+     */
+    fun getContainerCornerRadiusPx(): Float = DimensionUtils.dpToPx(context, options.containerCornerRadius).toFloat()
+
+    /**
+     * Gets container background color.
+     */
+    fun getContainerBackgroundColor(): Int = options.containerBackgroundColor
+
+    /**
+     * Gets container padding in pixels.
+     */
+    fun getContainerPaddingPx(): IntArray = intArrayOf(
+        DimensionUtils.dpToPx(context, options.containerPaddingLeft),
+        DimensionUtils.dpToPx(context, options.containerPaddingTop),
+        DimensionUtils.dpToPx(context, options.containerPaddingRight),
+        DimensionUtils.dpToPx(context, options.containerPaddingBottom)
+    )
+
+    /**
      * Gets item spacing in pixels.
      */
     fun getItemSpacingPx(): Int = DimensionUtils.dpToPx(context, options.itemSpacing)

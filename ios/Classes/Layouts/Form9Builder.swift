@@ -12,11 +12,7 @@ enum Form9Builder {
         mainStack.axis = .vertical
         mainStack.spacing = 12
         mainStack.alignment = .fill
-        mainStack.layoutMargins = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
-        mainStack.isLayoutMarginsRelativeArrangement = true
-        mainStack.backgroundColor = .white
-        mainStack.layer.cornerRadius = 12
-        mainStack.clipsToBounds = true
+        styleManager.styleMainContainer(mainStack)
         
         // CTA at top
         let ctaButton = UIButton(type: .system)

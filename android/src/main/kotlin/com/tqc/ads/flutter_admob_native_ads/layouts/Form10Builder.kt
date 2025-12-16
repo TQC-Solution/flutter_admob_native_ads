@@ -32,13 +32,10 @@ object Form10Builder {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            val padding = DimensionUtils.dpToPx(context, 16f)
-            setPadding(padding, padding, padding, padding)
-            background = GradientDrawable().apply {
-                setColor(Color.WHITE)
-                cornerRadius = DimensionUtils.dpToPx(context, 8f).toFloat()
-            }
+            val containerPadding = styleManager.getContainerPaddingPx()
+            setPadding(containerPadding[0], containerPadding[1], containerPadding[2], containerPadding[3])
         }
+        styleManager.styleMainContainer(mainContainer)
 
         val headlineView = TextView(context).apply {
             textSize = 16f

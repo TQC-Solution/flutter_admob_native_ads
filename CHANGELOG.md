@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.1] - 2024-12-14
+## [1.0.1] - 2025-12-14
 
 ### Fixed
 - **CRITICAL:** Fixed CTA button styling not working - All `NativeAdStyle` properties for CTA button (`ctaBackgroundColor`, `ctaTextColor`, `ctaCornerRadius`, `ctaPadding`, etc.) were being ignored
@@ -20,12 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - After: Layout builders delegate all styling to `AdStyleManager.styleButton()` which correctly applies `NativeAdStyle` properties
 - This fix ensures proper styling customization for all 12 form layouts on both platforms
 
-## [1.0.0] - 2024-12-12
+## [1.0.0] - 2025-12-12
 
 ### Added
 - Initial release of Flutter AdMob Native Ads plugin
-- Three layout types: compact, standard, and fullMedia
-- Comprehensive styling options for all ad components
+- **12 diverse layout forms** (form1 to form12) - từ compact (80dp) đến full media (320dp)
+- Comprehensive styling options (30+ properties) for all ad components
 - SwiftUI-style declarative styling API
 - Full native rendering via Platform Views
 - Event callbacks: onAdLoaded, onAdFailed, onAdClicked, onAdImpression, onAdOpened, onAdClosed
@@ -36,22 +36,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Android support (minSdk 21, Google Mobile Ads SDK 23.0.0)
 - iOS support (iOS 13.0+, Google Mobile Ads SDK 11.0)
 
-### Features by Layout Type
+### Layout Forms Overview
 
-#### Compact Layout
-- Horizontal layout with icon, headline, rating, and CTA button
-- Height: 120-150dp
-- Best for: List items, feed integration
-
-#### Standard Layout
-- Vertical layout with header, media view, body, footer, and CTA
-- Height: 250-300dp
-- Best for: General purpose, most use cases
-
-#### Full Media Layout
-- Prominent media view with larger icon and enhanced styling
-- Height: 350-400dp
-- Best for: Premium placements, high engagement
+| Form | Height | Style | Best for |
+|------|--------|-------|----------|
+| form1 | 80dp | Horizontal compact | List items |
+| form2 | 90dp | Horizontal media | List with media |
+| form3 | 320dp | Vertical story | Feed cards |
+| form4 | 300dp | Vertical media-first | Product cards |
+| form5 | 300dp | Vertical article | Article cards |
+| form6 | 280dp | Vertical standard | Standard feeds |
+| form7 | 140dp | Horizontal video | Video ads |
+| form8 | 100dp | Horizontal compact | Compact cards |
+| form9 | 280dp | Vertical action-first | CTA focused |
+| form10 | 120dp | Text-only minimal | Text ads |
+| form11 | 280dp | Vertical clean | Clean layout |
+| form12 | 280dp | Vertical alternative | Alt layout |
 
 ### Styling Options
 - CTA button: background color, text color, font, corner radius, padding, border, elevation
