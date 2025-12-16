@@ -10,6 +10,14 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
 
     private static let channelName = "flutter_admob_native_ads"
 
+    /// Singleton instance for accessing preloaded ads from platform views
+    private static var sharedInstance: FlutterAdmobNativeAdsPlugin?
+
+    /// Gets the shared plugin instance
+    public static func shared() -> FlutterAdmobNativeAdsPlugin? {
+        return sharedInstance
+    }
+
     // View type identifiers for all 12 forms
     private static let viewTypeForm1 = "flutter_admob_native_ads_form1"
     private static let viewTypeForm2 = "flutter_admob_native_ads_form2"
@@ -27,6 +35,12 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
     private var channel: FlutterMethodChannel?
     private var adLoaders: [String: NativeAdLoader] = [:]
 
+    /// Gets the preloaded native ad for the given controller ID.
+    /// Returns nil if no ad is loaded for the controller.
+    public func getPreloadedAd(controllerId: String) -> GADNativeAd? {
+        return adLoaders[controllerId]?.nativeAd
+    }
+
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
             name: channelName,
@@ -36,6 +50,9 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
         let instance = FlutterAdmobNativeAdsPlugin()
         instance.channel = channel
         registrar.addMethodCallDelegate(instance, channel: channel)
+
+        // Set singleton instance
+        FlutterAdmobNativeAdsPlugin.sharedInstance = instance
 
         // Register all 12 form platform view factories
         registrar.register(
@@ -211,5 +228,8 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
         // Clean up all loaders
         adLoaders.values.forEach { $0.destroy() }
         adLoaders.removeAll()
+
+        // Clear singleton instance
+        FlutterAdmobNativeAdsPlugin.sharedInstance = nil
     }
 }

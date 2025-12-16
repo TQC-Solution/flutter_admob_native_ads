@@ -34,6 +34,11 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
   bool _isDarkTheme = false;
   NativeAdLayoutType _selectedLayout = NativeAdLayoutType.form1;
 
+  // Preload controller
+  NativeAdController? _preloadedController;
+  bool _isPreloading = false;
+  bool _showPreloadedAd = false;
+
   // Test ad unit IDs from Google
   String get _testAdUnitId => Platform.isAndroid
       ? 'ca-app-pub-3940256099942544/2247696110'
@@ -81,6 +86,72 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
         return 'Vertical: Ad Label + Title + Media + CTA';
       case NativeAdLayoutType.form12:
         return 'Vertical: Ad Label + Title + Media + CTA (Alt)';
+    }
+  }
+
+  @override
+  void dispose() {
+    _preloadedController?.dispose();
+    super.dispose();
+  }
+
+  /// Preload an ad before showing it
+  Future<void> _preloadAd() async {
+    if (_isPreloading) return;
+
+    setState(() {
+      _isPreloading = true;
+      _showPreloadedAd = false;
+    });
+
+    // Dispose old controller if exists
+    _preloadedController?.dispose();
+
+    // Create new controller and preload
+    _preloadedController = NativeAdController(
+      options: NativeAdOptions(
+        adUnitId: _testAdUnitId,
+        layoutType: _selectedLayout,
+        style: NativeAdStyle(ctaBackgroundColor: const Color(0xFF0E4DD0)),
+        enableDebugLogs: true,
+      ),
+    );
+
+    final success = await _preloadedController!.preload();
+
+    if (!mounted) return;
+
+    setState(() {
+      _isPreloading = false;
+    });
+
+    if (success) {
+      debugPrint('Ad preloaded successfully! Ready to show instantly.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Ad preloaded! Tap "Show Preloaded Ad" to display instantly.',
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      debugPrint('Ad preload failed.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Preload failed. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  /// Show the preloaded ad
+  void _showPreloaded() {
+    if (_preloadedController?.isLoaded == true) {
+      setState(() {
+        _showPreloadedAd = true;
+      });
     }
   }
 
@@ -162,6 +233,105 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
                     style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 16),
+
+                  // Preload section
+                  Card(
+                    color: Colors.blue[50],
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Preload Demo',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Preload ads before showing them for instant display.',
+                            style: TextStyle(color: Colors.grey[600]),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: _isPreloading ? null : _preloadAd,
+                                icon: _isPreloading
+                                    ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Icon(Icons.download),
+                                label: Text(
+                                  _isPreloading
+                                      ? 'Preloading...'
+                                      : 'Preload Ad',
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              ElevatedButton.icon(
+                                onPressed:
+                                    (_preloadedController?.isLoaded == true &&
+                                        !_showPreloadedAd)
+                                    ? _showPreloaded
+                                    : null,
+                                icon: const Icon(Icons.visibility),
+                                label: const Text('Show Preloaded'),
+                              ),
+                            ],
+                          ),
+                          if (_preloadedController?.isLoaded == true)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: Text(
+                                'Ad is preloaded and ready!',
+                                style: TextStyle(
+                                  color: Colors.green[700],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Show preloaded ad if available
+                  if (_showPreloadedAd && _preloadedController != null) ...[
+                    const Text(
+                      'Preloaded Ad (Instant Display):',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    NativeAdWidget(
+                      key: const ValueKey('preloaded-ad'),
+                      options: _preloadedController!.options,
+                      controller: _preloadedController,
+                      autoLoad: false, // Don't reload - use preloaded ad
+                      height: _preloadedController!
+                          .options
+                          .layoutType
+                          .recommendedHeight,
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+
+                  const Text(
+                    'Regular Ad (Auto-Load):',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
                   _buildAdWidget(),
                   const SizedBox(height: 24),
                   // Info card

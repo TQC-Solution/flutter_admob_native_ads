@@ -48,6 +48,19 @@ class NativeAdPlatformView: NSObject, FlutterPlatformView {
             return
         }
 
+        let isPreloaded = creationParams["isPreloaded"] as? Bool ?? false
+
+        // Check for preloaded ad first
+        if isPreloaded {
+            if let preloadedAd = FlutterAdmobNativeAdsPlugin.shared()?.getPreloadedAd(controllerId: controllerId) {
+                log("Using preloaded ad for controller: \(controllerId)")
+                onAdLoaded(preloadedAd)
+                return
+            }
+            log("Preloaded ad not found for controller: \(controllerId), falling back to load")
+        }
+
+        // Fallback: load ad normally
         let channel = FlutterMethodChannel(
             name: "flutter_admob_native_ads",
             binaryMessenger: messenger

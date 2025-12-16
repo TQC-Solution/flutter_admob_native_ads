@@ -12,6 +12,7 @@ import android.widget.TextView
 import com.google.android.gms.ads.nativead.MediaView
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
+import com.tqc.ads.flutter_admob_native_ads.FlutterAdmobNativeAdsPlugin
 import com.tqc.ads.flutter_admob_native_ads.ad_loader.NativeAdLoader
 import com.tqc.ads.flutter_admob_native_ads.layouts.AdLayoutBuilder
 import com.tqc.ads.flutter_admob_native_ads.styling.AdStyleOptions
@@ -57,12 +58,25 @@ class NativeAdPlatformView(
     private fun initializeAdLoader() {
         val adUnitId = creationParams["adUnitId"] as? String
         val controllerId = creationParams["controllerId"] as? String
+        val isPreloaded = creationParams["isPreloaded"] as? Boolean ?: false
 
         if (adUnitId.isNullOrEmpty() || controllerId.isNullOrEmpty()) {
             log("Invalid adUnitId or controllerId")
             return
         }
 
+        // Check for preloaded ad first
+        if (isPreloaded) {
+            val preloadedAd = FlutterAdmobNativeAdsPlugin.getInstance()?.getPreloadedAd(controllerId)
+            if (preloadedAd != null) {
+                log("Using preloaded ad for controller: $controllerId")
+                onAdLoaded(preloadedAd)
+                return
+            }
+            log("Preloaded ad not found for controller: $controllerId, falling back to load")
+        }
+
+        // Fallback: load ad normally
         @Suppress("UNCHECKED_CAST")
         val testDeviceIds = creationParams["testDeviceIds"] as? List<String>
 

@@ -2,6 +2,7 @@ package com.tqc.ads.flutter_admob_native_ads
 
 import android.content.Context
 import android.util.Log
+import com.google.android.gms.ads.nativead.NativeAd
 import com.tqc.ads.flutter_admob_native_ads.ad_loader.NativeAdLoader
 import com.tqc.ads.flutter_admob_native_ads.platform_view.NativeAdViewFactory
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -36,6 +37,12 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
         private const val VIEW_TYPE_FORM_10 = "flutter_admob_native_ads_form10"
         private const val VIEW_TYPE_FORM_11 = "flutter_admob_native_ads_form11"
         private const val VIEW_TYPE_FORM_12 = "flutter_admob_native_ads_form12"
+
+        // Singleton instance for accessing preloaded ads from platform views
+        @Volatile
+        private var instance: FlutterAdmobNativeAdsPlugin? = null
+
+        fun getInstance(): FlutterAdmobNativeAdsPlugin? = instance
     }
 
     private lateinit var channel: MethodChannel
@@ -45,8 +52,18 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
     // Registry of active ad loaders by controller ID
     private val adLoaders = mutableMapOf<String, NativeAdLoader>()
 
+    /**
+     * Gets the preloaded native ad for the given controller ID.
+     * Returns null if no ad is loaded for the controller.
+     */
+    fun getPreloadedAd(controllerId: String): NativeAd? {
+        return adLoaders[controllerId]?.getNativeAd()
+    }
+
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         Log.d(TAG, "Plugin attached to engine")
+
+        instance = this
 
         context = flutterPluginBinding.applicationContext
         messenger = flutterPluginBinding.binaryMessenger
@@ -212,5 +229,7 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
         // Clean up all loaders
         adLoaders.values.forEach { it.destroy() }
         adLoaders.clear()
+
+        instance = null
     }
 }

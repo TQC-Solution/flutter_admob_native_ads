@@ -131,6 +131,12 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
       _ownsController = true;
     }
 
+    // If controller is preloaded and loaded, skip loading state
+    if (_controller.isPreloaded && _controller.isLoaded) {
+      _isLoading = false;
+      _hasError = false;
+    }
+
     // Listen to state changes
     _controller.stateStream.listen((state) {
       if (!mounted) return;
@@ -153,8 +159,8 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
       ));
     }
 
-    // Auto load if enabled
-    if (widget.autoLoad) {
+    // Auto load if enabled and not already preloaded
+    if (widget.autoLoad && !_controller.isPreloaded) {
       _controller.loadAd();
     }
   }
@@ -283,6 +289,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
     final viewType = widget.options.layoutType.viewType;
     final creationParams = {
       'controllerId': _controller.id,
+      'isPreloaded': _controller.isPreloaded,
       ...widget.options.toMap(),
     };
 

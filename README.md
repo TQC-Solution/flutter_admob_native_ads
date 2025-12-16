@@ -12,6 +12,7 @@ Plugin Flutter sẵn sàng sản xuất cho phép hiển thị Google AdMob Nati
 - **Kiểu dáng Toàn diện**: 30+ thuộc tính có thể tùy chỉnh cho mọi thành phần giao diện
 - **API Khai báo kiểu SwiftUI**: Cấu hình kiểu dáng sạch sẽ, dễ đọc, an toàn với kiểu
 - **100% Native Rendering**: Platform Views với triển khai native Android và iOS
+- **Preload Ads**: Load ads trước và hiển thị ngay lập tức khi cần - cải thiện UX đáng kể
 - **Vòng đời Sự kiện Đầy đủ**: Theo dõi các sự kiện tải ad, impression, click và thay đổi trạng thái overlay
 - **Giao diện Nội dung Có sẵn**: Light, Dark và Minimal presets với tùy chỉnh dễ dàng
 - **Quản lý trạng thái**: NativeAdController tích hợp để kiểm soát vòng đời nâng cao
@@ -561,6 +562,135 @@ class _MyWidgetState extends State<MyWidget> {
 }
 ```
 
+## Preload Ads (Tải trước quảng cáo)
+
+Tính năng preload cho phép bạn tải quảng cáo trước khi hiển thị, giúp ad xuất hiện **ngay lập tức** khi cần - cải thiện trải nghiệm người dùng đáng kể.
+
+### Cách sử dụng cơ bản
+
+```dart
+// 1. Tạo controller với options
+final controller = NativeAdController(
+  options: NativeAdOptions(
+    adUnitId: 'your-ad-unit-id',
+    layoutType: NativeAdLayoutType.form1,
+    style: NativeAdStyle.light(),
+  ),
+);
+
+// 2. Preload ad - chờ cho đến khi load xong
+final success = await controller.preload();
+
+if (success) {
+  print('Ad preloaded successfully! Ready to show instantly.');
+} else {
+  print('Preload failed.');
+}
+
+// 3. Khi cần hiển thị - ad xuất hiện NGAY LẬP TỨC!
+NativeAdWidget(
+  options: controller.options,
+  controller: controller,
+  autoLoad: false, // Quan trọng: không load lại vì đã preload
+);
+
+// 4. Đừng quên dispose khi không cần nữa
+controller.dispose();
+```
+
+### Ví dụ thực tế: Preload trong initState
+
+```dart
+class _MyScreenState extends State<MyScreen> {
+  NativeAdController? _adController;
+  bool _isAdReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _preloadAd();
+  }
+
+  Future<void> _preloadAd() async {
+    _adController = NativeAdController(
+      options: NativeAdOptions(
+        adUnitId: Platform.isAndroid
+            ? 'ca-app-pub-3940256099942544/2247696110'
+            : 'ca-app-pub-3940256099942544/3986624511',
+        layoutType: NativeAdLayoutType.form6,
+      ),
+    );
+
+    final success = await _adController!.preload();
+
+    if (mounted) {
+      setState(() {
+        _isAdReady = success;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _adController?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Nội dung khác...
+
+        // Ad hiển thị ngay lập tức vì đã preload
+        if (_isAdReady && _adController != null)
+          NativeAdWidget(
+            options: _adController!.options,
+            controller: _adController,
+            autoLoad: false,
+            height: NativeAdLayoutType.form6.recommendedHeight,
+          ),
+      ],
+    );
+  }
+}
+```
+
+### Kiểm tra trạng thái preload
+
+```dart
+// Kiểm tra ad đã được preload chưa
+if (controller.isPreloaded) {
+  print('Ad is preloaded');
+}
+
+// Kiểm tra ad đã load thành công chưa
+if (controller.isLoaded) {
+  print('Ad is loaded and ready');
+}
+
+// Kết hợp cả hai
+if (controller.isPreloaded && controller.isLoaded) {
+  // Safe to show the ad instantly
+}
+```
+
+### So sánh: Preload vs Auto-load
+
+| Tính năng | Preload (`preload()`) | Auto-load (`autoLoad: true`) |
+|-----------|----------------------|------------------------------|
+| Thời điểm load | Khi gọi `preload()` | Khi widget được tạo |
+| Chờ load xong | ✅ Có (`await`) | ❌ Không (fire-and-forget) |
+| Hiển thị | Ngay lập tức | Có loading spinner |
+| Use case | UX quan trọng, feed | Đơn giản, nhanh |
+
+### Lợi ích của Preload
+
+1. **UX tốt hơn**: Ad hiển thị ngay lập tức, không có loading spinner
+2. **Kiểm soát tốt hơn**: Biết chính xác khi nào ad sẵn sàng
+3. **Tối ưu bandwidth**: Không còn load ad 2 lần như trước
+4. **Linh hoạt**: Có thể preload nhiều ads trước cho một feed dài
+
 ## Trạng thái tải và lỗi
 
 ```dart
@@ -805,12 +935,14 @@ class NativeAdController {
   Stream<NativeAdState> get stateStream   // Luồng thay đổi trạng thái
   bool get isLoading                      // Đang tải hiện tại
   bool get isLoaded                       // Tải thành công
+  bool get isPreloaded                    // Ad đã được preload
   bool get hasError                       // Tải không thành công
   String? get errorMessage                // Mô tả lỗi
   int? get errorCode                      // Mã lỗi trình quản lý quảng cáo
 
   // Phương thức
-  Future<void> loadAd()                   // Kích hoạt tải quảng cáo
+  Future<bool> preload()                  // Preload ad và chờ load xong (trả về true/false)
+  Future<void> loadAd()                   // Kích hoạt tải quảng cáo (fire-and-forget)
   Future<void> reload()                   // Tải lại quảng cáo hiện có
   void dispose()                          // Dọn dẹp tài nguyên
 }

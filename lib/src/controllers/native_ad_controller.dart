@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import '../models/native_ad_events.dart';
 import '../models/native_ad_options.dart';
 
+export 'native_ad_controller.dart' show NativeAdState;
+
 /// Controller for managing native ad lifecycle and state.
 ///
 /// This controller handles communication with the native platform,
@@ -51,6 +53,9 @@ class NativeAdController {
   /// Whether the controller has been disposed.
   bool _isDisposed = false;
 
+  /// Whether the ad has been preloaded.
+  bool _isPreloaded = false;
+
   /// Stream controller for state changes.
   final StreamController<NativeAdState> _stateController =
       StreamController<NativeAdState>.broadcast();
@@ -93,6 +98,9 @@ class NativeAdController {
 
   /// Whether the controller has been disposed.
   bool get isDisposed => _isDisposed;
+
+  /// Whether the ad has been preloaded.
+  bool get isPreloaded => _isPreloaded;
 
   /// Generates a unique ID for the controller.
   static String _generateId() {
@@ -197,6 +205,53 @@ class NativeAdController {
     }
   }
 
+  /// Preloads the native ad and waits for completion.
+  ///
+  /// Unlike [loadAd], this method waits until the ad is fully loaded
+  /// or fails to load. Use this when you want to preload ads before
+  /// displaying them.
+  ///
+  /// Returns `true` if the ad loaded successfully, `false` otherwise.
+  ///
+  /// Example:
+  /// ```dart
+  /// final controller = NativeAdController(options: options);
+  /// final success = await controller.preload();
+  /// if (success) {
+  ///   // Ad is ready, show the widget
+  /// }
+  /// ```
+  Future<bool> preload() async {
+    if (_isDisposed) {
+      throw StateError('Cannot preload: controller has been disposed');
+    }
+
+    // Already preloaded or loaded
+    if (_isPreloaded || _state == NativeAdState.loaded) {
+      return true;
+    }
+
+    final completer = Completer<bool>();
+
+    // Listen for load completion
+    late StreamSubscription<NativeAdState> subscription;
+    subscription = stateStream.listen((state) {
+      if (state == NativeAdState.loaded) {
+        _isPreloaded = true;
+        subscription.cancel();
+        if (!completer.isCompleted) completer.complete(true);
+      } else if (state == NativeAdState.error) {
+        subscription.cancel();
+        if (!completer.isCompleted) completer.complete(false);
+      }
+    });
+
+    // Trigger load
+    await loadAd();
+
+    return completer.future;
+  }
+
   /// Loads the native ad.
   ///
   /// This triggers the native platform to load an ad with the
@@ -205,6 +260,7 @@ class NativeAdController {
   ///
   /// Returns a Future that completes when the load request is sent.
   /// Note: This does not wait for the ad to actually load.
+  /// For preloading with completion, use [preload] instead.
   Future<void> loadAd() async {
     if (_isDisposed) {
       throw StateError('Cannot load ad: controller has been disposed');
