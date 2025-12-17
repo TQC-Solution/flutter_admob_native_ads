@@ -43,10 +43,8 @@ object Form1Builder {
         // Icon (Left)
         val iconView = ImageView(context).apply {
             scaleType = ImageView.ScaleType.CENTER_CROP
-            val size = DimensionUtils.dpToPx(context, 48f)
-            layoutParams = LinearLayout.LayoutParams(size, size).apply {
-                marginEnd = DimensionUtils.dpToPx(context, 12f)
-            }
+            val size = DimensionUtils.dpToPx(context, 42f)
+            layoutParams = LinearLayout.LayoutParams(size, size)
             background = GradientDrawable().apply {
                 setColor(Color.parseColor("#f0f0f0"))
                 cornerRadius = DimensionUtils.dpToPx(context, 8f).toFloat()
@@ -69,11 +67,11 @@ object Form1Builder {
 
         val adLabel = TextView(context).apply {
             text = "Ad"
-            textSize = 10f
-            setTextColor(Color.parseColor("#5D4037"))
+            textSize = 8f
+            setTextColor(Color.parseColor("#FFFFFF"))
             setTypeface(null, android.graphics.Typeface.BOLD)
             background = GradientDrawable().apply {
-                setColor(Color.parseColor("#FFE0B2"))
+                setColor(Color.parseColor("#FEC318"))
                 cornerRadius = DimensionUtils.dpToPx(context, 3f).toFloat()
             }
             val padH = DimensionUtils.dpToPx(context, 6f)
@@ -82,12 +80,12 @@ object Form1Builder {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply { marginEnd = DimensionUtils.dpToPx(context, 6f) }
+            ).apply { marginEnd = DimensionUtils.dpToPx(context, 2f) }
         }
         titleRow.addView(adLabel)
 
         val headlineView = TextView(context).apply {
-            textSize = 15f
+            textSize = 14f
             setTextColor(Color.BLACK)
             setTypeface(null, android.graphics.Typeface.BOLD)
             maxLines = 1
@@ -98,9 +96,9 @@ object Form1Builder {
         contentLayout.addView(titleRow)
 
         val bodyView = TextView(context).apply {
-            textSize = 12f
-            setTextColor(Color.parseColor("#757575"))
-            maxLines = 1
+            textSize = 10f
+            setTextColor(Color.parseColor("#838383"))
+            maxLines = 2
             ellipsize = android.text.TextUtils.TruncateAt.END
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,

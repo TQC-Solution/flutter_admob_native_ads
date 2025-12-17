@@ -13,7 +13,7 @@ enum Form1Builder {
         let mainStack = UIStackView()
         mainStack.translatesAutoresizingMaskIntoConstraints = false
         mainStack.axis = .horizontal
-        mainStack.spacing = 12
+        mainStack.spacing = 8
         mainStack.alignment = .center
         mainStack.distribution = .fill
         styleManager.styleMainContainer(mainStack)
@@ -25,8 +25,8 @@ enum Form1Builder {
         iconView.backgroundColor = UIColor(white: 0.94, alpha: 1)
         iconView.layer.cornerRadius = 8
         iconView.clipsToBounds = true
-        iconView.widthAnchor.constraint(equalToConstant: 48).isActive = true
-        iconView.heightAnchor.constraint(equalToConstant: 48).isActive = true
+        iconView.widthAnchor.constraint(equalToConstant: 42).isActive = true
+        iconView.heightAnchor.constraint(equalToConstant: 42).isActive = true
         mainStack.addArrangedSubview(iconView)
         
         // Middle content (Ad label + Title + Body)
@@ -38,25 +38,35 @@ enum Form1Builder {
         // Title row with Ad label
         let titleRow = UIStackView()
         titleRow.axis = .horizontal
-        titleRow.spacing = 6
+        titleRow.spacing = 2
         titleRow.alignment = .center
         
         let adLabel = UILabel()
-        adLabel.text = "Ad"
-        adLabel.font = .systemFont(ofSize: 10, weight: .bold)
-        adLabel.textColor = UIColor(red: 0.36, green: 0.25, blue: 0.22, alpha: 1)
-        adLabel.backgroundColor = UIColor(red: 1.0, green: 0.88, blue: 0.7, alpha: 1)
-        adLabel.layer.cornerRadius = 3
-        adLabel.clipsToBounds = true
+        adLabel.text = "AD"
+        adLabel.font = .systemFont(ofSize: 8, weight: .bold)
+        adLabel.textColor = .white
+        adLabel.backgroundColor = .clear
         adLabel.textAlignment = .center
+
+        let container = UIView()
+        container.backgroundColor = UIColor(red: 0.996, green: 0.765, blue: 0.094, alpha: 1)
+        container.layer.cornerRadius = 3
+        container.clipsToBounds = true
+        container.addSubview(adLabel)
+        adLabel.translatesAutoresizingMaskIntoConstraints = false
         let padH: CGFloat = 6
         let padV: CGFloat = 2
-        adLabel.layoutMargins = UIEdgeInsets(top: padV, left: padH, bottom: padV, right: padH)
-        adLabel.setContentHuggingPriority(.required, for: .horizontal)
-        titleRow.addArrangedSubview(adLabel)
+        NSLayoutConstraint.activate([
+            adLabel.topAnchor.constraint(equalTo: container.topAnchor, constant: padV),
+            adLabel.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -padV),
+            adLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: padH),
+            adLabel.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -padH),
+        ])
+        container.setContentHuggingPriority(.required, for: .horizontal)
+        titleRow.addArrangedSubview(container)
         
         let headlineLabel = UILabel()
-        headlineLabel.font = .systemFont(ofSize: 15, weight: .bold)
+        headlineLabel.font = .systemFont(ofSize: 14, weight: .bold)
         headlineLabel.textColor = .black
         headlineLabel.numberOfLines = 1
         titleRow.addArrangedSubview(headlineLabel)
@@ -64,9 +74,9 @@ enum Form1Builder {
         
         // Body text
         let bodyLabel = UILabel()
-        bodyLabel.font = .systemFont(ofSize: 12)
-        bodyLabel.textColor = UIColor(white: 0.46, alpha: 1)
-        bodyLabel.numberOfLines = 1
+        bodyLabel.font = .systemFont(ofSize: 10)
+        bodyLabel.textColor = UIColor(red: 0.514, green: 0.514, blue: 0.514, alpha: 1) // #838383
+        bodyLabel.numberOfLines = 2
         contentStack.addArrangedSubview(bodyLabel)
         
         mainStack.addArrangedSubview(contentStack)
@@ -81,11 +91,12 @@ enum Form1Builder {
         
         nativeAdView.addSubview(mainStack)
         
+        let contentPadding: CGFloat = 8
         NSLayoutConstraint.activate([
-            mainStack.topAnchor.constraint(equalTo: nativeAdView.topAnchor),
-            mainStack.leadingAnchor.constraint(equalTo: nativeAdView.leadingAnchor),
-            mainStack.trailingAnchor.constraint(equalTo: nativeAdView.trailingAnchor),
-            mainStack.bottomAnchor.constraint(equalTo: nativeAdView.bottomAnchor)
+            mainStack.topAnchor.constraint(equalTo: nativeAdView.topAnchor, constant: contentPadding),
+            mainStack.leadingAnchor.constraint(equalTo: nativeAdView.leadingAnchor, constant: contentPadding),
+            mainStack.trailingAnchor.constraint(equalTo: nativeAdView.trailingAnchor, constant: -contentPadding),
+            mainStack.bottomAnchor.constraint(equalTo: nativeAdView.bottomAnchor, constant: -contentPadding)
         ])
         
         nativeAdView.iconView = iconView

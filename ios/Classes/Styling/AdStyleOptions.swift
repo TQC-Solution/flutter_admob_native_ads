@@ -20,7 +20,7 @@ struct AdStyleOptions {
 
     var containerBackgroundColor: UIColor = .white
     var containerCornerRadius: CGFloat = 12
-    var containerPadding: UIEdgeInsets = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
+    var containerPadding: UIEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
     var containerMargin: UIEdgeInsets = .zero
     var containerBorderColor: UIColor?
     var containerBorderWidth: CGFloat?
@@ -68,7 +68,7 @@ struct AdStyleOptions {
 
     // MARK: - Icon
 
-    var iconSize: CGFloat = 48
+    var iconSize: CGFloat = 42
     var iconCornerRadius: CGFloat = 8
     var iconBorderColor: UIColor?
     var iconBorderWidth: CGFloat?

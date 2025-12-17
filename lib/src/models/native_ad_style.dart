@@ -41,7 +41,7 @@ class NativeAdStyle {
     // Container Styling
     this.containerBackgroundColor = const Color(0xFFFFFFFF),
     this.containerCornerRadius = 8,
-    this.containerPadding = const EdgeInsets.all(12),
+    this.containerPadding = const EdgeInsets.all(8),
     this.containerMargin = EdgeInsets.zero,
     this.containerBorderColor = const Color(0x63C1B5B5),
     this.containerBorderWidth = 1,
@@ -50,13 +50,13 @@ class NativeAdStyle {
     this.containerShadowOffset,
     // Headline Text Styling
     this.headlineTextColor = const Color(0xFF202124),
-    this.headlineFontSize = 16,
+    this.headlineFontSize = 14,
     this.headlineFontWeight = FontWeight.w600,
     this.headlineFontFamily,
     this.headlineMaxLines = 2,
     // Body Text Styling
     this.bodyTextColor = const Color(0xFF5F6368),
-    this.bodyFontSize = 14,
+    this.bodyFontSize = 10,
     this.bodyFontWeight = FontWeight.w400,
     this.bodyFontFamily,
     this.bodyMaxLines = 3,
@@ -70,12 +70,12 @@ class NativeAdStyle {
     this.advertiserTextColor = const Color(0xFF9AA0A6),
     this.advertiserFontSize = 11,
     // Media View Styling
-    this.mediaViewHeight = 200,
+    this.mediaViewHeight = 180,
     this.mediaViewCornerRadius = 8,
     this.mediaViewAspectRatio,
     this.mediaViewBackgroundColor,
     // Icon Styling
-    this.iconSize = 48,
+    this.iconSize = 42,
     this.iconCornerRadius = 8,
     this.iconBorderColor,
     this.iconBorderWidth,
@@ -94,7 +94,7 @@ class NativeAdStyle {
     this.adLabelFontSize = 10,
     this.adLabelCornerRadius = 4,
     this.adLabelPadding =
-        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
   });
 
   // ============== CTA Button Styling ==============
