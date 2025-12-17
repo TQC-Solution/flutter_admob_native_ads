@@ -43,7 +43,7 @@ class NativeAdStyle {
     this.containerCornerRadius = 8,
     this.containerPadding = const EdgeInsets.all(12),
     this.containerMargin = EdgeInsets.zero,
-    this.containerBorderColor = const Color(0xFFC1B5B5),
+    this.containerBorderColor = const Color(0x63C1B5B5),
     this.containerBorderWidth = 1,
     this.containerShadowColor,
     this.containerShadowRadius,

@@ -7,7 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.2] - 2025-12-16
 
-## add Preload Ads
+### Added
+- **Preload Ads Feature**: Load ads before displaying for instant appearance
+  - New `preload()` method in `NativeAdController` that waits for ad to load
+  - Returns `true`/`false` to indicate preload success
+  - Use with `autoLoad: false` to show preloaded ads instantly
+  - Improves UX significantly by eliminating loading spinners
+  - Check state with `isPreloaded` and `isLoaded` getters
+
+### Fixed
+- **CRITICAL:** Border and border radius now rendered natively instead of Flutter Container
+  - Added `styleMainContainer()` method to `AdStyleManager` on both platforms
+  - Refactored all 24 layout builders (12 Android + 12 iOS) to use native container styling
+  - Border and corner radius now applied directly to native views for better performance
+  - Removed Flutter `Container` decoration wrapper
+
+### Changed
+- **Default style values updated** for better visual consistency:
+  - `containerCornerRadius`: 8 (changed from 12)
+  - `containerBorderColor`: `#C1B5B5` (light gray border)
+  - `containerBorderWidth`: 1 (default border enabled)
+- All container styling (background, border, corner radius) now 100% native
+
+### Technical Details
+**Preload Pattern:**
+```dart
+final controller = NativeAdController(options: NativeAdOptions(...));
+await controller.preload();  // Wait for ad to load
+NativeAdWidget(controller: controller, autoLoad: false);
+```
+
+**Files Modified:**
+- `lib/src/controllers/native_ad_controller.dart`: Added `preload()` method and `isPreloaded` getter
+- `lib/src/widgets/native_ad_widget.dart`: Removed Container decoration
+- `lib/src/models/native_ad_style.dart`: Updated default values
+- `android/.../styling/AdStyleManager.kt`: Added `styleMainContainer()`
+- `ios/Classes/Styling/AdStyleManager.swift`: Added `styleMainContainer()`
+- Android: `Form1Builder.kt` through `Form12Builder.kt` (12 files)
+- iOS: `Form1Builder.swift` through `Form12Builder.swift` (12 files)
 
 ## [1.0.1] - 2025-12-14
 

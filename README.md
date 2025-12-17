@@ -1,74 +1,47 @@
 # Flutter AdMob Native Ads
 
-Plugin Flutter sẵn sàng sản xuất cho phép hiển thị Google AdMob Native Ads với 12 bố cục đa dạng và kiểu khai báo theo phong cách SwiftUI. Cung cấp rendering 100% native thông qua Platform Views với parity đầy đủ giữa các triển khai Android và iOS.
+Production-ready Flutter plugin for displaying Google AdMob Native Ads with 12 customizable layout forms and SwiftUI-style declarative styling. 100% native rendering via Platform Views with full Android/iOS parity.
 
-**Phiên bản:** 1.0.1
-**Giấy phép:** MIT
-**Repository:** https://github.com/tqc/flutter_admob_native_ads
+[![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)](https://github.com/tqc/flutter_admob_native_ads)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## Các tính năng
+**Key Features:**
+- 🎨 12 diverse layout forms (80dp-320dp)
+- 🎯 30+ customizable style properties
+- ⚡ Preload ads for instant display
+- 🔄 Full event lifecycle callbacks
+- 🌓 Built-in themes (light, dark, minimal)
+- 📱 100% native rendering
+- ✅ Production-ready with comprehensive tests
 
-- **12 Bố cục Đa dạng**: Từ compact (80dp) đến full media (320dp), phù hợp với mọi trường hợp sử dụng
-- **Kiểu dáng Toàn diện**: 30+ thuộc tính có thể tùy chỉnh cho mọi thành phần giao diện
-- **API Khai báo kiểu SwiftUI**: Cấu hình kiểu dáng sạch sẽ, dễ đọc, an toàn với kiểu
-- **100% Native Rendering**: Platform Views với triển khai native Android và iOS
-- **Preload Ads**: Load ads trước và hiển thị ngay lập tức khi cần - cải thiện UX đáng kể
-- **Vòng đời Sự kiện Đầy đủ**: Theo dõi các sự kiện tải ad, impression, click và thay đổi trạng thái overlay
-- **Giao diện Nội dung Có sẵn**: Light, Dark và Minimal presets với tùy chỉnh dễ dàng
-- **Quản lý trạng thái**: NativeAdController tích hợp để kiểm soát vòng đời nâng cao
-- **Sẵn sàng sản xuất**: Bảo phủ kiểm tra toàn diện, xử lý lỗi và ghi nhật ký gỡ lỗi
-- **Parity Đa nền tảng**: Hành vi và kiểu dáng giống nhau trên Android 21+ và iOS 13.0+
+## Quick Start
 
-## Cập nhật quan trọng (v1.0.0)
-
-### Thay đổi từ hệ thống 3 layouts cũ
-
-Plugin đã được refactor hoàn toàn để cung cấp **12 forms layout** thay vì 3 layouts cũ (compact, standard, fullMedia):
-
-| Cũ | Mới tương đương | Lưu ý |
-|-----|----------------|-------|
-| `compact` | `form1` | Compact horizontal với icon |
-| `standard` | `form6` | Standard feed card |
-| `fullMedia` | `form3` hoặc `form4` | Vertical layout với media lớn |
-
-**Migration code:**
 ```dart
-// Cũ
-layoutType: NativeAdLayoutType.compact
-// Mới
-layoutType: NativeAdLayoutType.form1
+import 'package:flutter_admob_native_ads/flutter_admob_native_ads.dart';
 
-// Cũ
-layoutType: NativeAdLayoutType.standard
-// Mới
-layoutType: NativeAdLayoutType.form6
-
-// Cũ
-layoutType: NativeAdLayoutType.fullMedia
-// Mới
-layoutType: NativeAdLayoutType.form3  // hoặc form4
+NativeAdWidget(
+  options: NativeAdOptions(
+    adUnitId: 'ca-app-pub-xxx/xxx',
+    layoutType: NativeAdLayoutType.form1,
+    style: NativeAdStyle.light(),
+  ),
+  onAdLoaded: () => print('Ad loaded'),
+  onAdFailed: (error) => print('Error: $error'),
+)
 ```
 
-### Lợi ích của 12 Forms
+## Installation
 
-- **Đa dạng hơn**: Nhiều tùy chọn layout cho mọi use case
-- **Tối ưu hóa**: Mỗi form được thiết kế cho mục đích cụ thể
-- **Linh hoạt**: Từ compact 80dp đến full media 320dp
-- **Tương thích ngược**: Dễ dàng migration từ hệ thống cũ
-
-## Cài đặt
-
-Thêm vào `pubspec.yaml` của bạn:
+Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_admob_native_ads:
-    path: packages/flutter_admob_native_ads
+  flutter_admob_native_ads: ^1.0.2
 ```
 
-### Cấu hình Android
+### Android Setup
 
-1. Thêm ID ứng dụng AdMob của bạn vào `AndroidManifest.xml`:
+1. Add AdMob App ID to `AndroidManifest.xml`:
 
 ```xml
 <manifest>
@@ -80,24 +53,16 @@ dependencies:
 </manifest>
 ```
 
-2. Thêm dependency vào `build.gradle` của ứng dụng nếu chưa được tự động giải quyết:
+### iOS Setup
 
-```gradle
-dependencies {
-    implementation 'com.google.android.gms:play-services-ads:23.0.0'
-}
-```
-
-### Cấu hình iOS
-
-1. Thêm ID ứng dụng AdMob của bạn vào `Info.plist`:
+1. Add AdMob App ID to `Info.plist`:
 
 ```xml
 <key>GADApplicationIdentifier</key>
 <string>ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy</string>
 ```
 
-2. Khởi tạo Google Mobile Ads SDK trong `AppDelegate.swift`:
+2. Initialize SDK in `AppDelegate.swift`:
 
 ```swift
 import GoogleMobileAds
@@ -115,146 +80,38 @@ import GoogleMobileAds
 }
 ```
 
-3. Thêm vào `Podfile` của bạn:
-
-```ruby
-pod 'Google-Mobile-Ads-SDK', '~> 11.0'
-```
-
-4. Xử lý các thư viện liên kết tĩnh (statically linked binaries):
-
-Nếu bạn gặp cảnh báo "The 'Pods-Runner' target has transitive dependencies that include statically linked binaries", hãy cập nhật Podfile của bạn như sau:
-
-```ruby
-target 'Runner' do
-  use_frameworks! :linkage => :static
-  
-  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-  
-  # Fix for statically linked binaries warning
-  pod 'Google-Mobile-Ads-SDK', :modular_headers => true
-  pod 'GoogleUserMessagingPlatform', :modular_headers => true
-  
-  target 'RunnerTests' do
-    inherit! :search_paths
-  end
-end
-
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    flutter_additional_ios_build_settings(target)
-    
-    # Fix for statically linked binaries warning
-    if target.name == 'Google-Mobile-Ads-SDK' || target.name == 'GoogleUserMessagingPlatform'
-      target.build_configurations.each do |config|
-        config.build_settings['MACH_O_TYPE'] = 'staticlib'
-      end
-    end
-  end
-end
-```
-
-5. Đảm bảo chỉ định platform iOS:
+3. Add to `Podfile`:
 
 ```ruby
 platform :ios, '13.0'
+pod 'Google-Mobile-Ads-SDK', '~> 11.0'
 ```
 
-6. Quyền riêng tư cho iOS 17+:
+## Layout Forms
 
-Để tuân thủ yêu cầu quyền riêng tư của iOS 17+, hãy đảm bảo file `PrivacyInfo.xcprivacy` được bao gồm trong plugin của bạn với các quyền cần thiết cho Google Mobile Ads SDK:
+12 pre-designed layouts optimized for different use cases:
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>NSPrivacyTrackingDomains</key>
-	<array/>
-	<key>NSPrivacyAccessedAPITypes</key>
-	<array>
-		<dict>
-			<key>NSPrivacyAccessedAPIType</key>
-			<string>NSPrivacyAccessedAPICategorySystemBootTime</string>
-			<key>NSPrivacyAccessedAPITypeReasons</key>
-			<array>
-				<string>35F9.1</string>
-			</array>
-		</dict>
-		<dict>
-			<key>NSPrivacyAccessedAPIType</key>
-			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
-			<key>NSPrivacyAccessedAPITypeReasons</key>
-			<array>
-				<string>C617.1</string>
-			</array>
-		</dict>
-		<dict>
-			<key>NSPrivacyAccessedAPIType</key>
-			<string>NSPrivacyAccessedAPICategoryDeviceID</string>
-			<key>NSPrivacyAccessedAPITypeReasons</key>
-			<array>
-				<string>35F9.1</string>
-			</array>
-		</dict>
-	</array>
-	<key>NSPrivacyCollectedDataTypes</key>
-	<array>
-		<dict>
-			<key>NSPrivacyCollectedDataType</key>
-			<string>NSPrivacyCollectedDataTypeDeviceID</string>
-			<key>NSPrivacyCollectedDataTypeLinked</key>
-			<false/>
-			<key>NSPrivacyCollectedDataTypeTracking</key>
-			<false/>
-			<key>NSPrivacyCollectedDataTypePurposes</key>
-			<array>
-				<string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
-				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
-			</array>
-		</dict>
-	</array>
-	<key>NSPrivacyTracking</key>
-	<false/>
-</dict>
-</plist>
-```
+| Form | Height | Style | Best For |
+|------|--------|-------|----------|
+| form1 | 80dp | Horizontal compact | List items |
+| form2 | 90dp | Horizontal media | List with media preview |
+| form3 | 320dp | Vertical story | Feed cards |
+| form4 | 300dp | Media-first vertical | Product cards |
+| form5 | 300dp | Article card | Blog posts |
+| form6 | 280dp | Standard feed | Standard feeds |
+| form7 | 140dp | Horizontal video | Video ads |
+| form8 | 100dp | Compact horizontal | Compact cards |
+| form9 | 280dp | Action-first | CTA focused |
+| form10 | 120dp | Text-only | Minimal design |
+| form11 | 280dp | Clean vertical | Clean layout |
+| form12 | 280dp | Alternative vertical | Alt layout |
 
-Đảm bảo file này được tham chiếu trong podspec của plugin:
+> **Visual Reference:** See [ads_template_native/](ads_template_native/) for design templates
 
-```ruby
-# Privacy manifest
-s.resource_bundles = {'flutter_admob_native_ads_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
-```
-
-## Khởi động nhanh
+### Usage Examples
 
 ```dart
-import 'package:flutter_admob_native_ads/flutter_admob_native_ads.dart';
-
-// Sử dụng đơn giản
-NativeAdWidget(
-  options: NativeAdOptions(
-    adUnitId: 'ca-app-pub-xxx/xxx',
-    layoutType: NativeAdLayoutType.form1,
-    style: NativeAdStyle.light(),
-  ),
-  onAdLoaded: () => print('Ad loaded'),
-  onAdFailed: (error) => print('Error: $error'),
-)
-```
-
-## Các loại bố cục (12 Forms)
-
-Plugin cung cấp 12 mẫu bố cục khác nhau, mỗi mẫu được tối ưu hóa cho các trường hợp sử dụng cụ thể:
-
-> **Tham khảo hình ảnh:** Các mẫu thiết kế của 12 forms có sẵn trong thư mục [ads_template_native/](ads_template_native/). Xem file [ads_template_native/ad_full.png](ads_template_native/ad_full.png) để tham khảo tất cả các layout.
-
-### Form 1 - Compact Horizontal (80dp)
-Bố cục ngang tối giản với Icon + Title + Description + CTA.
-**Phù hợp với:** Mục danh sách, vị trí compact.
-
-```dart
+// Compact horizontal (80dp)
 NativeAdWidget(
   options: NativeAdOptions(
     adUnitId: 'your-ad-unit-id',
@@ -262,27 +119,17 @@ NativeAdWidget(
   ),
   height: 80,
 )
-```
 
-### Form 2 - Media Compact (90dp)
-Bố cục ngang với Large Media + Title + Description + CTA.
-**Phù hợp với:** Mục danh sách với media preview.
-
-```dart
+// Standard feed card (280dp)
 NativeAdWidget(
   options: NativeAdOptions(
     adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.form2,
+    layoutType: NativeAdLayoutType.form6,
   ),
-  height: 90,
+  height: 280,
 )
-```
 
-### Form 3 - Vertical Story (320dp)
-Bố cục dọc với Title + Description + Large Media + CTA ở dưới.
-**Phù hợp với:** Feed cards, story layout.
-
-```dart
+// Full media vertical (320dp)
 NativeAdWidget(
   options: NativeAdOptions(
     adUnitId: 'your-ad-unit-id',
@@ -292,165 +139,22 @@ NativeAdWidget(
 )
 ```
 
-### Form 4 - Media-First Card (300dp)
-Bố cục dọc với Large Media + Icon + Title + Description + CTA.
-**Phù hợp với:** Product cards, media-first layout.
+## Styling
+
+### Built-in Themes
 
 ```dart
-NativeAdWidget(
-  options: NativeAdOptions(
-    adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.form4,
-  ),
-  height: 300,
-)
-```
-
-### Form 5 - Article Card (300dp)
-Bố cục dọc với Icon + Title + Description + Large Media + CTA.
-**Phù hợp với:** Article cards, blog posts.
-
-```dart
-NativeAdWidget(
-  options: NativeAdOptions(
-    adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.form5,
-  ),
-  height: 300,
-)
-```
-
-### Form 6 - Standard Feed Card (280dp)
-Bố cục dọc tiêu chuẩn với Icon + Title + Description + Media + CTA.
-**Phù hợp với:** Standard feed cards.
-
-```dart
-NativeAdWidget(
-  options: NativeAdOptions(
-    adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.form6,
-  ),
-  height: 280,
-)
-```
-
-### Form 7 - Video Horizontal (140dp)
-Bố cục ngang với Video/Media (Left) + Title + Description + CTA (Right).
-**Phù hợp với:** Video ads, horizontal scrolling.
-
-```dart
-NativeAdWidget(
-  options: NativeAdOptions(
-    adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.form7,
-  ),
-  height: 140,
-)
-```
-
-### Form 8 - Compact Horizontal Media (100dp)
-Bố cục ngang compact với Media (Left) + Title + Description + CTA (Right).
-**Phù hợp với:** Compact horizontal cards.
-
-```dart
-NativeAdWidget(
-  options: NativeAdOptions(
-    adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.form8,
-  ),
-  height: 100,
-)
-```
-
-### Form 9 - Action-First (280dp)
-Bố cục dọc với CTA (Top) + Icon + Title + Description + Media.
-**Phù hợp với:** Action-first layout.
-
-```dart
-NativeAdWidget(
-  options: NativeAdOptions(
-    adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.form9,
-  ),
-  height: 280,
-)
-```
-
-### Form 10 - Text-Only Minimal (120dp)
-Bố cục tối giản với Title + Description + CTA (không có media).
-**Phù hợp với:** Text-only ads, minimal design.
-
-```dart
-NativeAdWidget(
-  options: NativeAdOptions(
-    adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.form10,
-  ),
-  height: 120,
-)
-```
-
-### Form 11 - Clean Vertical (280dp)
-Bố cục dọc sạch sẽ với Ad Label (Top) + Title + Media + CTA (Bottom).
-**Phù hợp với:** Clean vertical layout.
-
-```dart
-NativeAdWidget(
-  options: NativeAdOptions(
-    adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.form11,
-  ),
-  height: 280,
-)
-```
-
-### Form 12 - Alternative Vertical (280dp)
-Bố cục dọc phong cách thay thế với Ad Label (Top) + Title + Media + CTA (Bottom).
-**Phù hợp với:** Alternative vertical layout.
-
-```dart
-NativeAdWidget(
-  options: NativeAdOptions(
-    adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.form12,
-  ),
-  height: 280,
-)
-```
-
-### Bảng So sánh Nhanh
-
-| Form | Chiều cao | Kiểu | Phù hợp với |
-|------|-----------|------|-------------|
-| Form1 | 80dp | Horizontal compact | List items |
-| Form2 | 90dp | Horizontal media | List with media |
-| Form3 | 320dp | Vertical story | Feed cards |
-| Form4 | 300dp | Vertical media-first | Product cards |
-| Form5 | 300dp | Vertical article | Article cards |
-| Form6 | 280dp | Vertical standard | Standard feeds |
-| Form7 | 140dp | Horizontal video | Video ads |
-| Form8 | 100dp | Horizontal compact | Compact cards |
-| Form9 | 280dp | Vertical action-first | CTA focused |
-| Form10 | 120dp | Text-only minimal | Text ads |
-| Form11 | 280dp | Vertical clean | Clean layout |
-| Form12 | 280dp | Vertical alternative | Alt layout |
-
-## Kiểu dáng tùy chỉnh
-
-### Sử dụng các Giao diện có sẵn
-
-```dart
-// Giao diện sáng
+// Light theme
 NativeAdStyle.light()
 
-// Giao diện tối
+// Dark theme
 NativeAdStyle.dark()
 
-// Kiểu dáng tối giản
+// Minimal theme
 NativeAdStyle.minimal()
 ```
 
-### Kiểu dáng tùy chỉnh
+### Custom Styling
 
 ```dart
 NativeAdWidget(
@@ -468,63 +172,122 @@ NativeAdWidget(
       containerBackgroundColor: Colors.white,
       containerCornerRadius: 12,
       containerPadding: EdgeInsets.all(12),
-      containerBorderColor: Colors.blue[200],  // Border màu xanh nhạt
-      containerBorderWidth: 2,                  // Border 2px
-      containerShadowColor: Colors.black.withOpacity(0.1),
-      containerShadowRadius: 8,
+      containerBorderColor: Colors.blue[200],
+      containerBorderWidth: 2,
 
-      // Text Styles
+      // Text
       headlineTextColor: Colors.black,
       headlineFontSize: 16,
       headlineFontWeight: FontWeight.w600,
-
       bodyTextColor: Colors.grey[600]!,
-      bodyFontSize: 14,
 
-      // Media View
+      // Media
       mediaViewHeight: 200,
       mediaViewCornerRadius: 8,
 
       // Icon
       iconSize: 48,
       iconCornerRadius: 8,
-
-      // Star Rating
-      starRatingSize: 16,
-      starRatingActiveColor: Colors.amber,
-
-      // Ad Label
-      showAdLabel: true,
-      adLabelText: 'Ad',
-      adLabelBackgroundColor: Colors.amber,
     ),
   ),
 )
 ```
 
-## Gọi lại sự kiện
+### Available Style Properties
+
+**CTA Button:** background, text color, font size/weight, corner radius, padding, border, elevation
+
+**Container:** background, corner radius, padding, margin, border, shadow
+
+**Text:** headline, body, price, store, advertiser (color, size, weight, font family, max lines)
+
+**Media:** height, corner radius, aspect ratio, background
+
+**Icon:** size, corner radius, border
+
+**Star Rating:** size, active/inactive colors
+
+**Ad Label:** visibility, text, colors, corner radius, padding
+
+**Layout:** item spacing, section spacing
+
+## Preload Ads (NEW in v1.0.2)
+
+Load ads before displaying for instant appearance - eliminates loading spinners!
+
+```dart
+class _MyScreenState extends State<MyScreen> {
+  NativeAdController? _adController;
+  bool _isAdReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _preloadAd();
+  }
+
+  Future<void> _preloadAd() async {
+    _adController = NativeAdController(
+      options: NativeAdOptions(
+        adUnitId: Platform.isAndroid
+            ? 'ca-app-pub-3940256099942544/2247696110'
+            : 'ca-app-pub-3940256099942544/3986624511',
+        layoutType: NativeAdLayoutType.form6,
+      ),
+    );
+
+    final success = await _adController!.preload();
+
+    if (mounted) {
+      setState(() => _isAdReady = success);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        if (_isAdReady && _adController != null)
+          NativeAdWidget(
+            options: _adController!.options,
+            controller: _adController,
+            autoLoad: false,  // Important: don't reload
+            height: NativeAdLayoutType.form6.recommendedHeight,
+          ),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    _adController?.dispose();
+    super.dispose();
+  }
+}
+```
+
+### Preload vs Auto-load
+
+| Feature | Preload (`preload()`) | Auto-load (`autoLoad: true`) |
+|---------|----------------------|------------------------------|
+| Load timing | When calling `preload()` | When widget created |
+| Wait for load | ✅ Yes (`await`) | ❌ No (fire-and-forget) |
+| Display | Instant | Shows loading spinner |
+| Use case | Better UX, feeds | Quick & simple |
+
+## Event Callbacks
 
 ```dart
 NativeAdWidget(
   options: NativeAdOptions(adUnitId: 'your-ad-unit-id'),
-  onAdLoaded: () {
-    print('Ad loaded successfully');
-  },
-  onAdFailed: (error) {
-    print('Ad failed: $error');
-  },
-  onAdClicked: () {
-    print('Ad clicked');
-  },
-  onAdImpression: () {
-    print('Ad impression recorded');
-  },
+  onAdLoaded: () => print('Ad loaded'),
+  onAdFailed: (error, code) => print('Error: $error ($code)'),
+  onAdClicked: () => print('Ad clicked'),
+  onAdImpression: () => print('Impression recorded'),
 )
 ```
 
-## Sử dụng NativeAdController
-
-Để kiểm soát nhiều hơn vòng đời quảng cáo:
+## Advanced Usage with Controller
 
 ```dart
 class _MyWidgetState extends State<MyWidget> {
@@ -562,136 +325,12 @@ class _MyWidgetState extends State<MyWidget> {
 }
 ```
 
-## Preload Ads (Tải trước quảng cáo)
+**Controller Features:**
+- State management with `Stream<NativeAdState>`
+- Getters: `isLoading`, `isLoaded`, `isPreloaded`, `hasError`, `errorMessage`, `errorCode`
+- Methods: `preload()`, `loadAd()`, `reload()`, `dispose()`
 
-Tính năng preload cho phép bạn tải quảng cáo trước khi hiển thị, giúp ad xuất hiện **ngay lập tức** khi cần - cải thiện trải nghiệm người dùng đáng kể.
-
-### Cách sử dụng cơ bản
-
-```dart
-// 1. Tạo controller với options
-final controller = NativeAdController(
-  options: NativeAdOptions(
-    adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.form1,
-    style: NativeAdStyle.light(),
-  ),
-);
-
-// 2. Preload ad - chờ cho đến khi load xong
-final success = await controller.preload();
-
-if (success) {
-  print('Ad preloaded successfully! Ready to show instantly.');
-} else {
-  print('Preload failed.');
-}
-
-// 3. Khi cần hiển thị - ad xuất hiện NGAY LẬP TỨC!
-NativeAdWidget(
-  options: controller.options,
-  controller: controller,
-  autoLoad: false, // Quan trọng: không load lại vì đã preload
-);
-
-// 4. Đừng quên dispose khi không cần nữa
-controller.dispose();
-```
-
-### Ví dụ thực tế: Preload trong initState
-
-```dart
-class _MyScreenState extends State<MyScreen> {
-  NativeAdController? _adController;
-  bool _isAdReady = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _preloadAd();
-  }
-
-  Future<void> _preloadAd() async {
-    _adController = NativeAdController(
-      options: NativeAdOptions(
-        adUnitId: Platform.isAndroid
-            ? 'ca-app-pub-3940256099942544/2247696110'
-            : 'ca-app-pub-3940256099942544/3986624511',
-        layoutType: NativeAdLayoutType.form6,
-      ),
-    );
-
-    final success = await _adController!.preload();
-
-    if (mounted) {
-      setState(() {
-        _isAdReady = success;
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _adController?.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Nội dung khác...
-
-        // Ad hiển thị ngay lập tức vì đã preload
-        if (_isAdReady && _adController != null)
-          NativeAdWidget(
-            options: _adController!.options,
-            controller: _adController,
-            autoLoad: false,
-            height: NativeAdLayoutType.form6.recommendedHeight,
-          ),
-      ],
-    );
-  }
-}
-```
-
-### Kiểm tra trạng thái preload
-
-```dart
-// Kiểm tra ad đã được preload chưa
-if (controller.isPreloaded) {
-  print('Ad is preloaded');
-}
-
-// Kiểm tra ad đã load thành công chưa
-if (controller.isLoaded) {
-  print('Ad is loaded and ready');
-}
-
-// Kết hợp cả hai
-if (controller.isPreloaded && controller.isLoaded) {
-  // Safe to show the ad instantly
-}
-```
-
-### So sánh: Preload vs Auto-load
-
-| Tính năng | Preload (`preload()`) | Auto-load (`autoLoad: true`) |
-|-----------|----------------------|------------------------------|
-| Thời điểm load | Khi gọi `preload()` | Khi widget được tạo |
-| Chờ load xong | ✅ Có (`await`) | ❌ Không (fire-and-forget) |
-| Hiển thị | Ngay lập tức | Có loading spinner |
-| Use case | UX quan trọng, feed | Đơn giản, nhanh |
-
-### Lợi ích của Preload
-
-1. **UX tốt hơn**: Ad hiển thị ngay lập tức, không có loading spinner
-2. **Kiểm soát tốt hơn**: Biết chính xác khi nào ad sẵn sàng
-3. **Tối ưu bandwidth**: Không còn load ad 2 lần như trước
-4. **Linh hoạt**: Có thể preload nhiều ads trước cho một feed dài
-
-## Trạng thái tải và lỗi
+## Custom Loading & Error Widgets
 
 ```dart
 NativeAdWidget(
@@ -711,752 +350,171 @@ NativeAdWidget(
 )
 ```
 
-## ID đơn vị quảng cáo kiểm tra
+## Test Ad Unit IDs
 
-Để kiểm tra, hãy sử dụng ID đơn vị quảng cáo kiểm tra của Google:
+Use Google's test ad units during development:
 
-- **Android**: `ca-app-pub-3940256099942544/2247696110`
-- **iOS**: `ca-app-pub-3940256099942544/3986624511`
+- **Android:** `ca-app-pub-3940256099942544/2247696110`
+- **iOS:** `ca-app-pub-3940256099942544/3986624511`
+
+Or use helper constructors:
 
 ```dart
-// Sử dụng các hàm tạo kiểm tra
 NativeAdOptions.testAndroid()
 NativeAdOptions.testIOS()
 ```
 
-## Tham khảo API
+## Debugging
 
-### Hệ thống phân cấp lớp hoàn chỉnh
+Enable debug logs:
 
+```dart
+NativeAdOptions(
+  adUnitId: '...',
+  enableDebugLogs: true,
+)
 ```
-flutter_admob_native_ads/
-├── Models
-│   ├── NativeAdLayoutType (Enum)
-│   ├── NativeAdOptions
-│   ├── NativeAdStyle
-│   ├── NativeAdEvents
-│   └── Various event typedefs
-├── Controllers
-│   └── NativeAdController
-├── Widgets
-│   └── NativeAdWidget
-└── Utils
-    ├── ColorExtension
-    └── EdgeInsetsExtension
-```
+
+Check platform logs:
+- **Android:** `adb logcat | grep -i ads`
+- **iOS:** Xcode Console, filter "GMA"
+
+## API Reference
 
 ### NativeAdLayoutType
 
-Enum với 12 tùy chọn bố cục được thiết kế sẵn:
-
-| Loại | Chiều cao | Mô tả | Loại chế độ xem |
-|------|-----------|-------|----------------|
-| `form1` | 80dp | Compact horizontal: Icon + Title + CTA | `flutter_admob_native_ads_form1` |
-| `form2` | 90dp | Horizontal với large media | `flutter_admob_native_ads_form2` |
-| `form3` | 320dp | Vertical story layout | `flutter_admob_native_ads_form3` |
-| `form4` | 300dp | Media-first vertical card | `flutter_admob_native_ads_form4` |
-| `form5` | 300dp | Article card layout | `flutter_admob_native_ads_form5` |
-| `form6` | 280dp | Standard feed card | `flutter_admob_native_ads_form6` |
-| `form7` | 140dp | Horizontal video layout | `flutter_admob_native_ads_form7` |
-| `form8` | 100dp | Compact horizontal media | `flutter_admob_native_ads_form8` |
-| `form9` | 280dp | Action-first vertical | `flutter_admob_native_ads_form9` |
-| `form10` | 120dp | Text-only minimal | `flutter_admob_native_ads_form10` |
-| `form11` | 280dp | Clean vertical layout | `flutter_admob_native_ads_form11` |
-| `form12` | 280dp | Alternative vertical | `flutter_admob_native_ads_form12` |
-
-**Các phương thức chính:**
-- `toInt()`: Trả về số nhận dạng số nguyên (1-12)
-- `fromInt(int)`: Phân tích cú pháp số nguyên thành loại bố cục (mặc định là form1)
-- `recommendedHeight`: Trả về chiều cao đề xuất (double)
-- `viewType`: Trả về chuỗi nhận dạng chế độ xem nền tảng
-- `name`: Trả về tên form (form1, form2, ...)
+Enum with 12 layout options (form1-form12). Each has:
+- `recommendedHeight`: Suggested height in logical pixels
+- `viewType`: Platform view identifier
+- `toInt()` / `fromInt()`: Convert to/from integer
 
 ### NativeAdOptions
 
-Lớp cấu hình để tải quảng cáo và hành vi.
+Configuration class for ad loading:
+- `adUnitId`: AdMob ad unit ID (required)
+- `layoutType`: Layout form (default: form1)
+- `style`: Style configuration (optional)
+- `enableDebugLogs`: Enable verbose logging (default: false)
+- `requestTimeout`: Ad load timeout (optional)
+- `customExtras`: Custom targeting parameters (optional)
+- `testDeviceIds`: Test device IDs (optional)
 
-| Thuộc tính | Loại | Mặc định | Mô tả |
-|----------|------|---------|-------------|
-| `adUnitId` | String | bắt buộc | ID đơn vị quảng cáo Google AdMob (định dạng: `ca-app-pub-...`) |
-| `layoutType` | NativeAdLayoutType | form1 | Một trong 12 forms: form1, form2, ..., form12 |
-| `style` | NativeAdStyle? | null | Cấu hình kiểu dáng; sử dụng mặc định nếu null |
-| `enableDebugLogs` | bool | false | Bật ghi nhật ký chi tiết Logcat/console |
-| `requestTimeout` | Duration? | null | Thời gian chờ tải quảng cáo |
-| `customExtras` | Map<String, String>? | null | Các tham số nhắm mục tiêu tùy chỉnh |
-| `testDeviceIds` | List<String>? | null | Danh sách ID thiết bị kiểm tra để kiểm tra quảng cáo |
-
-**Các hàm tạo Factory:**
-- `NativeAdOptions.testAndroid()`: Sử dụng đơn vị quảng cáo kiểm tra của Google cho Android
-- `NativeAdOptions.testIOS()`: Sử dụng đơn vị quảng cáo kiểm tra của Google cho iOS
-
-**Các phương thức chính:**
-- `isValidAdUnitId()`: Xác thực định dạng đơn vị quảng cáo
-- `toMap()`: Tuần tự hóa thành Map kênh nền tảng
-- `copyWith()`: Tạo bản sao với các thuộc tính đã sửa đổi
+**Factory Constructors:**
+- `NativeAdOptions.testAndroid()`: Google test unit for Android
+- `NativeAdOptions.testIOS()`: Google test unit for iOS
 
 ### NativeAdStyle
 
-Cấu hình kiểu dáng toàn diện với hơn 30+ thuộc tính. API khai báo lấy cảm hứng từ SwiftUI.
+30+ style properties with SwiftUI-style API:
+- CTA button properties
+- Container properties
+- Text styling (headline, body, price, store, advertiser)
+- Media view configuration
+- Icon styling
+- Star rating colors
+- Ad label customization
+- Layout spacing
 
-#### Thuộc tính nút CTA
-```dart
-ctaBackgroundColor: Color        // Nền nút
-ctaTextColor: Color              // Màu văn bản nút
-ctaFontSize: double              // Kích thước văn bản (mặc định: 14)
-ctaFontWeight: FontWeight        // Độ dày phông
-ctaCornerRadius: double          // Bán kính viền
-ctaPadding: EdgeInsets           // Phần đệm nội bộ
-ctaBorderColor: Color?           // Màu viền cho kiểu ngoài
-ctaBorderWidth: double?          // Độ dày viền
-ctaElevation: double?            // Độ cao Android
-```
-
-#### Thuộc tính Container
-```dart
-containerBackgroundColor: Color         // Màu nền container (mặc định: white)
-containerCornerRadius: double           // Độ bo góc (mặc định: 8)
-containerPadding: EdgeInsets            // Padding bên trong (mặc định: all 12)
-containerMargin: EdgeInsets             // Margin bên ngoài (mặc định: zero)
-containerBorderColor: Color?            // Màu viền (mặc định: #C1B5B5)
-containerBorderWidth: double?           // Độ dày viền (mặc định: 1)
-containerShadowColor: Color?            // Màu shadow (mặc định: null)
-containerShadowRadius: double?          // Độ mờ shadow (mặc định: null)
-containerShadowOffset: Offset?          // Vị trí shadow (mặc định: null)
-```
-
-#### Thuộc tính Văn bản (Headline, Body, Price, Store, Advertiser)
-```dart
-headlineTextColor: Color
-headlineFontSize: double
-headlineFontWeight: FontWeight
-headlineFontFamily: String?
-headlineMaxLines: int?
-
-// Các thuộc tính tương tự cho:
-// - bodyTextColor, bodyFontSize, bodyFontWeight, v.v.
-// - priceTextColor, priceFontSize, v.v.
-// - storeTextColor, storeFontSize, v.v.
-// - advertiserTextColor, advertiserFontSize, v.v.
-```
-
-#### Thuộc tính Chế độ xem Phương tiện
-```dart
-mediaViewHeight: double?        // Chiều cao của chế độ xem phương tiện
-mediaViewCornerRadius: double?  // Bán kính viền
-mediaViewAspectRatio: double?   // Ràng buộc tỷ lệ khung hình
-mediaViewBackgroundColor: Color?
-```
-
-#### Thuộc tính Biểu tượng
-```dart
-iconSize: double?
-iconCornerRadius: double?
-iconBorderColor: Color?
-iconBorderWidth: double?
-```
-
-#### Thuộc tính Xếp hạng Sao
-```dart
-starRatingSize: double?
-starRatingActiveColor: Color?
-starRatingInactiveColor: Color?
-```
-
-#### Thuộc tính Nhãn quảng cáo
-```dart
-showAdLabel: bool
-adLabelText: String?
-adLabelTextColor: Color?
-adLabelBackgroundColor: Color?
-adLabelCornerRadius: double?
-adLabelPadding: EdgeInsets?
-```
-
-#### Khoảng cách Bố cục
-```dart
-itemSpacing: double?           // Khoảng cách giữa các phần tử giao diện
-sectionSpacing: double?        // Khoảng cách giữa các phần
-```
-
-**Các hàm tạo Giao diện Nội dung:**
-- `NativeAdStyle.light()`: Giao diện sáng sạch sẽ với các màu chuyên nghiệp
-- `NativeAdStyle.dark()`: Giao diện tối cho giao diện tối
-- `NativeAdStyle.minimal()`: Kiểu dáng tối giản để tích hợp tinh tế
-
-**Các phương thức chính:**
-- `toMap()`: Tuần tự hóa tất cả các thuộc tính để giao tiếp trên nền tảng
-- `copyWith()`: Tạo bản sao đã sửa đổi của kiểu dáng
-
-### NativeAdEvents
-
-Vùng chứa cho tất cả các gọi lại vòng đời quảng cáo.
-
-```dart
-class NativeAdEvents {
-  final OnAdLoadedCallback? onAdLoaded;              // Quảng cáo tải thành công
-  final OnAdFailedCallback? onAdFailed;              // Tải quảng cáo không thành công
-  final OnAdClickedCallback? onAdClicked;            // Người dùng nhấp vào quảng cáo
-  final OnAdImpressionCallback? onAdImpression;      // Impression được ghi lại
-  final OnAdOpenedCallback? onAdOpened;              // Quảng cáo đã mở overlay
-  final OnAdClosedCallback? onAdClosed;              // Quảng cáo đã đóng overlay
-}
-```
-
-**Chữ ký sự kiện:**
-```dart
-// Quảng cáo tải thành công
-typedef OnAdLoadedCallback = void Function();
-
-// Tải quảng cáo không thành công với thông báo lỗi và mã lỗi
-typedef OnAdFailedCallback = void Function(String error, int errorCode);
-
-// Người dùng nhấp vào quảng cáo
-typedef OnAdClickedCallback = void Function();
-
-// Impression được ghi lại (lượt xem quảng cáo được tính)
-typedef OnAdImpressionCallback = void Function();
-
-// Quảng cáo mở overlay toàn màn hình
-typedef OnAdOpenedCallback = void Function();
-
-// Quảng cáo đóng overlay
-typedef OnAdClosedCallback = void Function();
-```
+**Theme Presets:**
+- `NativeAdStyle.light()`: Clean light theme
+- `NativeAdStyle.dark()`: Dark mode theme
+- `NativeAdStyle.minimal()`: Minimal design
 
 ### NativeAdController
 
-Quản lý trạng thái cho vòng đời quảng cáo và chức năng tải lại.
-
-```dart
-class NativeAdController {
-  // Thuộc tính
-  String get id                           // ID bộ điều khiển duy nhất
-  NativeAdState get state                 // Trạng thái hiện tại
-  Stream<NativeAdState> get stateStream   // Luồng thay đổi trạng thái
-  bool get isLoading                      // Đang tải hiện tại
-  bool get isLoaded                       // Tải thành công
-  bool get isPreloaded                    // Ad đã được preload
-  bool get hasError                       // Tải không thành công
-  String? get errorMessage                // Mô tả lỗi
-  int? get errorCode                      // Mã lỗi trình quản lý quảng cáo
-
-  // Phương thức
-  Future<bool> preload()                  // Preload ad và chờ load xong (trả về true/false)
-  Future<void> loadAd()                   // Kích hoạt tải quảng cáo (fire-and-forget)
-  Future<void> reload()                   // Tải lại quảng cáo hiện có
-  void dispose()                          // Dọn dẹp tài nguyên
-}
-```
-
-**Enum NativeAdState:**
-- `initial`: Trạng thái ban đầu trước khi tải
-- `loading`: Tải đang diễn ra
-- `loaded`: Tải thành công
-- `error`: Tải không thành công
+State management for ad lifecycle:
+- `id`: Unique controller ID
+- `state`: Current ad state (initial, loading, loaded, error)
+- `stateStream`: Stream of state changes
+- `isLoading`, `isLoaded`, `isPreloaded`, `hasError`: State getters
+- `errorMessage`, `errorCode`: Error information
+- `preload()`: Preload ad and wait (returns bool)
+- `loadAd()`: Trigger ad load
+- `reload()`: Reload current ad
+- `dispose()`: Clean up resources
 
 ### NativeAdWidget
 
-Widget chính để hiển thị quảng cáo với quản lý trạng thái đầy đủ.
-
-**Tham số:**
-```dart
-NativeAdWidget(
-  // Bắt buộc
-  options: NativeAdOptions,                    // Cấu hình quảng cáo
-
-  // Giao diện tùy chọn
-  height: double?,                             // Chiều cao widget
-  width: double?,                              // Chiều rộng widget
-  loadingWidget: Widget?,                      // Giao diện tải tùy chỉnh
-  errorWidget: Widget Function(String)?,       // Giao diện lỗi tùy chỉnh
-
-  // Bộ điều khiển tùy chọn
-  controller: NativeAdController?,             // Bộ điều khiển bên ngoài
-
-  // Gọi lại tùy chọn
-  onAdLoaded: VoidCallback?,
-  onAdFailed: Function(String, int)?,
-  onAdClicked: VoidCallback?,
-  onAdImpression: VoidCallback?,
-
-  // Hành vi tùy chọn
-  autoLoad: bool = true,                       // Tự động tải khi khởi tạo
-)
-```
-
-### Tiện ích mở rộng
-
-#### ColorExtension
-```dart
-// Chuyển Color thành chuỗi hex
-Color(0xFF1E88E5).toHex()           // Trả về "#1E88E5"
-Color(0xFF1E88E5).toHexWithAlpha()  // Trả về "#FF1E88E5"
-
-// Chuyển chuỗi hex thành Color
-"#1E88E5".toColor()                 // Trả về Color
-"#FF1E88E5".toColor()               // Phân tích với alpha
-"1E8".toColor()                     // Hỗ trợ hex 3 chữ số
-```
-
-#### EdgeInsetsExtension
-```dart
-// Chuyển EdgeInsets thành Map/List
-EdgeInsets.all(16).toMap()          // {top: 16, left: 16, bottom: 16, right: 16}
-EdgeInsets.all(16).toList()         // [16, 16, 16, 16]
-
-// Chuyển Map thành EdgeInsets
-{"top": 16, "left": 16, "bottom": 16, "right": 16}.toEdgeInsets()
-```
-
-## Kiến trúc & Triển khai
-
-### Kiến trúc Plugin
-
-```
-Giao tiếp Platform Channel:
-┌─────────────────────────────────────┐
-│     Lớp Flutter (Dart)              │
-│  - NativeAdWidget                   │
-│  - NativeAdController               │
-│  - NativeAdOptions/Style/Events     │
-└────────────┬────────────────────────┘
-             │ MethodChannel
-             │ "flutter_admob_native_ads"
-             ▼
-┌─────────────────────────────────────┐
-│     Lớp Native                      │
-│  Android: Kotlin + Google Ads SDK   │
-│  iOS: Swift + Google Mobile Ads     │
-│  - Các phiên bản AdLoader           │
-│  - Layout Builders (12 forms)       │
-│  - Platform Views                   │
-└─────────────────────────────────────┘
-```
-
-### Chi tiết triển khai Native
-
-#### Android (Kotlin)
-
-**Các thành phần chính:**
-- `FlutterAdmobNativeAdsPlugin`: Điểm vào plugin và trình xử lý phương thức
-- `NativeAdLoader`: Bao bọc API `AdLoader` của Google, quản lý vòng đời tải
-- `AdLayoutBuilder`: Mô hình Factory để tạo các chế độ xem dành riêng cho bố cục
-  - `Form1Builder` đến `Form12Builder`: 12 bố cục đa dạng
-- `NativeAdPlatformView`: Triển khai PlatformView tùy chỉnh
-- `NativeAdViewFactory`: Tạo các phiên bản chế độ xem nền tảng
-- `AdStyleManager`: Áp dụng kiểu dáng cho các chế độ xem native
-- `ColorUtils` & `DimensionUtils`: Các hàm tiện ích nền tảng
-
-**Thư viện chính:**
-- Google Mobile Ads SDK 23.0.0
-- Kotlin Coroutines 1.7.3
-- Min SDK: 21, Compile SDK: 34
-
-**Phương thức Method Channel:**
-- `loadAd`: Tải quảng cáo với các tùy chọn
-- `reloadAd`: Tải lại quảng cáo hiện có
-- `disposeAd`: Dọn dẹp tài nguyên
-- `getPlatformVersion`: Thông tin phiên bản
-
-**Luồng sự kiện:**
-1. Flutter gọi `loadAd()` qua MethodChannel
-2. Plugin tạo/lấy phiên bản `NativeAdLoader`
-3. `AdLoader.loadAd()` yêu cầu từ Google Ad Manager
-4. Nhận gọi lại: `onAdLoaded`, `onAdFailedToLoad`, `onAdClicked`, v.v.
-5. Gửi sự kiện trở lại Flutter dưới dạng kết quả channel phương thức
-
-#### iOS (Swift)
-
-**Các thành phần chính:**
-- `FlutterAdmobNativeAdsPlugin`: Điểm vào plugin, trình xử lý phương thức
-- `NativeAdLoader`: Bao bọc `GADAdLoader` của Google, quản lý vòng đời
-- `AdLayoutBuilder`: Factory cho các phân cấp UIView dành riêng cho bố cục
-  - `Form1Builder` đến `Form12Builder`: 12 bố cục đa dạng
-- `NativeAdPlatformView`: PlatformView tùy chỉnh với phân cấp UIView
-- `NativeAdViewFactory`: Tạo các phiên bản chế độ xem nền tảng
-- `AdStyleManager`: Áp dụng kiểu dáng thông qua auto layout và thuộc tính
-- `ColorExtension`: Chuyển đổi hex màu
-- `ConstraintBuilder`: Các tiện ích xây dựng ràng buộc auto layout
-
-**Thư viện chính:**
-- Google-Mobile-Ads-SDK ~> 11.0
-- Mục tiêu triển khai tối thiểu: iOS 13.0
-- Kê khai quyền riêng tư (PrivacyInfo.xcprivacy) cho tuân thủ iOS 17+
-
-**Phương thức Method Channel & Sự kiện giống với Android**
-
-### Kiến trúc Layout Builders
-
-Mỗi layout builder tuân theo cùng một mô hình:
-
-```
-Layout Builder
-├── Tạo hệ thống phân cấp UIView/ViewGroup
-├── Áp dụng AdStyleOptions (màu sắc, kích thước, khoảng cách)
-├── Ràng buộc dữ liệu GADNativeAd/NativeAd
-│   ├── Hình ảnh biểu tượng
-│   ├── Văn bản tiêu đề
-│   ├── Văn bản nội dung (mô tả)
-│   ├── Chế độ xem phương tiện (hình ảnh/video)
-│   ├── Nút gọi hành động
-│   ├── Xếp hạng sao
-│   └── Nhãn cửa hàng/Nhà quảng cáo
-└── Trả về chế độ xem được cấu hình sẵn sàng để hiển thị
-```
-
-### Mô hình Quản lý trạng thái
-
-```
-Widget → Controller → MethodChannel → Native
-  ↓         ↓            ↓              ↓
- build   loadAd()   invokeMethod     AdLoader
-         stateStream  (result)       callbacks
-            ↓         ←─────────────────┘
-         setState
-           ↓
-       rebuild
-```
-
-### Xử lý lỗi
-
-Lỗi được lan truyền thông qua:
-1. Gọi lại `onAdFailed` với thông báo lỗi và mã lỗi
-2. Thuộc tính `NativeAdController.hasError`, `errorMessage`, `errorCode`
-3. Trình tạo widget lỗi tùy chỉnh trong `NativeAdWidget`
-4. Nhật ký gỡ lỗi (nếu được bật) qua các kênh nền tảng
-
-## Hướng dẫn phát triển
-
-### Cấu trúc dự án
-
-```
-flutter_admob_native_ads/
-├── lib/
-│   ├── flutter_admob_native_ads.dart    # Main exports
-│   └── src/
-│       ├── models/                      # Data models
-│       │   ├── ad_layout_type.dart
-│       │   ├── native_ad_options.dart
-│       │   ├── native_ad_style.dart
-│       │   └── native_ad_events.dart
-│       ├── controllers/
-│       │   └── native_ad_controller.dart
-│       ├── widgets/
-│       │   └── native_ad_widget.dart
-│       └── utils/
-│           ├── color_extension.dart
-│           └── edge_insets_extension.dart
-├── android/
-│   └── src/main/kotlin/com/tqc/ads/flutter_admob_native_ads/
-│       ├── FlutterAdmobNativeAdsPlugin.kt
-│       ├── ad_loader/
-│       ├── layouts/                     # Form1-Form12 builders
-│       ├── platform_view/
-│       ├── styling/
-│       └── utils/
-├── ios/
-│   └── Classes/
-│       ├── Plugin/
-│       ├── AdLoader/
-│       ├── Layouts/                     # Form1-Form12 builders
-│       ├── PlatformView/
-│       ├── Styling/
-│       └── Utils/
-├── example/
-│   └── lib/main.dart                    # Example app
-└── test/
-    └── flutter_admob_native_ads_test.dart
-```
-
-### Chạy kiểm tra
-
-```bash
-# Chạy tất cả các bài kiểm tra
-flutter test
-
-# Chạy với bảo hiểm
-flutter test --coverage
-
-# Chạy tệp kiểm tra cụ thể
-flutter test test/flutter_admob_native_ads_test.dart
-```
-
-### Bảo phủ kiểm tra
-
-Plugin bao gồm 7 nhóm kiểm tra (tổng cộng 295 dòng):
-
-1. **NativeAdLayoutType**: Chuyển đổi enum và thuộc tính
-2. **NativeAdOptions**: Cấu hình và xác thực
-3. **NativeAdStyle**: Kiểu dáng và chủ đề
-4. **NativeAdEvents**: Xử lý gọi lại sự kiện
-5. **ColorExtension**: Các tiện ích chuyển đổi hex màu
-6. **HexColorParsing**: Phân tích chuỗi hex (định dạng 3, 6, 8 chữ số)
-7. **EdgeInsetsExtension**: Tuần tự hóa/hủy tuần tự EdgeInsets
-
-### Cấu hình xây dựng
-
-**Android (build.gradle)**
-```gradle
-minSdk 21
-compileSdk 34
-targetSdk 34
-kotlinVersion '1.9.22'
-```
-
-**iOS (pubspec)**
-```yaml
-ios:
-  minVersion: 13.0
-```
-
-### Thêm loại bố cục mới
-
-Plugin hiện có 12 forms được thiết kế sẵn. Để thêm bố cục tùy chỉnh (Form13+):
-
-1. Tạo lớp builder mới:
-   - `android/src/main/kotlin/.../layouts/Form13Builder.kt`
-   - `ios/Classes/Layouts/Form13Builder.swift`
-
-2. Cập nhật factory `AdLayoutBuilder` để dispatch đến builder mới (cả Android và iOS)
-
-3. Thêm giá trị enum mới vào `NativeAdLayoutType` trong [lib/src/models/ad_layout_type.dart](lib/src/models/ad_layout_type.dart):
-   ```dart
-   enum NativeAdLayoutType {
-     form1,
-     form2,
-     ...
-     form12,
-     form13;  // Bố cục mới
-   }
-   ```
-
-4. Cập nhật các phương thức `toInt()`, `fromInt()`, `recommendedHeight` và `viewType` cho form mới
-
-5. Thêm các trường hợp kiểm tra tương ứng trong [test/flutter_admob_native_ads_test.dart](test/flutter_admob_native_ads_test.dart)
-
-### Mở rộng kiểu dáng
-
-Để thêm thuộc tính kiểu dáng mới:
-
-1. Thêm thuộc tính vào `NativeAdStyle` (Dart)
-2. Thêm thuộc tính vào `AdStyleOptions` (Android)
-3. Thêm thuộc tính vào `AdStyleOptions` (iOS)
-4. Cập nhật triển khai `AdStyleManager` (cả hai nền tảng)
-5. Thêm trường hợp kiểm tra cho tuần tự hóa/hủy tuần tự
-
-## Khắc phục sự cố
-
-### Quảng cáo không hiển thị
-
-1. **Xác minh Cấu hình AdMob:**
-   - Kiểm tra ID ứng dụng AdMob trong AndroidManifest.xml (Android) hoặc Info.plist (iOS)
-   - Xác minh định dạng ID đơn vị quảng cáo: `ca-app-pub-...`
-   - Đảm bảo các đơn vị quảng cáo hoạt động trong bảng điều khiển AdMob
-
-2. **Mạng & Kết nối:**
-   - Đảm bảo thiết bị/emulator có kết nối internet
-   - Kiểm tra tường lửa không chặn các yêu cầu Google Ad Manager
-   - Xác minh phân giải DNS cho `googleadservices.com`
-
-3. **Gỡ lỗi:**
-   - Bật nhật ký gỡ lỗi: `enableDebugLogs: true` trong `NativeAdOptions`
-   - Kiểm tra logcat (Android): `adb logcat | grep -i ads`
-   - Kiểm tra bảng điều khiển (iOS): Bảng điều khiển Xcode với bộ lọc GMA
-   - Sử dụng ID đơn vị quảng cáo kiểm tra để xác minh thiết lập
-
-4. **Nguyên nhân phổ biến:**
-   - Ứng dụng không được ký (sử dụng ID thiết bị kiểm tra)
-   - Đơn vị quảng cáo không tồn tại hoặc bị vô hiệu hóa trong bảng điều khiển AdMob
-   - Ứng dụng chưa được Google phê duyệt để hiển thị quảng cáo
-   - Emulator không được nhận dạng làm thiết bị kiểm tra
-
-### Lỗi GADInvalidInitializationException
-
-Nếu bạn gặp lỗi `GADInvalidInitializationException` với thông báo "The Google Mobile Ads SDK was initialized without an application ID", hãy thực hiện các bước sau:
-
-1. **Kiểm tra ID ứng dụng trong Info.plist:**
-   ```xml
-   <key>GADApplicationIdentifier</key>
-   <string>ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy</string>
-   ```
-
-2. **Khởi tạo SDK trong AppDelegate.swift:**
-   ```swift
-   import GoogleMobileAds
-
-   @main
-   @objc class AppDelegate: FlutterAppDelegate {
-     override func application(
-       _ application: UIApplication,
-       didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-     ) -> Bool {
-       GADMobileAds.sharedInstance().start(completionHandler: nil)
-       GeneratedPluginRegistrant.register(with: self)
-       return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-     }
-   }
-   ```
-
-3. **Xử lý các thư viện liên kết tĩnh:**
-   Nếu bạn gặp cảnh báo "The 'Pods-Runner' target has transitive dependencies that include statically linked binaries", hãy cập nhật Podfile của bạn như được mô tả trong phần cấu hình iOS ở trên.
-
-4. **Sử dụng ID ứng dụng thử nghiệm:**
-   Trong quá trình phát triển, bạn có thể sử dụng ID ứng dụng thử nghiệm của Google:
-   ```
-   ca-app-pub-3940256099942544~1458002511
-   ```
-
-### Lỗi xây dựng
+Main widget for displaying ads:
+- `options`: Ad configuration (required)
+- `height`, `width`: Widget dimensions (optional)
+- `loadingWidget`: Custom loading UI (optional)
+- `errorWidget`: Custom error UI (optional)
+- `controller`: External controller (optional)
+- `onAdLoaded`, `onAdFailed`, `onAdClicked`, `onAdImpression`: Callbacks
+- `autoLoad`: Auto-load on init (default: true)
+
+## Requirements
+
+- Flutter SDK: >=3.3.0
+- Dart SDK: >=3.0.0 <4.0.0
+- Android: minSdk 21, compileSdk 34
+- iOS: 13.0+
+- Google Mobile Ads SDK: 23.0.0 (Android), 11.0 (iOS)
+
+## Troubleshooting
+
+### Ads Not Showing
+
+1. Verify AdMob configuration (app ID, ad unit ID format)
+2. Check internet connection
+3. Enable debug logs: `enableDebugLogs: true`
+4. Use test ad unit IDs
+5. Check platform logs (logcat/Xcode)
+
+### Build Errors
 
 **Android:**
-- Đảm bảo `minSdkVersion >= 21` trong `android/app/build.gradle`
-- Đảm bảo Google Play Services được cập nhật
-- Chạy `flutter clean && flutter pub get` nếu bộ nhớ cache gradle bị lỗi
+- Ensure `minSdkVersion >= 21`
+- Run `flutter clean && flutter pub get`
 
 **iOS:**
-- Đảm bảo mục tiêu triển khai >= 13.0 trong Podfile
-- Chạy `pod update` nếu bộ nhớ cache CocoaPods bị lỗi
-- Kiểm tra Cài đặt xây dựng Xcode để tương thích
-- Đảm bảo phiên bản Swift khớp với yêu cầu plugin (5.0+)
+- Ensure deployment target >= 13.0
+- Run `pod update` if needed
+- Check Swift version (5.0+)
 
-### Vấn đề quản lý trạng thái
+### Common Issues
 
-**Quảng cáo không tải lại:**
-- Gọi `controller.reload()` để kích hoạt tải mới
-- Đảm bảo bộ điều khiển chưa bị loại bỏ trước khi tải lại
+- **No internet:** Ensure device/emulator has connectivity
+- **Wrong ad unit:** Verify format `ca-app-pub-...`
+- **Not approved:** Use test IDs during development
+- **Emulator:** Add to test devices list
 
-**Nhiều bộ điều khiển:**
-- Mỗi NativeAdWidget tạo ID bộ điều khiển duy nhất
-- Lưu trữ tham chiếu nếu cần kiểm soát thủ công
-- Gọi `dispose()` trên các bộ điều khiển khi hoàn thành
+## Architecture
 
-### Vấn đề cụ thể trên nền tảng
-
-**Chỉ Android:**
-- Kiểm tra `ColorUtils.parseColor()` để tìm các chuỗi hex không hợp lệ
-- Xác minh chuyển đổi `DimensionUtils.dpToPx()`
-- Đảm bảo phân cấp chế độ xem quảng cáo native không vượt quá giới hạn độ sâu
-
-**Chỉ iOS:**
-- Kiểm tra ràng buộc auto layout để tìm xung đột
-- Xác minh chuyển đổi không gian màu cho các màu cạnh
-- Đảm bảo vòng đời UIView phù hợp với vòng đời Flutter
-
-## Giấy phép
-
-Giấy phép MIT - xem tệp LICENSE để biết chi tiết.
-
-## Hỗ trợ & Đóng góp
-
-Để báo cáo vấn đề, yêu cầu tính năng hoặc đóng góp:
-- **Repository**: https://github.com/tqc/flutter_admob_native_ads
-- **Issues**: Báo cáo qua GitHub Issues
-- **Pull Requests**: Hoan nghênh với mô tả chi tiết
-
-## Bug Fixes quan trọng
-
-### Fix: ctaBackgroundColor và các style properties không hoạt động (v1.0.1)
-
-**Vấn đề:** Khi set các thuộc tính styling như `ctaBackgroundColor`, `ctaTextColor`, `ctaCornerRadius` trong `NativeAdStyle`, màu sắc và kiểu dáng không được apply cho CTA button.
-
-**Nguyên nhân:** Tất cả 24 layout form builders (12 Android + 12 iOS) đều hardcode màu sắc và kiểu dáng của CTA button thay vì sử dụng `styleManager.styleButton()` để apply styles từ `NativeAdStyle`.
-
-**Giải pháp:** Đã refactor toàn bộ 24 layout builders để gọi `styleManager.styleButton()` thay vì hardcode styles.
-
-**Files đã sửa:**
-- Android: `Form1Builder.kt` đến `Form12Builder.kt` (12 files)
-- iOS: `Form1Builder.swift` đến `Form12Builder.swift` (12 files)
-
-**Ví dụ sử dụng sau khi fix:**
-```dart
-NativeAdWidget(
-  options: NativeAdOptions(
-    adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.form1,
-    style: NativeAdStyle(
-      ctaBackgroundColor: Color(0xFFD6FFC9),  // ✅ Bây giờ hoạt động!
-      ctaTextColor: Colors.black,
-      ctaCornerRadius: 12,
-      ctaPadding: EdgeInsets.all(16),
-    ),
-  ),
-)
+```
+Flutter Layer (Dart)
+├── NativeAdWidget (stateful widget)
+├── NativeAdController (state management)
+└── Models (Options, Style, Events)
+         ↓ MethodChannel
+Native Layer (Kotlin/Swift)
+├── AdLoader (load ads from Google)
+├── LayoutBuilders (12 forms)
+├── PlatformViews (rendering)
+└── StyleManager (apply styles)
 ```
 
-Trước đây, các style properties này bị ignore và CTA button luôn hiển thị với màu mặc định `#4285F4` (Google Blue).
-
-### Fix: Border và Border Radius được render trong Native Platform Views (v1.0.2)
-
-**Vấn đề:** Border và border radius của container được apply từ Flutter layer (Container widget), không phải từ native platform views. Điều này gây ra vấn đề với rendering và performance.
-
-**Nguyên nhân:**
-- Flutter code sử dụng `Container` với `decoration` để apply border và borderRadius
-- Native platform views (Android LinearLayout và iOS UIStackView) chỉ có background color và corner radius được hardcoded
-
-**Giải pháp:**
-1. **Chuyển border/radius sang native rendering:**
-   - Thêm `styleMainContainer()` method vào `AdStyleManager` trên cả Android và iOS
-   - Method này apply backgroundColor, cornerRadius, borderColor và borderWidth từ `NativeAdStyle`
-   - Cập nhật 24 Form Builders (12 Android + 12 iOS) để sử dụng `styleManager.styleMainContainer()`
-
-2. **Xóa border/radius từ Flutter:**
-   - Loại bỏ `Container` với `decoration` trong `NativeAdWidget`
-   - Border và radius giờ được render hoàn toàn bởi native views
-
-3. **Giá trị mặc định mới:**
-   - `containerCornerRadius`: 8 (thay vì 12)
-   - `containerBorderColor`: `#C1B5B5` (màu xám nhạt)
-   - `containerBorderWidth`: 1
-
-**Files đã sửa:**
-- `lib/src/widgets/native_ad_widget.dart`: Xóa Container decoration
-- `lib/src/models/native_ad_style.dart`: Cập nhật giá trị mặc định
-- `android/.../styling/AdStyleManager.kt`: Thêm `styleMainContainer()`
-- `ios/Classes/Styling/AdStyleManager.swift`: Thêm `styleMainContainer()`
-- Android: `Form1Builder.kt` đến `Form12Builder.kt` (12 files)
-- iOS: `Form1Builder.swift` đến `Form12Builder.swift` (12 files)
-
-**Ví dụ sử dụng:**
-```dart
-// Sử dụng giá trị mặc định (border xám nhạt, corner radius 8)
-NativeAdWidget(
-  options: NativeAdOptions(
-    adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.form1,
-  ),
-)
-
-// Tùy chỉnh border và corner radius
-NativeAdWidget(
-  options: NativeAdOptions(
-    adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.form1,
-    style: NativeAdStyle(
-      containerBorderColor: Colors.blue,      // ✅ Border màu xanh
-      containerBorderWidth: 2,                 // ✅ Độ dày 2px
-      containerCornerRadius: 16,               // ✅ Bo góc 16
-    ),
-  ),
-)
-
-// Loại bỏ border
-NativeAdWidget(
-  options: NativeAdOptions(
-    adUnitId: 'your-ad-unit-id',
-    layoutType: NativeAdLayoutType.form1,
-    style: NativeAdStyle(
-      containerBorderWidth: null,  // ✅ Không có border
-    ),
-  ),
-)
-```
-
-**Lợi ích:**
-- ✅ Rendering 100% native, không còn layer phụ từ Flutter
-- ✅ Performance tốt hơn
-- ✅ Nhất quán giữa Android và iOS
-- ✅ Dễ dàng tùy chỉnh border/radius qua `NativeAdStyle`
+**Key Points:**
+- 100% native rendering via Platform Views
+- Full parity between Android and iOS
+- All styling applied natively (no Flutter wrappers)
+- Method channel communication for ad loading/events
 
 ## Changelog
 
-Xem [CHANGELOG.md](CHANGELOG.md) để biết lịch sử phiên bản và ghi chú phát hành.
+See [CHANGELOG.md](CHANGELOG.md) for version history.
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Support
+
+- **Repository:** https://github.com/tqc/flutter_admob_native_ads
+- **Issues:** Report via GitHub Issues
+- **Pull Requests:** Welcome with detailed descriptions
+
+---
+
+Made with ❤️ by [TQC Solution](https://github.com/TQC-Solution)
