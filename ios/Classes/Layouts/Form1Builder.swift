@@ -93,10 +93,10 @@ enum Form1Builder {
         
         let contentPadding: CGFloat = 8
         NSLayoutConstraint.activate([
-            mainStack.topAnchor.constraint(equalTo: nativeAdView.topAnchor, constant: contentPadding),
-            mainStack.leadingAnchor.constraint(equalTo: nativeAdView.leadingAnchor, constant: contentPadding),
-            mainStack.trailingAnchor.constraint(equalTo: nativeAdView.trailingAnchor, constant: -contentPadding),
-            mainStack.bottomAnchor.constraint(equalTo: nativeAdView.bottomAnchor, constant: -contentPadding)
+            // mainStack.topAnchor.constraint(equalTo: nativeAdView.topAnchor, constant: contentPadding),
+            mainStack.leadingAnchor.constraint(equalTo: nativeAdView.leadingAnchor),
+            mainStack.trailingAnchor.constraint(equalTo: nativeAdView.trailingAnchor),
+            // mainStack.bottomAnchor.constraint(equalTo: nativeAdView.bottomAnchor, constant: -contentPadding)
         ])
         
         nativeAdView.iconView = iconView

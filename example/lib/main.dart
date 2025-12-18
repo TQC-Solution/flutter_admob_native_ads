@@ -400,29 +400,6 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
       onAdClicked: () {
         debugPrint('Ad clicked!');
       },
-      loadingWidget: Container(
-        decoration: BoxDecoration(
-          color: _isDarkTheme ? Colors.grey[800] : Colors.grey[100],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(
-                color: _isDarkTheme ? Colors.white : Colors.blue,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Loading ad...',
-                style: TextStyle(
-                  color: _isDarkTheme ? Colors.white70 : Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
       errorWidget: (error) => Container(
         decoration: BoxDecoration(
           color: _isDarkTheme ? Colors.grey[800] : Colors.grey[100],

@@ -117,7 +117,7 @@ enum NativeAdLayoutType {
   double get recommendedHeight {
     switch (this) {
       case NativeAdLayoutType.form1:
-        return 80;
+        return 65;
       case NativeAdLayoutType.form2:
         return 90;
       case NativeAdLayoutType.form3:

@@ -44,7 +44,9 @@ object Form1Builder {
         val iconView = ImageView(context).apply {
             scaleType = ImageView.ScaleType.CENTER_CROP
             val size = DimensionUtils.dpToPx(context, 42f)
-            layoutParams = LinearLayout.LayoutParams(size, size)
+              layoutParams = LinearLayout.LayoutParams(size, size).apply {
+                marginEnd = DimensionUtils.dpToPx(context, 8f)
+            }
             background = GradientDrawable().apply {
                 setColor(Color.parseColor("#f0f0f0"))
                 cornerRadius = DimensionUtils.dpToPx(context, 8f).toFloat()

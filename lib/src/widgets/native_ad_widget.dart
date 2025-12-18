@@ -255,34 +255,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
       return widget.errorWidget!(error);
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(
-          widget.options.style.containerCornerRadius,
-        ),
-      ),
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.error_outline,
-              color: Colors.grey[400],
-              size: 32,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Ad not available',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 12,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return SizedBox.shrink();
   }
 
   Widget _buildPlatformView() {
