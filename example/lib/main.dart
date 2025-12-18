@@ -388,6 +388,7 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
         style: NativeAdStyle(
           ctaBackgroundColor: Color(int.parse('0xFF$hexColor')),
         ),
+
         enableDebugLogs: true,
       ),
       height: _selectedLayout.recommendedHeight,

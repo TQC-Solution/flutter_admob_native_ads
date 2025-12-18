@@ -85,7 +85,6 @@ enum Form8Builder {
         let ctaButton = UIButton(type: .system)
         styleManager.styleButton(ctaButton)
         contentStack.addArrangedSubview(ctaButton)
-
         mainStack.addArrangedSubview(contentStack)
 
         // Make CTA button fill full width of content column

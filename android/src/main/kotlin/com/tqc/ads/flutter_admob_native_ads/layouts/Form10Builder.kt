@@ -26,6 +26,7 @@ object Form10Builder {
             )
         }
 
+        // Main container - vertical linear layout
         val mainContainer = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = ViewGroup.LayoutParams(
@@ -37,8 +38,9 @@ object Form10Builder {
         }
         styleManager.styleMainContainer(mainContainer)
 
+        // Title
         val headlineView = TextView(context).apply {
-            textSize = 16f
+            textSize = 14f
             setTextColor(Color.BLACK)
             setTypeface(null, android.graphics.Typeface.BOLD)
             maxLines = 1
@@ -46,42 +48,52 @@ object Form10Builder {
         }
         mainContainer.addView(headlineView)
 
+        // Ad badge
         val adLabel = TextView(context).apply {
-            text = "Ad"
-            textSize = 10f
-            setTextColor(Color.parseColor("#5D4037"))
+            text = "AD"
+            textSize = 8f
+            setTextColor(Color.parseColor("#FFC000"))
             setTypeface(null, android.graphics.Typeface.BOLD)
             background = GradientDrawable().apply {
-                setColor(Color.parseColor("#FFE0B2"))
-                cornerRadius = DimensionUtils.dpToPx(context, 3f).toFloat()
+                setColor(Color.TRANSPARENT)
+                setStroke(DimensionUtils.dpToPx(context, 1f), Color.parseColor("#FFC000"))
+                cornerRadius = DimensionUtils.dpToPx(context, 2f).toFloat()
             }
-            val padH = DimensionUtils.dpToPx(context, 6f)
+            val padH = DimensionUtils.dpToPx(context, 4f)
             val padV = DimensionUtils.dpToPx(context, 2f)
             setPadding(padH, padV, padH, padV)
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = DimensionUtils.dpToPx(context, 4f) }
+            ).apply {
+                topMargin = DimensionUtils.dpToPx(context, 4f)
+            }
         }
         mainContainer.addView(adLabel)
 
+        // Body text
         val bodyView = TextView(context).apply {
-            textSize = 13f
-            setTextColor(Color.parseColor("#757575"))
+            textSize = 11f
+            setTextColor(Color.parseColor("#666666"))
             maxLines = 2
             ellipsize = android.text.TextUtils.TruncateAt.END
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = DimensionUtils.dpToPx(context, 8f) }
+            ).apply {
+                topMargin = DimensionUtils.dpToPx(context, 4f)
+            }
         }
         mainContainer.addView(bodyView)
 
+        // CTA button (full width)
         val ctaButton = Button(context).apply {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = DimensionUtils.dpToPx(context, 12f) }
+                DimensionUtils.dpToPx(context, 38f)
+            ).apply {
+                topMargin = DimensionUtils.dpToPx(context, 8f)
+            }
         }
         styleManager.styleButton(ctaButton)
         mainContainer.addView(ctaButton)
