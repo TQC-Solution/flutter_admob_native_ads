@@ -140,7 +140,7 @@ object Form9Builder {
         val mediaView = MediaView(context).apply {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                DimensionUtils.dpToPx(context, 140f)
+                DimensionUtils.dpToPx(context, 120f)
             ).apply { topMargin = DimensionUtils.dpToPx(context, 12f) }
             background = GradientDrawable().apply {
                 setColor(Color.parseColor("#f0f0f0"))
