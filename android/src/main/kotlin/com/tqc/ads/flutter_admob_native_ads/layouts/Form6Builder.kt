@@ -16,7 +16,7 @@ import com.tqc.ads.flutter_admob_native_ads.utils.DimensionUtils
 
 /**
  * Form6 Builder - Vertical with Smaller Media (ad_6.png)
- * Layout: [Icon + Ad + Title] → [Body] → [Smaller Media] → [CTA]
+ * Layout: Column[Row[Icon + Column[Row[AD + Title] + Body]] + Media + CTA]
  */
 object Form6Builder {
 
@@ -28,6 +28,7 @@ object Form6Builder {
             )
         }
 
+        // Main vertical container
         val mainContainer = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = ViewGroup.LayoutParams(
@@ -39,24 +40,55 @@ object Form6Builder {
         }
         styleManager.styleMainContainer(mainContainer)
 
-        val headerRow = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
+        // Inner content container with background color
+        val contentContainer = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#F1E9E9"))
+                cornerRadius = DimensionUtils.dpToPx(context, 8f).toFloat()
+            }
+            val padding = DimensionUtils.dpToPx(context, 8f)
+            setPadding(padding, padding, padding, padding)
         }
 
+        // Header row: Icon + Right column
+        val headerRow = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.TOP
+        }
+
+        // Icon (Left)
         val iconView = ImageView(context).apply {
             scaleType = ImageView.ScaleType.CENTER_CROP
-            val size = DimensionUtils.dpToPx(context, 36f)
-            layoutParams = LinearLayout.LayoutParams(size, size).apply {
+            val size = DimensionUtils.dpToPx(context, 42f)
+              layoutParams = LinearLayout.LayoutParams(size, size).apply {
                 marginEnd = DimensionUtils.dpToPx(context, 8f)
             }
             background = GradientDrawable().apply {
                 setColor(Color.parseColor("#f0f0f0"))
                 cornerRadius = DimensionUtils.dpToPx(context, 8f).toFloat()
             }
+            clipToOutline = true
         }
         headerRow.addView(iconView)
 
+        // Right column: Title row + Body
+        val rightColumn = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+        }
+
+        // Title row with Ad label
+        val titleRow = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+
+        // Ad label
         val adLabel = TextView(context).apply {
             text = "Ad"
             textSize = 10f
@@ -74,8 +106,9 @@ object Form6Builder {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply { marginEnd = DimensionUtils.dpToPx(context, 8f) }
         }
-        headerRow.addView(adLabel)
+        titleRow.addView(adLabel)
 
+        // Headline (takes remaining space)
         val headlineView = TextView(context).apply {
             textSize = 14f
             setTextColor(Color.BLACK)
@@ -84,9 +117,10 @@ object Form6Builder {
             ellipsize = android.text.TextUtils.TruncateAt.END
             layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
         }
-        headerRow.addView(headlineView)
-        mainContainer.addView(headerRow)
+        titleRow.addView(headlineView)
+        rightColumn.addView(titleRow)
 
+        // Body text
         val bodyView = TextView(context).apply {
             textSize = 12f
             setTextColor(Color.parseColor("#757575"))
@@ -97,8 +131,12 @@ object Form6Builder {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply { topMargin = DimensionUtils.dpToPx(context, 4f) }
         }
-        mainContainer.addView(bodyView)
+        rightColumn.addView(bodyView)
 
+        headerRow.addView(rightColumn)
+        contentContainer.addView(headerRow)
+
+        // Media view (120dp height)
         val mediaView = MediaView(context).apply {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -110,8 +148,9 @@ object Form6Builder {
             }
             clipToOutline = true
         }
-        mainContainer.addView(mediaView)
+        contentContainer.addView(mediaView)
 
+        // CTA Button
         val ctaButton = Button(context).apply {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -119,8 +158,9 @@ object Form6Builder {
             ).apply { topMargin = DimensionUtils.dpToPx(context, 12f) }
         }
         styleManager.styleButton(ctaButton)
-        mainContainer.addView(ctaButton)
+        contentContainer.addView(ctaButton)
 
+        mainContainer.addView(contentContainer)
         nativeAdView.addView(mainContainer)
         nativeAdView.iconView = iconView
         nativeAdView.headlineView = headlineView

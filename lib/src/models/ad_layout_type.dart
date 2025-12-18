@@ -127,7 +127,7 @@ enum NativeAdLayoutType {
       case NativeAdLayoutType.form5:
         return 300;
       case NativeAdLayoutType.form6:
-        return 280;
+        return 253;
       case NativeAdLayoutType.form7:
         return 140;
       case NativeAdLayoutType.form8:
