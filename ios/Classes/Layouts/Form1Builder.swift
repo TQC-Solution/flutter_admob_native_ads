@@ -68,7 +68,7 @@ enum Form1Builder {
         let headlineLabel = UILabel()
         headlineLabel.font = .systemFont(ofSize: 14, weight: .bold)
         headlineLabel.textColor = .black
-        headlineLabel.numberOfLines = 2
+        headlineLabel.numberOfLines = 1
         titleRow.addArrangedSubview(headlineLabel)
         contentStack.addArrangedSubview(titleRow)
         
