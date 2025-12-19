@@ -261,8 +261,8 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
                                 onPressed: _isPreloading ? null : _preloadAd,
                                 icon: _isPreloading
                                     ? const SizedBox(
-                                        width: 16,
-                                        height: 16,
+                                        width: 12,
+                                        height: 12,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
                                         ),
@@ -274,17 +274,35 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
                                       : 'Preload Ad',
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              ElevatedButton.icon(
-                                onPressed:
-                                    (_preloadedController?.isLoaded == true &&
-                                        !_showPreloadedAd)
-                                    ? _showPreloaded
-                                    : null,
-                                icon: const Icon(Icons.visibility),
-                                label: const Text('Show Preloaded'),
+                              SizedBox(width: 4),
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed:
+                                      (_preloadedController?.isLoaded == true &&
+                                          !_showPreloadedAd)
+                                      ? _showPreloaded
+                                      : null,
+                                  icon: const Icon(Icons.visibility),
+                                  label: const Text('Show Preloaded'),
+                                ),
                               ),
                             ],
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MyWidget(
+                                    preloadedController: _preloadedController!,
+                                  ),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.visibility),
+                            label: const Text(
+                              'Show Preloaded Ad in New Screen',
+                            ),
                           ),
                           if (_preloadedController?.isLoaded == true)
                             Padding(
@@ -423,6 +441,29 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class MyWidget extends StatelessWidget {
+  final NativeAdController preloadedController;
+  const MyWidget({super.key, required this.preloadedController});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Preloaded Ad')),
+      body: Expanded(
+        child: Center(
+          child: NativeAdWidget(
+            key: const ValueKey('preloaded-ad'),
+            options: preloadedController.options,
+            controller: preloadedController,
+            autoLoad: false, // Don't reload - use preloaded ad
+            height: preloadedController.options.layoutType.recommendedHeight,
           ),
         ),
       ),
