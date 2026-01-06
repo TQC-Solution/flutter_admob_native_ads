@@ -35,10 +35,29 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
     private var channel: FlutterMethodChannel?
     private var adLoaders: [String: NativeAdLoader] = [:]
 
+    /// Registry of ad loaded callbacks by controller ID (for platform views)
+    private var adLoadedCallbacks: [String: (GADNativeAd) -> Void] = [:]
+
     /// Gets the preloaded native ad for the given controller ID.
     /// Returns nil if no ad is loaded for the controller.
     public func getPreloadedAd(controllerId: String) -> GADNativeAd? {
         return adLoaders[controllerId]?.nativeAd
+    }
+
+    /// Registers a callback to be invoked when an ad is loaded for the given controller.
+    /// This allows platform views to receive ads without creating their own loaders.
+    public func registerAdLoadedCallback(controllerId: String, callback: @escaping (GADNativeAd) -> Void) {
+        adLoadedCallbacks[controllerId] = callback
+
+        // If ad is already loaded, invoke callback immediately
+        if let ad = getPreloadedAd(controllerId: controllerId) {
+            callback(ad)
+        }
+    }
+
+    /// Unregisters the ad loaded callback for the given controller.
+    public func unregisterAdLoadedCallback(controllerId: String) {
+        adLoadedCallbacks.removeValue(forKey: controllerId)
     }
 
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -156,6 +175,9 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
             enableDebugLogs: enableDebugLogs
         )
 
+        // Set delegate to receive ad loaded events
+        loader.delegate = self
+
         adLoaders[controllerId] = loader
         loader.loadAd()
 
@@ -197,6 +219,9 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
             enableDebugLogs: enableDebugLogs
         )
 
+        // Set delegate to receive ad loaded events
+        loader.delegate = self
+
         adLoaders[controllerId] = loader
         loader.loadAd()
 
@@ -229,7 +254,29 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
         adLoaders.values.forEach { $0.destroy() }
         adLoaders.removeAll()
 
+        // Clear callbacks
+        adLoadedCallbacks.removeAll()
+
         // Clear singleton instance
         FlutterAdmobNativeAdsPlugin.sharedInstance = nil
+    }
+}
+
+// MARK: - NativeAdLoaderDelegate
+
+extension FlutterAdmobNativeAdsPlugin: NativeAdLoaderDelegate {
+
+    func adLoader(_ loader: NativeAdLoader, didReceiveNativeAd nativeAd: GADNativeAd) {
+        // Notify registered callbacks for this controller
+        if let callback = adLoadedCallbacks[loader.controllerId] {
+            DispatchQueue.main.async {
+                callback(nativeAd)
+            }
+        }
+    }
+
+    func adLoader(_ loader: NativeAdLoader, didFailWithError error: Error) {
+        // Error is already sent via method channel by the loader
+        print("[FlutterAdmobNativeAds] Ad failed to load: \(error.localizedDescription)")
     }
 }

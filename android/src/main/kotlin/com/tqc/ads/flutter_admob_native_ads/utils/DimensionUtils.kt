@@ -4,23 +4,31 @@ import android.content.Context
 import android.util.TypedValue
 
 /**
- * Utility object for dimension conversions.
+ * Utility object for dimension conversions with caching.
  */
 object DimensionUtils {
 
+    // Cache for dp to px conversions to avoid repeated calculations
+    private val dpToPxCache = mutableMapOf<Pair<Float, Float>, Int>()
+
     /**
-     * Converts density-independent pixels (dp) to pixels (px).
+     * Converts density-independent pixels (dp) to pixels (px) with caching.
      *
      * @param context Android context
      * @param dp Value in density-independent pixels
      * @return Value in pixels
      */
     fun dpToPx(context: Context, dp: Float): Int {
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            dp,
-            context.resources.displayMetrics
-        ).toInt()
+        val density = context.resources.displayMetrics.density
+        val cacheKey = Pair(dp, density)
+
+        return dpToPxCache.getOrPut(cacheKey) {
+            TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dp,
+                context.resources.displayMetrics
+            ).toInt()
+        }
     }
 
     /**

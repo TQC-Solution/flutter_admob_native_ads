@@ -7,11 +7,12 @@ class NativeAdPlatformView: NSObject, FlutterPlatformView {
 
     private let containerView: UIView
     private var nativeAdView: GADNativeAdView?
-    private var adLoader: NativeAdLoader?
     private let styleOptions: AdStyleOptions
     private let styleManager: AdStyleManager
     private let enableDebugLogs: Bool
     private let layoutType: String
+    private var isLayoutBuilt = false
+    private let controllerId: String?
 
     init(
         frame: CGRect,
@@ -25,6 +26,7 @@ class NativeAdPlatformView: NSObject, FlutterPlatformView {
         self.styleManager = AdStyleManager(options: styleOptions)
         self.enableDebugLogs = creationParams["enableDebugLogs"] as? Bool ?? false
         self.layoutType = layoutType
+        self.controllerId = creationParams["controllerId"] as? String
 
         super.init()
 
@@ -32,7 +34,21 @@ class NativeAdPlatformView: NSObject, FlutterPlatformView {
 
         log("Initializing platform view with layout: \(layoutType)")
 
-        initializeAdLoader(creationParams: creationParams, messenger: messenger)
+        // Pre-build the layout once before loading ad
+        prebuildLayout()
+
+        // Register to receive ad from plugin's centralized loader
+        registerForAdUpdates()
+    }
+
+    private func prebuildLayout() {
+        log("Pre-building layout structure")
+        let layoutTypeInt = AdLayoutBuilder.getLayoutType(from: layoutType)
+        nativeAdView = AdLayoutBuilder.buildLayout(
+            layoutType: layoutTypeInt,
+            styleOptions: styleOptions
+        )
+        isLayoutBuilt = true
     }
 
     func view() -> UIView {
@@ -41,71 +57,47 @@ class NativeAdPlatformView: NSObject, FlutterPlatformView {
 
     // MARK: - Private Methods
 
-    private func initializeAdLoader(creationParams: [String: Any], messenger: FlutterBinaryMessenger) {
-        guard let adUnitId = creationParams["adUnitId"] as? String,
-              let controllerId = creationParams["controllerId"] as? String else {
-            log("Invalid adUnitId or controllerId")
+    private func registerForAdUpdates() {
+        guard let controllerId = controllerId else {
+            log("Invalid controllerId, cannot register for ad updates")
             return
         }
 
-        let isPreloaded = creationParams["isPreloaded"] as? Bool ?? false
+        log("Registering for ad updates for controller: \(controllerId)")
 
-        // Check for preloaded ad first
-        if isPreloaded {
-            if let preloadedAd = FlutterAdmobNativeAdsPlugin.shared()?.getPreloadedAd(controllerId: controllerId) {
-                log("Using preloaded ad for controller: \(controllerId)")
-                onAdLoaded(preloadedAd)
-                return
-            }
-            log("Preloaded ad not found for controller: \(controllerId), falling back to load")
+        // Register callback with plugin to receive ad when loaded
+        FlutterAdmobNativeAdsPlugin.shared()?.registerAdLoadedCallback(controllerId: controllerId) { [weak self] nativeAd in
+            self?.onAdLoaded(nativeAd)
         }
-
-        // Fallback: load ad normally
-        let channel = FlutterMethodChannel(
-            name: "flutter_admob_native_ads",
-            binaryMessenger: messenger
-        )
-
-        adLoader = NativeAdLoader(
-            adUnitId: adUnitId,
-            controllerId: controllerId,
-            channel: channel,
-            enableDebugLogs: enableDebugLogs
-        )
-
-        adLoader?.delegate = self
-        adLoader?.loadAd()
     }
 
     private func onAdLoaded(_ nativeAd: GADNativeAd) {
-        log("Ad loaded, building layout")
+        log("Ad loaded, populating view with data")
 
-        // Remove old view if exists
-        nativeAdView?.removeFromSuperview()
-
-        // Build the layout
-        let layoutTypeInt = AdLayoutBuilder.getLayoutType(from: layoutType)
-        nativeAdView = AdLayoutBuilder.buildLayout(
-            layoutType: layoutTypeInt,
-            styleOptions: styleOptions
-        )
+        // Layout should already be built, just populate data
+        if !isLayoutBuilt || nativeAdView == nil {
+            log("Layout not pre-built, building now")
+            prebuildLayout()
+        }
 
         guard let adView = nativeAdView else { return }
 
-        // Populate the ad
+        // Populate the ad data into existing layout
         populateAdView(nativeAd)
 
-        // Add to container
-        containerView.addSubview(adView)
+        // Add to container if not already added
+        if adView.superview == nil {
+            containerView.addSubview(adView)
 
-        // Layout constraints
-        adView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            adView.topAnchor.constraint(equalTo: containerView.topAnchor),
-            adView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            adView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            adView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
-        ])
+            // Layout constraints
+            adView.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                adView.topAnchor.constraint(equalTo: containerView.topAnchor),
+                adView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+                adView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+                adView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
+            ])
+        }
     }
 
     private func populateAdView(_ nativeAd: GADNativeAd) {
@@ -193,19 +185,11 @@ class NativeAdPlatformView: NSObject, FlutterPlatformView {
             print("[NativeAdPlatformView] \(message)")
         }
     }
-}
 
-// MARK: - NativeAdLoaderDelegate
-
-extension NativeAdPlatformView: NativeAdLoaderDelegate {
-
-    func adLoader(_ loader: NativeAdLoader, didReceiveNativeAd nativeAd: GADNativeAd) {
-        DispatchQueue.main.async { [weak self] in
-            self?.onAdLoaded(nativeAd)
+    deinit {
+        // Unregister callback from plugin when view is deallocated
+        if let controllerId = controllerId {
+            FlutterAdmobNativeAdsPlugin.shared()?.unregisterAdLoadedCallback(controllerId: controllerId)
         }
-    }
-
-    func adLoader(_ loader: NativeAdLoader, didFailWithError error: Error) {
-        log("Ad loader failed: \(error.localizedDescription)")
     }
 }

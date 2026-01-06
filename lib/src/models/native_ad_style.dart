@@ -27,7 +27,7 @@ import '../utils/edge_insets_extension.dart';
 /// ```
 class NativeAdStyle {
   /// Creates a custom [NativeAdStyle] with specified values.
-  const NativeAdStyle({
+  NativeAdStyle({
     // CTA Button Styling
     this.ctaBackgroundColor = const Color(0xFF4285F4),
     this.ctaTextColor = const Color(0xFFFFFFFF),
@@ -95,7 +95,7 @@ class NativeAdStyle {
     this.adLabelCornerRadius = 4,
     this.adLabelPadding =
         const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-  });
+  }) : _cachedMap = null;
 
   // ============== CTA Button Styling ==============
 
@@ -283,9 +283,12 @@ class NativeAdStyle {
   /// Padding inside the ad label.
   final EdgeInsets adLabelPadding;
 
+  /// Cached serialized map to avoid repeated serialization.
+  Map<String, dynamic>? _cachedMap;
+
   /// Creates a light theme style suitable for light backgrounds.
   factory NativeAdStyle.light() {
-    return const NativeAdStyle(
+    return NativeAdStyle(
       ctaBackgroundColor: Color(0xFF4285F4),
       ctaTextColor: Color(0xFFFFFFFF),
       containerBackgroundColor: Color(0xFFFFFFFF),
@@ -302,7 +305,7 @@ class NativeAdStyle {
 
   /// Creates a dark theme style suitable for dark backgrounds.
   factory NativeAdStyle.dark() {
-    return const NativeAdStyle(
+    return NativeAdStyle(
       ctaBackgroundColor: Color(0xFF8AB4F8),
       ctaTextColor: Color(0xFF202124),
       containerBackgroundColor: Color(0xFF303134),
@@ -323,7 +326,7 @@ class NativeAdStyle {
 
   /// Creates a minimal style with reduced visual elements.
   factory NativeAdStyle.minimal() {
-    return const NativeAdStyle(
+    return NativeAdStyle(
       ctaBackgroundColor: Color(0xFF202124),
       ctaTextColor: Color(0xFFFFFFFF),
       ctaCornerRadius: 4,
@@ -340,8 +343,17 @@ class NativeAdStyle {
   }
 
   /// Converts this style to a Map for platform channel communication.
+  ///
+  /// The result is cached to avoid repeated serialization overhead.
+  /// Cache is invalidated when copyWith() is called.
   Map<String, dynamic> toMap() {
-    return {
+    // Return cached map if available
+    if (_cachedMap != null) {
+      return _cachedMap!;
+    }
+
+    // Build and cache the map
+    _cachedMap = {
       // CTA Button
       'ctaBackgroundColor': ctaBackgroundColor.toHexWithAlpha(),
       'ctaTextColor': ctaTextColor.toHexWithAlpha(),
@@ -410,6 +422,8 @@ class NativeAdStyle {
       'adLabelCornerRadius': adLabelCornerRadius,
       'adLabelPadding': adLabelPadding.toMap(),
     };
+
+    return _cachedMap!;
   }
 
   /// Converts FontWeight to integer (100-900).

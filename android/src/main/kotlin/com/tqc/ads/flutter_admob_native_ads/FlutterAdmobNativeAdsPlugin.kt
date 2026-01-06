@@ -52,12 +52,35 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
     // Registry of active ad loaders by controller ID
     private val adLoaders = mutableMapOf<String, NativeAdLoader>()
 
+    // Registry of ad loaded callbacks by controller ID (for platform views)
+    private val adLoadedCallbacks = mutableMapOf<String, (NativeAd) -> Unit>()
+
     /**
      * Gets the preloaded native ad for the given controller ID.
      * Returns null if no ad is loaded for the controller.
      */
     fun getPreloadedAd(controllerId: String): NativeAd? {
         return adLoaders[controllerId]?.getNativeAd()
+    }
+
+    /**
+     * Registers a callback to be invoked when an ad is loaded for the given controller.
+     * This allows platform views to receive ads without creating their own loaders.
+     */
+    fun registerAdLoadedCallback(controllerId: String, callback: (NativeAd) -> Unit) {
+        adLoadedCallbacks[controllerId] = callback
+
+        // If ad is already loaded, invoke callback immediately
+        getPreloadedAd(controllerId)?.let { ad ->
+            callback(ad)
+        }
+    }
+
+    /**
+     * Unregisters the ad loaded callback for the given controller.
+     */
+    fun unregisterAdLoadedCallback(controllerId: String) {
+        adLoadedCallbacks.remove(controllerId)
     }
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -165,6 +188,11 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
             testDeviceIds = testDeviceIds
         )
 
+        // Set callback to notify registered platform views
+        loader.setOnAdLoadedCallback { nativeAd ->
+            adLoadedCallbacks[controllerId]?.invoke(nativeAd)
+        }
+
         adLoaders[controllerId] = loader
         loader.loadAd()
 
@@ -198,6 +226,11 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
             enableDebugLogs = enableDebugLogs,
             testDeviceIds = testDeviceIds
         )
+
+        // Set callback to notify registered platform views
+        loader.setOnAdLoadedCallback { nativeAd ->
+            adLoadedCallbacks[controllerId]?.invoke(nativeAd)
+        }
 
         adLoaders[controllerId] = loader
         loader.loadAd()

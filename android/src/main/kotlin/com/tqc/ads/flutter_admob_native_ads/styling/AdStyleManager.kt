@@ -14,17 +14,24 @@ import com.google.android.gms.ads.nativead.NativeAdView
 import com.tqc.ads.flutter_admob_native_ads.utils.DimensionUtils
 
 /**
- * Manager for applying styles to native ad views.
+ * Manager for applying styles to native ad views with drawable caching.
  */
 class AdStyleManager(
     private val context: Context,
     private val options: AdStyleOptions
 ) {
+    // Cache for reusable drawables to avoid repeated allocations
+    private var cachedContainerDrawable: GradientDrawable? = null
+    private var cachedButtonDrawable: GradientDrawable? = null
+
     /**
      * Applies container styles to the NativeAdView.
      */
     fun applyContainerStyle(view: NativeAdView) {
-        val background = GradientDrawable().apply {
+        // Reuse or create drawable
+        val background = (cachedContainerDrawable ?: GradientDrawable().also {
+            cachedContainerDrawable = it
+        }).apply {
             setColor(options.containerBackgroundColor)
             cornerRadius = DimensionUtils.dpToPx(context, options.containerCornerRadius).toFloat()
 
@@ -61,7 +68,10 @@ class AdStyleManager(
         val maxCornerRadius = estimatedHeightDp / 2
         val effectiveCornerRadius = minOf(options.ctaCornerRadius, maxCornerRadius)
 
-        val background = GradientDrawable().apply {
+        // Reuse or create drawable
+        val background = (cachedButtonDrawable ?: GradientDrawable().also {
+            cachedButtonDrawable = it
+        }).apply {
             setColor(options.ctaBackgroundColor)
             cornerRadius = DimensionUtils.dpToPx(context, effectiveCornerRadius).toFloat()
 

@@ -60,6 +60,9 @@ class NativeAdController {
   final StreamController<NativeAdState> _stateController =
       StreamController<NativeAdState>.broadcast();
 
+  /// Completer for preload operation (null if not preloading).
+  Completer<bool>? _preloadCompleter;
+
   /// Current state of the ad.
   NativeAdState _state = NativeAdState.initial;
 
@@ -155,6 +158,13 @@ class NativeAdController {
     _stateController.add(_state);
     events.onAdLoaded?.call();
 
+    // Complete preload if pending
+    if (_preloadCompleter != null && !_preloadCompleter!.isCompleted) {
+      _isPreloaded = true;
+      _preloadCompleter!.complete(true);
+      _preloadCompleter = null;
+    }
+
     if (options.enableDebugLogs) {
       debugPrint('[NativeAdController] Ad loaded: $_id');
     }
@@ -167,6 +177,12 @@ class NativeAdController {
     _errorCode = code;
     _stateController.add(_state);
     events.onAdFailed?.call(error, code);
+
+    // Complete preload with failure if pending
+    if (_preloadCompleter != null && !_preloadCompleter!.isCompleted) {
+      _preloadCompleter!.complete(false);
+      _preloadCompleter = null;
+    }
 
     if (options.enableDebugLogs) {
       debugPrint('[NativeAdController] Ad failed: $error (code: $code)');
@@ -231,25 +247,14 @@ class NativeAdController {
       return true;
     }
 
-    final completer = Completer<bool>();
-
-    // Listen for load completion
-    late StreamSubscription<NativeAdState> subscription;
-    subscription = stateStream.listen((state) {
-      if (state == NativeAdState.loaded) {
-        _isPreloaded = true;
-        subscription.cancel();
-        if (!completer.isCompleted) completer.complete(true);
-      } else if (state == NativeAdState.error) {
-        subscription.cancel();
-        if (!completer.isCompleted) completer.complete(false);
-      }
-    });
+    // Create completer for this preload operation
+    _preloadCompleter = Completer<bool>();
 
     // Trigger load
     await loadAd();
 
-    return completer.future;
+    // Return the completer's future (will be completed in _handleAdLoaded or _handleAdFailed)
+    return _preloadCompleter!.future;
   }
 
   /// Loads the native ad.

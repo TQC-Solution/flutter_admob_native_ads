@@ -20,15 +20,15 @@ class NativeAdOptions {
   /// [adUnitId] is required and must be a valid AdMob ad unit ID.
   /// [layoutType] determines the visual layout of the ad.
   /// [style] provides styling customization for the ad components.
-  const NativeAdOptions({
+  NativeAdOptions({
     required this.adUnitId,
     this.layoutType = NativeAdLayoutType.form1,
-    this.style = const NativeAdStyle(),
+    NativeAdStyle? style,
     this.enableDebugLogs = false,
     this.requestTimeout,
     this.customExtras,
     this.testDeviceIds,
-  });
+  }) : style = style ?? NativeAdStyle();
 
   /// The AdMob ad unit ID.
   ///
@@ -112,7 +112,7 @@ class NativeAdOptions {
   /// Creates options for Android test ads.
   factory NativeAdOptions.testAndroid({
     NativeAdLayoutType layoutType = NativeAdLayoutType.form1,
-    NativeAdStyle style = const NativeAdStyle(),
+    NativeAdStyle? style,
   }) {
     return NativeAdOptions(
       adUnitId: 'ca-app-pub-3940256099942544/2247696110',
@@ -125,7 +125,7 @@ class NativeAdOptions {
   /// Creates options for iOS test ads.
   factory NativeAdOptions.testIOS({
     NativeAdLayoutType layoutType = NativeAdLayoutType.form1,
-    NativeAdStyle style = const NativeAdStyle(),
+    NativeAdStyle? style,
   }) {
     return NativeAdOptions(
       adUnitId: 'ca-app-pub-3940256099942544/3986624511',

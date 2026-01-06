@@ -12,7 +12,7 @@ protocol NativeAdLoaderDelegate: AnyObject {
 class NativeAdLoader: NSObject {
 
     private let adUnitId: String
-    private let controllerId: String
+    let controllerId: String  // Made internal for plugin access
     private let channel: FlutterMethodChannel
     private let enableDebugLogs: Bool
 
