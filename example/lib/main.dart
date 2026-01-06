@@ -342,7 +342,7 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
                           .layoutType
                           .recommendedHeight,
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 8),
                   ],
 
                   const Text(
@@ -351,7 +351,7 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
                   ),
                   const SizedBox(height: 8),
                   _buildAdWidget(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 8),
                   // Info card
                   Card(
                     child: Padding(

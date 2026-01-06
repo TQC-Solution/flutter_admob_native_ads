@@ -42,78 +42,62 @@ class NativeAdPlatformView(
     }
 
     private var nativeAdView: NativeAdView? = null
-    private var adLoader: NativeAdLoader? = null
     private val styleOptions: AdStyleOptions
     private val enableDebugLogs: Boolean
+    private var isLayoutBuilt = false
+    private val controllerId: String?
 
     init {
         styleOptions = AdStyleOptions.fromMap(creationParams)
         enableDebugLogs = creationParams["enableDebugLogs"] as? Boolean ?: false
+        controllerId = creationParams["controllerId"] as? String
 
         log("Initializing platform view with layout: $layoutType")
 
-        initializeAdLoader()
+        // Pre-build the layout once before loading ad
+        prebuildLayout()
+
+        // Register to receive ad from plugin's centralized loader
+        registerForAdUpdates()
     }
 
-    private fun initializeAdLoader() {
-        val adUnitId = creationParams["adUnitId"] as? String
-        val controllerId = creationParams["controllerId"] as? String
-        val isPreloaded = creationParams["isPreloaded"] as? Boolean ?: false
+    private fun prebuildLayout() {
+        log("Pre-building layout structure")
+        val layoutTypeInt = AdLayoutBuilder.getLayoutType(layoutType)
+        nativeAdView = AdLayoutBuilder.buildLayout(layoutTypeInt, context, styleOptions)
+        isLayoutBuilt = true
+    }
 
-        if (adUnitId.isNullOrEmpty() || controllerId.isNullOrEmpty()) {
-            log("Invalid adUnitId or controllerId")
+    private fun registerForAdUpdates() {
+        if (controllerId.isNullOrEmpty()) {
+            log("Invalid controllerId, cannot register for ad updates")
             return
         }
 
-        // Check for preloaded ad first
-        if (isPreloaded) {
-            val preloadedAd = FlutterAdmobNativeAdsPlugin.getInstance()?.getPreloadedAd(controllerId)
-            if (preloadedAd != null) {
-                log("Using preloaded ad for controller: $controllerId")
-                onAdLoaded(preloadedAd)
-                return
-            }
-            log("Preloaded ad not found for controller: $controllerId, falling back to load")
+        log("Registering for ad updates for controller: $controllerId")
+
+        // Register callback with plugin to receive ad when loaded
+        FlutterAdmobNativeAdsPlugin.getInstance()?.registerAdLoadedCallback(controllerId) { nativeAd ->
+            onAdLoaded(nativeAd)
         }
-
-        // Fallback: load ad normally
-        @Suppress("UNCHECKED_CAST")
-        val testDeviceIds = creationParams["testDeviceIds"] as? List<String>
-
-        adLoader = NativeAdLoader(
-            context = context,
-            adUnitId = adUnitId,
-            controllerId = controllerId,
-            messenger = messenger,
-            enableDebugLogs = enableDebugLogs,
-            testDeviceIds = testDeviceIds
-        ).apply {
-            setOnAdLoadedCallback { nativeAd ->
-                onAdLoaded(nativeAd)
-            }
-        }
-
-        // Load the ad
-        adLoader?.loadAd()
     }
 
     private fun onAdLoaded(nativeAd: NativeAd) {
-        log("Ad loaded, building layout")
+        log("Ad loaded, populating view with data")
 
-        // Remove old view if exists
-        nativeAdView?.let {
-            container.removeView(it)
+        // Layout should already be built, just populate data
+        if (!isLayoutBuilt || nativeAdView == null) {
+            log("Layout not pre-built, building now")
+            prebuildLayout()
         }
 
-        // Build the layout
-        val layoutTypeInt = AdLayoutBuilder.getLayoutType(layoutType)
-        nativeAdView = AdLayoutBuilder.buildLayout(layoutTypeInt, context, styleOptions)
-
-        // Populate the ad
+        // Populate the ad data into existing layout
         populateAdView(nativeAd)
 
-        // Add to container
-        container.addView(nativeAdView)
+        // Add to container if not already added
+        if (nativeAdView?.parent == null) {
+            container.addView(nativeAdView)
+        }
     }
 
     private fun populateAdView(nativeAd: NativeAd) {
@@ -199,8 +183,12 @@ class NativeAdPlatformView(
 
     override fun dispose() {
         log("Disposing platform view")
-        adLoader?.destroy()
-        adLoader = null
+
+        // Unregister callback from plugin
+        controllerId?.let {
+            FlutterAdmobNativeAdsPlugin.getInstance()?.unregisterAdLoadedCallback(it)
+        }
+
         nativeAdView = null
         container.removeAllViews()
     }

@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import '../controllers/native_ad_controller.dart';
 import '../models/native_ad_events.dart';
 import '../models/native_ad_options.dart';
+import 'shimmer_ad_placeholder.dart';
 
 /// A widget that displays a native ad.
 ///
@@ -231,22 +232,9 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
       return widget.loadingWidget!;
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(
-          widget.options.style.containerCornerRadius,
-        ),
-      ),
-      child: const Center(
-        child: SizedBox(
-          width: 24,
-          height: 24,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-          ),
-        ),
-      ),
+    // Use shimmer loading placeholder for smoother UX
+    return ShimmerAdPlaceholder(
+      layoutType: widget.options.layoutType,
     );
   }
 

@@ -28,7 +28,7 @@ void main() {
 
   group('NativeAdOptions', () {
     test('creates with required parameters', () {
-      const options = NativeAdOptions(
+      final options = NativeAdOptions(
         adUnitId: 'ca-app-pub-xxx/xxx',
       );
 
@@ -38,19 +38,19 @@ void main() {
     });
 
     test('validates ad unit ID format', () {
-      const validOptions = NativeAdOptions(
+      final validOptions = NativeAdOptions(
         adUnitId: 'ca-app-pub-3940256099942544/2247696110',
       );
       expect(validOptions.isValidAdUnitId, true);
 
-      const invalidOptions = NativeAdOptions(
+      final invalidOptions = NativeAdOptions(
         adUnitId: '',
       );
       expect(invalidOptions.isValidAdUnitId, false);
     });
 
     test('toMap returns correct structure', () {
-      const options = NativeAdOptions(
+      final options = NativeAdOptions(
         adUnitId: 'test-ad-unit',
         layoutType: NativeAdLayoutType.form1,
         enableDebugLogs: true,
@@ -66,7 +66,7 @@ void main() {
     });
 
     test('copyWith creates new instance with updated values', () {
-      const options = NativeAdOptions(
+      final options = NativeAdOptions(
         adUnitId: 'original-ad-unit',
         layoutType: NativeAdLayoutType.form1,
       );
@@ -97,7 +97,7 @@ void main() {
 
   group('NativeAdStyle', () {
     test('default constructor has expected default values', () {
-      const style = NativeAdStyle();
+      final style = NativeAdStyle();
 
       expect(style.ctaCornerRadius, 8);
       expect(style.containerCornerRadius, 12);
@@ -131,7 +131,7 @@ void main() {
     });
 
     test('toMap serializes all properties', () {
-      const style = NativeAdStyle();
+      final style = NativeAdStyle();
       final map = style.toMap();
 
       expect(map.containsKey('ctaBackgroundColor'), true);
@@ -145,7 +145,7 @@ void main() {
     });
 
     test('copyWith creates new instance with updated values', () {
-      const style = NativeAdStyle();
+      final style = NativeAdStyle();
 
       final copied = style.copyWith(
         ctaCornerRadius: 16,
