@@ -78,6 +78,12 @@ export 'src/controllers/native_ad_controller.dart';
 // Widgets
 export 'src/widgets/native_ad_widget.dart';
 
+// Services (for advanced usage)
+export 'src/services/app_lifecycle_manager.dart';
+export 'src/services/network_connectivity_manager.dart';
+export 'src/services/preload_scheduler.dart';
+export 'src/services/reload_scheduler.dart';
+
 // Utils (for advanced usage)
 export 'src/utils/color_extension.dart';
 export 'src/utils/edge_insets_extension.dart';

@@ -25,6 +25,10 @@ class NativeAdOptions {
     this.layoutType = NativeAdLayoutType.form1,
     NativeAdStyle? style,
     this.enableDebugLogs = false,
+    this.enableSmartPreload = false,
+    this.enableSmartReload = false,
+    this.reloadIntervalSeconds,
+    this.retryDelaySeconds = 12,
     this.requestTimeout,
     this.customExtras,
     this.testDeviceIds,
@@ -45,6 +49,44 @@ class NativeAdOptions {
 
   /// Whether to enable debug logging from the native side.
   final bool enableDebugLogs;
+
+  /// Enable intelligent preload logic with retry, backoff, and awareness checks.
+  ///
+  /// When enabled:
+  /// - Ads only load when app is in foreground with internet connection
+  /// - Automatic retry with exponential backoff (10s → 20s → 40s)
+  /// - 90-second cooldown after ad impression
+  /// - Maximum 3 retry attempts before stopping
+  /// - Retry counter resets when network connectivity is restored
+  ///
+  /// Defaults to false for backward compatibility with existing code.
+  /// Enable this to implement the intelligent preload flowchart from new_logic_preload.md.
+  final bool enableSmartPreload;
+
+  /// Enable intelligent reload logic with visibility-aware cache management.
+  ///
+  /// When enabled:
+  /// - Reload only triggers when app is in foreground AND ad is visible
+  /// - Checks for cached/preloaded ads before requesting new ones
+  /// - If cache exists: show cached ad immediately, then preload next
+  /// - If no cache: request new ad directly
+  /// - On failure: retry after [retryDelaySeconds] delay
+  /// - Supports remote config interval via [reloadIntervalSeconds]
+  ///
+  /// Defaults to false for backward compatibility.
+  final bool enableSmartReload;
+
+  /// Remote config interval in seconds for automatic reloads.
+  ///
+  /// If set, the ad will automatically reload at this interval
+  /// (only when visibility check passes).
+  /// Set to null to disable automatic reload timer.
+  final int? reloadIntervalSeconds;
+
+  /// Delay in seconds before retry on reload failure.
+  ///
+  /// Recommended range is 10-15 seconds. Defaults to 12 seconds.
+  final int retryDelaySeconds;
 
   /// Optional timeout for ad requests.
   ///
@@ -82,6 +124,10 @@ class NativeAdOptions {
       'layoutTypeName': layoutType.name,
       'style': style.toMap(),
       'enableDebugLogs': enableDebugLogs,
+      'enableSmartPreload': enableSmartPreload,
+      'enableSmartReload': enableSmartReload,
+      'reloadIntervalSeconds': reloadIntervalSeconds,
+      'retryDelaySeconds': retryDelaySeconds,
       'requestTimeoutMs': requestTimeout?.inMilliseconds,
       'customExtras': customExtras,
       'testDeviceIds': testDeviceIds,
@@ -94,6 +140,10 @@ class NativeAdOptions {
     NativeAdLayoutType? layoutType,
     NativeAdStyle? style,
     bool? enableDebugLogs,
+    bool? enableSmartPreload,
+    bool? enableSmartReload,
+    int? reloadIntervalSeconds,
+    int? retryDelaySeconds,
     Duration? requestTimeout,
     Map<String, dynamic>? customExtras,
     List<String>? testDeviceIds,
@@ -103,6 +153,11 @@ class NativeAdOptions {
       layoutType: layoutType ?? this.layoutType,
       style: style ?? this.style,
       enableDebugLogs: enableDebugLogs ?? this.enableDebugLogs,
+      enableSmartPreload: enableSmartPreload ?? this.enableSmartPreload,
+      enableSmartReload: enableSmartReload ?? this.enableSmartReload,
+      reloadIntervalSeconds:
+          reloadIntervalSeconds ?? this.reloadIntervalSeconds,
+      retryDelaySeconds: retryDelaySeconds ?? this.retryDelaySeconds,
       requestTimeout: requestTimeout ?? this.requestTimeout,
       customExtras: customExtras ?? this.customExtras,
       testDeviceIds: testDeviceIds ?? this.testDeviceIds,
@@ -149,9 +204,18 @@ class NativeAdOptions {
     return other is NativeAdOptions &&
         other.adUnitId == adUnitId &&
         other.layoutType == layoutType &&
-        other.style == style;
+        other.style == style &&
+        other.enableSmartPreload == enableSmartPreload &&
+        other.enableSmartReload == enableSmartReload &&
+        other.reloadIntervalSeconds == reloadIntervalSeconds;
   }
 
   @override
-  int get hashCode => adUnitId.hashCode ^ layoutType.hashCode ^ style.hashCode;
+  int get hashCode =>
+      adUnitId.hashCode ^
+      layoutType.hashCode ^
+      style.hashCode ^
+      enableSmartPreload.hashCode ^
+      enableSmartReload.hashCode ^
+      reloadIntervalSeconds.hashCode;
 }
