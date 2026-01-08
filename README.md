@@ -5,14 +5,60 @@ Production-ready Flutter plugin for displaying Google AdMob Native Ads with 12 c
 [![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)](https://github.com/tqc/flutter_admob_native_ads)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**Key Features:**
-- 🎨 12 diverse layout forms (80dp-320dp)
-- 🎯 30+ customizable style properties
-- ⚡ Preload ads for instant display
-- 🔄 Full event lifecycle callbacks
-- 🌓 Built-in themes (light, dark, minimal)
-- 📱 100% native rendering
-- ✅ Production-ready with comprehensive tests
+## Tính năng nổi bật
+
+- **12 diverse layout forms** - Từ ngang 80dp đến dọc 320dp, tối ưu cho nhiều use case
+- **30+ customizable style properties** - SwiftUI-style declarative API
+- **Preload ads** - Tải quảng cáo trước để hiển thị tức thì
+- **Smart Reload** - Tự động tải lại khi người dùng scroll
+- **Full event lifecycle callbacks** - Theo dõi mọi sự kiện quảng cáo
+- **Built-in themes** - Light, Dark, Minimal themes
+- **100% native rendering** - Hiệu suất cao qua Platform Views
+- **Production-ready** - Đã test toàn diện trên cả Android & iOS
+
+## Công nghệ sử dụng
+
+### Flutter Side
+- **Widget**: `NativeAdWidget` (Stateful widget với lifecycle management)
+- **Controller**: `NativeAdController` (Stream-based state management)
+- **Models**: `NativeAdOptions`, `NativeAdStyle`, `NativeAdEvents`, `NativeAdLayoutType`
+
+### Native Side
+
+**Android:**
+- Kotlin 1.9.22
+- Google Mobile Ads SDK 23.0.0
+- Min SDK 21, Compile SDK 34, Target SDK 34
+- Platform Views (AndroidView) với 12 layout builders
+
+**iOS:**
+- Swift 5.0+
+- Google Mobile Ads SDK 11.0
+- iOS 13.0+ deployment target
+- Platform Views (UIKitView) với 12 layout builders
+
+### Architecture
+
+```
+┌─────────────────────────────────────┐
+│   Flutter Layer (Dart)              │
+│   - NativeAdWidget (stateful)       │
+│   - NativeAdController (state mgmt) │
+│   - Models: Options/Style/Events    │
+└──────────────┬──────────────────────┘
+               │ MethodChannel
+               │ "flutter_admob_native_ads"
+               ▼
+┌─────────────────────────────────────┐
+│   Platform Layer                    │
+│   Android: Kotlin + GMA SDK 23.0.0  │
+│   iOS: Swift + GMA SDK 11.0         │
+│   - AdLoader (load ads)             │
+│   - LayoutBuilders (12 forms)       │
+│   - PlatformViews (rendering)       │
+│   - StyleManager (apply styles)     │
+└─────────────────────────────────────┘
+```
 
 ## Quick Start
 
@@ -30,18 +76,26 @@ NativeAdWidget(
 )
 ```
 
-## Installation
+## Cài đặt
 
-Add to your `pubspec.yaml`:
+### 1. Thêm dependency
+
+Thêm vào `pubspec.yaml`:
 
 ```yaml
 dependencies:
   flutter_admob_native_ads: ^1.0.2
 ```
 
-### Android Setup
+Sau đó chạy:
 
-1. Add AdMob App ID to `AndroidManifest.xml`:
+```bash
+flutter pub get
+```
+
+### 2. Android Setup
+
+1. **Thêm AdMob App ID** vào `android/app/src/main/AndroidManifest.xml`:
 
 ```xml
 <manifest>
@@ -53,26 +107,39 @@ dependencies:
 </manifest>
 ```
 
-### iOS Setup
+2. **Cấu hình Gradle** - Đảm bảo `minSdkVersion >= 21`:
 
-1. Add AdMob App ID to `Info.plist`:
+```gradle
+android {
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 34
+    }
+}
+```
+
+### 3. iOS Setup
+
+1. **Thêm AdMob App ID** vào `ios/Runner/Info.plist`:
 
 ```xml
 <key>GADApplicationIdentifier</key>
 <string>ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy</string>
 ```
 
-2. Initialize SDK in `AppDelegate.swift`:
+2. **Initialize SDK** trong `ios/Runner/AppDelegate.swift`:
 
 ```swift
 import GoogleMobileAds
+import UIKit
 
 @main
-@objc class AppDelegate: FlutterAppDelegate {
+class AppDelegate: FlutterAppDelegate {
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    // Initialize Google Mobile Ads SDK
     GADMobileAds.sharedInstance().start(completionHandler: nil)
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
@@ -80,62 +147,67 @@ import GoogleMobileAds
 }
 ```
 
-3. Add to `Podfile`:
+3. **Cập nhật Podfile**:
 
 ```ruby
 platform :ios, '13.0'
 pod 'Google-Mobile-Ads-SDK', '~> 11.0'
 ```
 
-## Layout Forms
+4. **Cài đặt pods**:
 
-12 pre-designed layouts optimized for different use cases:
+```bash
+cd ios && pod install
+```
 
-| Form | Height | Style | Best For |
-|------|--------|-------|----------|
-| form1 | 80dp | Horizontal compact | List items |
-| form2 | 90dp | Horizontal media | List with media preview |
-| form3 | 320dp | Vertical story | Feed cards |
-| form4 | 300dp | Media-first vertical | Product cards |
-| form5 | 300dp | Article card | Blog posts |
-| form6 | 280dp | Standard feed | Standard feeds |
-| form7 | 140dp | Horizontal video | Video ads |
-| form8 | 100dp | Compact horizontal | Compact cards |
-| form9 | 280dp | Action-first | CTA focused |
-| form10 | 120dp | Text-only | Minimal design |
-| form11 | 280dp | Clean vertical | Clean layout |
-| form12 | 280dp | Alternative vertical | Alt layout |
+## Các Layout Forms
 
-> **Visual Reference:** See [ads_template_native/](ads_template_native/) for design templates
+Plugin cung cấp 12 layout được thiết kế sẵn (`form1` đến `form12`), tối ưu cho các use case khác nhau:
 
-### Usage Examples
+| Form | Chiều cao | Style | Dùng cho |
+|------|-----------|-------|----------|
+| **form1** | 80dp | Ngang compact | List items |
+| **form2** | 90dp | Ngang có media | List với preview |
+| **form3** | 320dp | Dọc story lớn | Feed cards |
+| **form4** | 300dp | Dọc media-first | Product cards |
+| **form5** | 300dp | Article card | Blog posts |
+| **form6** | 280dp | Feed tiêu chuẩn | Standard feeds |
+| **form7** | 140dp | Ngang video | Video ads |
+| **form8** | 100dp | Ngang compact | Compact cards |
+| **form9** | 240dp | CTA-first | CTA focused |
+| **form10** | 120dp | Text-only | Minimal design |
+| **form11** | 280dp | Dọc sạch | Clean layout |
+| **form12** | 280dp | Dọc alternative | Alt layout |
+
+### Ví dụ sử dụng các form
 
 ```dart
-// Compact horizontal (80dp)
+// Form 1 - Ngang compact (80dp)
 NativeAdWidget(
   options: NativeAdOptions(
     adUnitId: 'your-ad-unit-id',
     layoutType: NativeAdLayoutType.form1,
   ),
-  height: 80,
+  height: NativeAdLayoutType.form1.recommendedHeight, // 80
 )
 
-// Standard feed card (280dp)
+// Form 6 - Feed tiêu chuẩn (280dp)
 NativeAdWidget(
   options: NativeAdOptions(
     adUnitId: 'your-ad-unit-id',
     layoutType: NativeAdLayoutType.form6,
+    style: NativeAdStyle.light(),
   ),
-  height: 280,
+  height: NativeAdLayoutType.form6.recommendedHeight, // 280
 )
 
-// Full media vertical (320dp)
+// Form 3 - Full media (320dp)
 NativeAdWidget(
   options: NativeAdOptions(
     adUnitId: 'your-ad-unit-id',
     layoutType: NativeAdLayoutType.form3,
   ),
-  height: 320,
+  height: NativeAdLayoutType.form3.recommendedHeight, // 320
 )
 ```
 
@@ -193,7 +265,7 @@ NativeAdWidget(
 )
 ```
 
-### Available Style Properties
+### Các thuộc tính có thể tùy chỉnh
 
 **CTA Button:** background, text color, font size/weight, corner radius, padding, border, elevation
 
@@ -211,9 +283,11 @@ NativeAdWidget(
 
 **Layout:** item spacing, section spacing
 
-## Preload Ads (NEW in v1.0.2)
+## Preload Ads
 
-Load ads before displaying for instant appearance - eliminates loading spinners!
+Tải quảng cáo trước khi hiển thị để người dùng thấy quảng cáo ngay lập tức mà không cần chờ loading spinner.
+
+### Cách sử dụng Preload
 
 ```dart
 class _MyScreenState extends State<MyScreen> {
@@ -227,15 +301,18 @@ class _MyScreenState extends State<MyScreen> {
   }
 
   Future<void> _preloadAd() async {
+    // Tạo controller với options
     _adController = NativeAdController(
       options: NativeAdOptions(
         adUnitId: Platform.isAndroid
-            ? 'ca-app-pub-3940256099942544/2247696110'
-            : 'ca-app-pub-3940256099942544/3986624511',
+            ? 'ca-app-pub-3940256099942544/2247696110'  // Test Android
+            : 'ca-app-pub-3940256099942544/3986624511', // Test iOS
         layoutType: NativeAdLayoutType.form6,
+        style: NativeAdStyle.light(),
       ),
     );
 
+    // Preload ad và chờ kết quả
     final success = await _adController!.preload();
 
     if (mounted) {
@@ -245,16 +322,19 @@ class _MyScreenState extends State<MyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        if (_isAdReady && _adController != null)
-          NativeAdWidget(
-            options: _adController!.options,
-            controller: _adController,
-            autoLoad: false,  // Important: don't reload
-            height: NativeAdLayoutType.form6.recommendedHeight,
-          ),
-      ],
+    return Scaffold(
+      body: Column(
+        children: [
+          // Nội dung khác của app...
+          if (_isAdReady && _adController != null)
+            NativeAdWidget(
+              options: _adController!.options,
+              controller: _adController,
+              autoLoad: false,  // Quan trọng: không reload lại
+              height: NativeAdLayoutType.form6.recommendedHeight,
+            ),
+        ],
+      ),
     );
   }
 
@@ -268,26 +348,25 @@ class _MyScreenState extends State<MyScreen> {
 
 ### Preload vs Auto-load
 
-| Feature | Preload (`preload()`) | Auto-load (`autoLoad: true`) |
-|---------|----------------------|------------------------------|
-| Load timing | When calling `preload()` | When widget created |
-| Wait for load | ✅ Yes (`await`) | ❌ No (fire-and-forget) |
-| Display | Instant | Shows loading spinner |
-| Use case | Better UX, feeds | Quick & simple |
+| Tính năng | Preload (`preload()`) | Auto-load (`autoLoad: true`) |
+|-----------|----------------------|------------------------------|
+| Thời điểm tải | Khi gọi `preload()` | Khi widget được tạo |
+| Chờ tải xong | ✅ Có (`await`) | ❌ Không (fire-and-forget) |
+| Hiển thị | Ngay lập tức | Hiện loading spinner |
+| Use case | UX tốt hơn, feeds | Nhanh & đơn giản |
 
-## Event Callbacks
+### Khi nào nên dùng Preload?
 
-```dart
-NativeAdWidget(
-  options: NativeAdOptions(adUnitId: 'your-ad-unit-id'),
-  onAdLoaded: () => print('Ad loaded'),
-  onAdFailed: (error, code) => print('Error: $error ($code)'),
-  onAdClicked: () => print('Ad clicked'),
-  onAdImpression: () => print('Impression recorded'),
-)
-```
+- ✅ Khi muốn quảng cáo hiển thị ngay lập tức khi user scroll đến
+- ✅ Trong list feeds, preload vài quảng cáo trước
+- ✅ Khi cần kiểm tra quảng cáo load được trước khi hiển thị
+- ✅ Để tránh flicker khi quảng cáo load
 
-## Advanced Usage with Controller
+## Reload Native Ads
+
+Tải lại quảng cáo mới để thay thế quảng cáo cũ hoặc khi load fail.
+
+### Cách 1: Sử dụng Controller
 
 ```dart
 class _MyWidgetState extends State<MyWidget> {
@@ -297,9 +376,12 @@ class _MyWidgetState extends State<MyWidget> {
   void initState() {
     super.initState();
     _controller = NativeAdController(
-      options: NativeAdOptions(adUnitId: 'your-ad-unit-id'),
+      options: NativeAdOptions(
+        adUnitId: 'your-ad-unit-id',
+        layoutType: NativeAdLayoutType.form6,
+      ),
       events: NativeAdEvents(
-        onAdLoaded: () => print('Loaded'),
+        onAdLoaded: () => print('Ad loaded'),
         onAdFailed: (error, code) => print('Failed: $error'),
       ),
     );
@@ -313,60 +395,208 @@ class _MyWidgetState extends State<MyWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return NativeAdWidget(
-      options: NativeAdOptions(adUnitId: 'your-ad-unit-id'),
-      controller: _controller,
+    return Column(
+      children: [
+        NativeAdWidget(
+          options: _controller.options,
+          controller: _controller,
+        ),
+        ElevatedButton(
+          onPressed: () => _controller.reload(),
+          child: Text('Reload Ad'),
+        ),
+      ],
     );
-  }
-
-  void reloadAd() {
-    _controller.reload();
   }
 }
 ```
 
-**Controller Features:**
-- State management with `Stream<NativeAdState>`
-- Getters: `isLoading`, `isLoaded`, `isPreloaded`, `hasError`, `errorMessage`, `errorCode`
-- Methods: `preload()`, `loadAd()`, `reload()`, `dispose()`
+### Cách 2: Smart Reload với Visibility
 
-## Custom Loading & Error Widgets
+Tự động reload khi quảng cáo visible:
+
+```dart
+NativeAdWidget(
+  options: NativeAdOptions(
+    adUnitId: 'your-ad-unit-id',
+    layoutType: NativeAdLayoutType.form6,
+    enableSmartReload: true,  // Bật smart reload
+  ),
+  controller: _controller,
+  visibilityThreshold: 0.5,  // Reload khi 50% visible
+)
+```
+
+### Các phương thức của Controller
+
+```dart
+// Preload - Tải trước và chờ
+final success = await controller.preload();
+
+// LoadAd - Bắt đầu tải (không chờ)
+controller.loadAd();
+
+// Reload - Hủy quảng cáo cũ và tải mới
+controller.reload();
+
+// State getters
+controller.isLoading;     // Đang tải
+controller.isLoaded;      // Đã load thành công
+controller.isPreloaded;   // Đã preload
+controller.hasError;      // Có lỗi
+controller.errorMessage;  // Thông báo lỗi
+```
+
+## Event Callbacks
+
+Theo dõi toàn bộ lifecycle của quảng cáo:
+
+```dart
+NativeAdWidget(
+  options: NativeAdOptions(adUnitId: 'your-ad-unit-id'),
+  onAdLoaded: () => print('Ad loaded successfully'),
+  onAdFailed: (error, code) => print('Error: $error ($code)'),
+  onAdClicked: () => print('User clicked ad'),
+  onAdImpression: () => print('Impression recorded'),
+  onAdOpened: () => print('Ad opened overlay'),
+  onAdClosed: () => print('User returned to app'),
+)
+```
+
+Hoặc sử dụng với `NativeAdEvents`:
+
+```dart
+NativeAdController(
+  options: NativeAdOptions(...),
+  events: NativeAdEvents(
+    onAdLoaded: () => debugPrint('Loaded'),
+    onAdFailed: (error, code) => debugPrint('Failed: $error'),
+    onAdClicked: () => analytics.logEvent('ad_clicked'),
+    onAdImpression: () => analytics.logEvent('ad_impression'),
+  ),
+)
+```
+
+## Advanced Usage
+
+### Custom Loading & Error Widgets
 
 ```dart
 NativeAdWidget(
   options: NativeAdOptions(adUnitId: 'your-ad-unit-id'),
   loadingWidget: Center(
-    child: CircularProgressIndicator(),
+    child: Column(
+      children: [
+        CircularProgressIndicator(),
+        SizedBox(height: 8),
+        Text('Loading ad...'),
+      ],
+    ),
   ),
   errorWidget: (error) => Center(
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(Icons.error_outline),
-        Text('Ad not available'),
+        Icon(Icons.error_outline, size: 48, color: Colors.grey),
+        SizedBox(height: 8),
+        Text(
+          'Ad not available',
+          style: TextStyle(color: Colors.grey),
+        ),
       ],
     ),
   ),
 )
 ```
 
+### Sử dụng với ListView/ScrollView
+
+```dart
+class FeedPage extends StatefulWidget {
+  @override
+  _FeedPageState createState() => _FeedPageState();
+}
+
+class _FeedPageState extends State<FeedPage> {
+  final List<NativeAdController> _adControllers = [];
+  static const int _adInterval = 5; // Quảng cáo mỗi 5 items
+
+  @override
+  void initState() {
+    super.initState();
+    _preloadAds();
+  }
+
+  Future<void> _preloadAds() async {
+    // Preload 3 quảng cáo đầu
+    for (int i = 0; i < 3; i++) {
+      final controller = NativeAdController(
+        options: NativeAdOptions(
+          adUnitId: 'your-ad-unit-id',
+          layoutType: NativeAdLayoutType.form6,
+        ),
+      );
+      await controller.preload();
+      _adControllers.add(controller);
+    }
+  }
+
+  @override
+  void dispose() {
+    _adControllers.forEach((c) => c.dispose());
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: 20, // Tổng items
+      itemBuilder: (context, index) {
+        // Hiển thị quảng cáo mỗi 5 items
+        if (index > 0 && index % _adInterval == 0) {
+          final adIndex = (index / _adInterval).floor() - 1;
+          if (adIndex < _adControllers.length) {
+            return NativeAdWidget(
+              controller: _adControllers[adIndex],
+              autoLoad: false,
+              height: 280,
+            );
+          }
+        }
+        return ContentItem(item: items[index]);
+      },
+    );
+  }
+}
+```
+
 ## Test Ad Unit IDs
 
-Use Google's test ad units during development:
+Sử dụng test ad units của Google trong quá trình development:
 
 - **Android:** `ca-app-pub-3940256099942544/2247696110`
 - **iOS:** `ca-app-pub-3940256099942544/3986624511`
 
-Or use helper constructors:
+Hoặc dùng helper constructors:
 
 ```dart
+// Test Android
 NativeAdOptions.testAndroid()
+
+// Test iOS
 NativeAdOptions.testIOS()
+
+// Hoặc tự động
+NativeAdOptions(
+  adUnitId: Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/2247696110'
+      : 'ca-app-pub-3940256099942544/3986624511',
+)
 ```
 
 ## Debugging
 
-Enable debug logs:
+Bật debug logs:
 
 ```dart
 NativeAdOptions(
@@ -375,131 +605,140 @@ NativeAdOptions(
 )
 ```
 
-Check platform logs:
+Kiểm tra logs trên platform:
+
 - **Android:** `adb logcat | grep -i ads`
 - **iOS:** Xcode Console, filter "GMA"
 
 ## API Reference
 
-### NativeAdLayoutType
-
-Enum with 12 layout options (form1-form12). Each has:
-- `recommendedHeight`: Suggested height in logical pixels
-- `viewType`: Platform view identifier
-- `toInt()` / `fromInt()`: Convert to/from integer
-
 ### NativeAdOptions
 
-Configuration class for ad loading:
-- `adUnitId`: AdMob ad unit ID (required)
-- `layoutType`: Layout form (default: form1)
-- `style`: Style configuration (optional)
-- `enableDebugLogs`: Enable verbose logging (default: false)
-- `requestTimeout`: Ad load timeout (optional)
-- `customExtras`: Custom targeting parameters (optional)
-- `testDeviceIds`: Test device IDs (optional)
+Configuration class cho ad loading:
 
-**Factory Constructors:**
-- `NativeAdOptions.testAndroid()`: Google test unit for Android
-- `NativeAdOptions.testIOS()`: Google test unit for iOS
-
-### NativeAdStyle
-
-30+ style properties with SwiftUI-style API:
-- CTA button properties
-- Container properties
-- Text styling (headline, body, price, store, advertiser)
-- Media view configuration
-- Icon styling
-- Star rating colors
-- Ad label customization
-- Layout spacing
-
-**Theme Presets:**
-- `NativeAdStyle.light()`: Clean light theme
-- `NativeAdStyle.dark()`: Dark mode theme
-- `NativeAdStyle.minimal()`: Minimal design
+```dart
+NativeAdOptions({
+  required String adUnitId,        // Required
+  NativeAdLayoutType layoutType,   // Default: form1
+  NativeAdStyle style,             // Optional
+  bool enableDebugLogs,            // Default: false
+  Duration requestTimeout,         // Optional
+  Map<String, String> customExtras, // Custom targeting
+  List<String> testDeviceIds,      // Test devices
+  bool enableSmartReload,          // Enable smart reload
+})
+```
 
 ### NativeAdController
 
-State management for ad lifecycle:
+State management cho ad lifecycle:
+
+**Properties:**
 - `id`: Unique controller ID
 - `state`: Current ad state (initial, loading, loaded, error)
 - `stateStream`: Stream of state changes
 - `isLoading`, `isLoaded`, `isPreloaded`, `hasError`: State getters
 - `errorMessage`, `errorCode`: Error information
-- `preload()`: Preload ad and wait (returns bool)
-- `loadAd()`: Trigger ad load
+
+**Methods:**
+- `preload()`: Preload ad và chờ (returns `Future<bool>`)
+- `loadAd()`: Trigger ad load (fire-and-forget)
 - `reload()`: Reload current ad
 - `dispose()`: Clean up resources
 
 ### NativeAdWidget
 
-Main widget for displaying ads:
-- `options`: Ad configuration (required)
-- `height`, `width`: Widget dimensions (optional)
-- `loadingWidget`: Custom loading UI (optional)
-- `errorWidget`: Custom error UI (optional)
-- `controller`: External controller (optional)
-- `onAdLoaded`, `onAdFailed`, `onAdClicked`, `onAdImpression`: Callbacks
-- `autoLoad`: Auto-load on init (default: true)
+Main widget hiển thị ads:
+
+```dart
+NativeAdWidget({
+  required NativeAdOptions options,  // Required
+  NativeAdController controller,     // Optional
+  double height,                    // Optional
+  double width,                     // Optional
+  Widget loadingWidget,             // Custom loading UI
+  Widget Function(String) errorWidget, // Custom error UI
+  bool autoLoad,                    // Default: true
+  VoidCallback onAdLoaded,
+  void Function(String, int) onAdFailed,
+  VoidCallback onAdClicked,
+  VoidCallback onAdImpression,
+  VoidCallback onAdOpened,
+  VoidCallback onAdClosed,
+  double visibilityThreshold,        // For smart reload
+})
+```
 
 ## Requirements
 
-- Flutter SDK: >=3.3.0
-- Dart SDK: >=3.0.0 <4.0.0
-- Android: minSdk 21, compileSdk 34
-- iOS: 13.0+
-- Google Mobile Ads SDK: 23.0.0 (Android), 11.0 (iOS)
+- **Flutter SDK:** >=3.3.0
+- **Dart SDK:** >=3.0.0 <4.0.0
+- **Android:** minSdk 21, compileSdk 34, targetSdk 34
+- **iOS:** 13.0+ deployment target
+- **Google Mobile Ads SDK:**
+  - Android: 23.0.0
+  - iOS: 11.0
 
 ## Troubleshooting
 
-### Ads Not Showing
+### Quảng cáo không hiển thị
 
-1. Verify AdMob configuration (app ID, ad unit ID format)
-2. Check internet connection
-3. Enable debug logs: `enableDebugLogs: true`
-4. Use test ad unit IDs
-5. Check platform logs (logcat/Xcode)
+1. Kiểm tra AdMob configuration (app ID, ad unit ID format)
+2. Kiểm tra kết nối internet
+3. Bật debug logs: `enableDebugLogs: true`
+4. Sử dụng test ad unit IDs
+5. Kiểm tra platform logs (logcat/Xcode)
 
 ### Build Errors
 
 **Android:**
-- Ensure `minSdkVersion >= 21`
-- Run `flutter clean && flutter pub get`
+- Đảm bảo `minSdkVersion >= 21`
+- Chạy `flutter clean && flutter pub get`
+- Kiểm tra Kotlin version (1.9.22)
 
 **iOS:**
-- Ensure deployment target >= 13.0
-- Run `pod update` if needed
-- Check Swift version (5.0+)
+- Đảm bảo deployment target >= 13.0
+- Chạy `pod update` nếu cần
+- Kiểm tra Swift version (5.0+)
+- Xóa `Pods` folder và `Podfile.lock`, chạy `pod install` lại
 
 ### Common Issues
 
-- **No internet:** Ensure device/emulator has connectivity
-- **Wrong ad unit:** Verify format `ca-app-pub-...`
-- **Not approved:** Use test IDs during development
-- **Emulator:** Add to test devices list
+- **No internet:** Đảm bảo device/emulator có kết nối
+- **Wrong ad unit:** Kiểm tra format `ca-app-pub-...`
+- **Not approved:** Dùng test IDs trong development
+- **Emulator:** Thêm vào test devices list
 
 ## Architecture
 
+**Three-Layer Architecture:**
+
 ```
-Flutter Layer (Dart)
-├── NativeAdWidget (stateful widget)
-├── NativeAdController (state management)
-└── Models (Options, Style, Events)
-         ↓ MethodChannel
-Native Layer (Kotlin/Swift)
-├── AdLoader (load ads from Google)
-├── LayoutBuilders (12 forms)
-├── PlatformViews (rendering)
-└── StyleManager (apply styles)
+┌─────────────────────────────────────┐
+│   Flutter Layer (Dart)              │
+│   - NativeAdWidget (stateful)       │
+│   - NativeAdController (state mgmt) │
+│   - Models: Options/Style/Events    │
+└──────────────┬──────────────────────┘
+               │ MethodChannel
+               │ "flutter_admob_native_ads"
+               ▼
+┌─────────────────────────────────────┐
+│   Platform Layer                    │
+│   Android: Kotlin + GMA SDK 23.0.0  │
+│   iOS: Swift + GMA SDK 11.0         │
+│   - AdLoader (load ads)             │
+│   - LayoutBuilders (12 forms)       │
+│   - PlatformViews (rendering)       │
+│   - StyleManager (apply styles)     │
+└─────────────────────────────────────┘
 ```
 
 **Key Points:**
 - 100% native rendering via Platform Views
-- Full parity between Android and iOS
+- Full parity giữa Android và iOS
 - All styling applied natively (no Flutter wrappers)
-- Method channel communication for ad loading/events
+- Method channel communication cho ad loading/events
 
 ## Changelog
 
