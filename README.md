@@ -2,7 +2,7 @@
 
 Production-ready Flutter plugin for displaying Google AdMob Native Ads with 12 customizable layout forms and SwiftUI-style declarative styling. 100% native rendering via Platform Views with full Android/iOS parity.
 
-[![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)](https://github.com/tqc/flutter_admob_native_ads)
+[![Version](https://img.shields.io/badge/version-1.0.4-blue.svg)](https://github.com/tqc/flutter_admob_native_ads)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 ## Tính năng nổi bật
@@ -570,21 +570,289 @@ class _FeedPageState extends State<FeedPage> {
 }
 ```
 
-## Test Ad Unit IDs
+## Banner Ads
+
+Plugin hỗ trợ đầy đủ Banner Ads với tất cả kích thước AdMob:
+
+### Các kích thước Banner hỗ trợ
+
+| Size | Chiều cao | Mô tả |
+|------|-----------|-------|
+| `banner` | 50dp | Standard banner (320x50) |
+| `fullBanner` | 60dp | Full banner (468x60) |
+| `leaderboard` | 90dp | Leaderboard (728x90) |
+| `mediumRectangle` | 250dp | Medium rectangle (300x250) |
+| `smartBanner` | Adaptive | Tự động theo màn hình |
+| `adaptiveBanner` | Tùy chỉnh | Adaptive với height tùy chỉnh |
+| `inlineAdaptive` | Tự động | Inline adaptive banner |
+
+### Sử dụng Banner Ads cơ bản
+
+```dart
+import 'package:flutter_admob_native_ads/flutter_admob_native_ads.dart';
+
+class _MyWidgetState extends State<MyWidget> {
+  late BannerAdController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = BannerAdController(
+      options: BannerAdOptions(
+        adUnitId: 'ca-app-pub-xxx/xxx',
+        size: BannerAdSize.adaptiveBanner,
+        adaptiveBannerHeight: 60, // Chiều cao tùy chỉnh cho adaptive
+      ),
+      events: BannerAdEvents(
+        onAdLoaded: () => print('Banner loaded'),
+        onAdFailed: (error, code) => print('Failed: $error'),
+        onAdPaid: (value, currency) => print('Revenue: \$value $currency'),
+      ),
+    );
+    _controller.loadAd();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          // Banner ads at top
+          BannerAdWidget(
+            controller: _controller,
+            height: 60,
+          ),
+
+          // Content...
+          Expanded(
+            child: YourContent(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+### Preload Banner Ads
+
+Tải banner trước để hiển thị ngay lập tức:
+
+```dart
+class _MyScreenState extends State<MyScreen> {
+  BannerAdController? _bannerController;
+  bool _isBannerReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _preloadBanner();
+  }
+
+  Future<void> _preloadBanner() async {
+    _bannerController = BannerAdController(
+      options: BannerAdOptions(
+        adUnitId: Platform.isAndroid
+            ? 'ca-app-pub-3940256099942544/2934735716'  // Test Android
+            : 'ca-app-pub-3940256099942544/2934735716', // Test iOS
+        size: BannerAdSize.adaptiveBanner,
+        adaptiveBannerHeight: 60,
+      ),
+    );
+
+    final success = await _bannerController!.preload();
+
+    if (mounted) {
+      setState(() => _isBannerReady = success);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Banner Example')),
+      body: Column(
+        children: [
+          if (_isBannerReady && _bannerController != null)
+            BannerAdWidget(
+              controller: _bannerController,
+              autoLoad: false,  // Quan trọng: không reload lại
+              height: 60,
+            ),
+          // Content...
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _bannerController?.dispose();
+    super.dispose();
+  }
+}
+```
+
+### Smart Reload cho Banner Ads
+
+Tự động reload banner theo visibility:
+
+```dart
+BannerAdController _controller = BannerAdController(
+  options: BannerAdOptions(
+    adUnitId: 'your-ad-unit-id',
+    size: BannerAdSize.adaptiveBanner,
+    enableSmartPreload: true,   // Bật smart preload
+    enableSmartReload: true,    // Bật smart reload
+    reloadIntervalSeconds: 30,  // Reload mỗi 30s
+    retryDelaySeconds: 12,      // Retry sau 12s nếu fail
+  ),
+);
+
+// Widget sẽ tự động track visibility
+BannerAdWidget(
+  controller: _controller,
+  height: 60,
+  visibilityThreshold: 0.5,  // Reload khi 50% visible
+)
+```
+
+### Banner Ad Options
+
+```dart
+BannerAdOptions({
+  required String adUnitId,           // Required
+  BannerAdSize size,                  // Default: adaptiveBanner
+  int adaptiveBannerHeight,           // Height for adaptive banner
+  bool enableDebugLogs,               // Default: false
+  bool enableSmartPreload,            // Enable smart preload
+  bool enableSmartReload,             // Enable smart reload
+  int reloadIntervalSeconds,          // Reload interval (default: 30)
+  int retryDelaySeconds,              // Retry delay (default: 12)
+})
+```
+
+### Banner Ad Events
+
+```dart
+BannerAdEvents(
+  onAdLoaded: () => print('Banner loaded'),
+  onAdFailed: (String error, int code) => print('Error: $error'),
+  onAdClicked: () => print('Banner clicked'),
+  onAdImpression: () => print('Impression recorded'),
+  onAdOpened: () => print('Banner opened'),
+  onAdClosed: () => print('Banner closed'),
+  onAdPaid: (double value, String currency) => print('Revenue: \$value $currency'),
+)
+```
+
+### Banner Size Examples
+
+```dart
+// Standard Banner (50dp)
+BannerAdWidget(
+  controller: _controller,
+  height: BannerAdSize.banner.recommendedHeight, // 50
+)
+
+// Leaderboard (90dp)
+BannerAdOptions(
+  adUnitId: '...',
+  size: BannerAdSize.leaderboard,
+)
+BannerAdWidget(height: 90)
+
+// Adaptive Banner với height tùy chỉnh
+BannerAdOptions(
+  adUnitId: '...',
+  size: BannerAdSize.adaptiveBanner,
+  adaptiveBannerHeight: 70, // Custom height
+)
+BannerAdWidget(height: 70)
+
+// Medium Rectangle (250dp)
+BannerAdOptions(
+  adUnitId: '...',
+  size: BannerAdSize.mediumRectangle,
+)
+BannerAdWidget(height: 250)
+```
+
+### Test Ad Unit IDs for Banner
 
 Sử dụng test ad units của Google trong quá trình development:
 
-- **Android:** `ca-app-pub-3940256099942544/2247696110`
-- **iOS:** `ca-app-pub-3940256099942544/3986624511`
+- **Android Banner:** `ca-app-pub-3940256099942544/2934735716`
+- **iOS Banner:** `ca-app-pub-3940256099942544/2934735716`
 
 Hoặc dùng helper constructors:
 
 ```dart
 // Test Android
-NativeAdOptions.testAndroid()
+BannerAdOptions.testBannerAndroid()
 
 // Test iOS
+BannerAdOptions.testBannerIOS()
+```
+
+### Banner Ad Controller Methods
+
+```dart
+// Preload - Tải trước và chờ
+final success = await controller.preload();
+
+// LoadAd - Bắt đầu tải (không chờ)
+controller.loadAd();
+
+// Reload - Tải lại banner
+controller.reload();
+
+// Update visibility - Cập nhật trạng thái visibility
+controller.updateVisibility(true);
+
+// Trigger smart reload - Kích hoạt smart reload thủ công
+controller.triggerSmartReload();
+
+// State getters
+controller.isLoading;     // Đang tải
+controller.isLoaded;      // Đã load thành công
+controller.isPreloaded;   // Đã preload
+controller.hasError;      // Có lỗi
+controller.errorMessage;  // Thông báo lỗi
+```
+
+## Test Ad Unit IDs
+
+Sử dụng test ad units của Google trong quá trình development:
+
+### Native Ads
+- **Android:** `ca-app-pub-3940256099942544/2247696110`
+- **iOS:** `ca-app-pub-3940256099942544/3986624511`
+
+### Banner Ads
+- **Android:** `ca-app-pub-3940256099942544/2934735716`
+- **iOS:** `ca-app-pub-3940256099942544/2934735716`
+
+Hoặc dùng helper constructors:
+
+```dart
+// Test Native Ad - Android
+NativeAdOptions.testAndroid()
+
+// Test Native Ad - iOS
 NativeAdOptions.testIOS()
+
+// Test Banner Ad - Android
+BannerAdOptions.testBannerAndroid()
+
+// Test Banner Ad - iOS
+BannerAdOptions.testBannerIOS()
 
 // Hoặc tự động
 NativeAdOptions(
