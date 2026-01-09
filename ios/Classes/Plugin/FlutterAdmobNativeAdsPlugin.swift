@@ -37,6 +37,7 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
     private static let viewTypeBanner = "flutter_admob_banner_ads"
 
     private var channel: FlutterMethodChannel?
+    private var bannerChannel: FlutterMethodChannel?
     private var adLoaders: [String: NativeAdLoader] = [:]
 
     /// Registry of ad loaded callbacks by controller ID (for platform views)
@@ -79,11 +80,15 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
     /// Registers a callback to be invoked when a banner ad is loaded for the given controller.
     /// This allows platform views to receive ads without creating their own loaders.
     public func registerBannerAdCallback(controllerId: String, callback: @escaping (GADBannerView) -> Void) {
+        print("[FlutterAdmobNativeAds] Registering banner callback for controller: \(controllerId)")
         bannerAdCallbacks[controllerId] = callback
 
         // If ad is already loaded, invoke callback immediately
         if let bannerView = getBannerAd(controllerId: controllerId) {
-            callback(bannerView)
+            print("[FlutterAdmobNativeAds] Banner already loaded for controller: \(controllerId), invoking callback immediately")
+            DispatchQueue.main.async {
+                callback(bannerView)
+            }
         }
     }
 
@@ -98,9 +103,16 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
             binaryMessenger: registrar.messenger()
         )
 
+        let bannerChannel = FlutterMethodChannel(
+            name: bannerChannelName,
+            binaryMessenger: registrar.messenger()
+        )
+
         let instance = FlutterAdmobNativeAdsPlugin()
         instance.channel = channel
+        instance.bannerChannel = bannerChannel
         registrar.addMethodCallDelegate(instance, channel: channel)
+        registrar.addMethodCallDelegate(instance, channel: bannerChannel)
 
         // Set singleton instance
         FlutterAdmobNativeAdsPlugin.sharedInstance = instance
@@ -309,10 +321,10 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
 
         print("[FlutterAdmobNativeAds] Loading banner ad for controller: \(controllerId)")
 
-        guard let channel = channel else {
+        guard let bannerChannel = bannerChannel else {
             result(FlutterError(
                 code: "CHANNEL_ERROR",
-                message: "Method channel not available",
+                message: "Banner method channel not available",
                 details: nil
             ))
             return
@@ -323,7 +335,7 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
         let loader = BannerAdLoader(
             adUnitId: adUnitId,
             controllerId: controllerId,
-            channel: channel,
+            channel: bannerChannel,
             adSize: adSize,
             enableDebugLogs: enableDebugLogs
         )
@@ -332,10 +344,17 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
 
         // Set callback to notify registered platform views
         loader.setOnAdLoadedCallback { [weak self] bannerView in
-            if let self = self, let callback = self.bannerAdCallbacks[controllerId] {
+            guard let self = self else { return }
+            print("[FlutterAdmobNativeAds] Banner ad loaded callback invoked for controller: \(controllerId)")
+            print("[FlutterAdmobNativeAds] Registered callbacks: \(self.bannerAdCallbacks.keys)")
+
+            if let callback = self.bannerAdCallbacks[controllerId] {
+                print("[FlutterAdmobNativeAds] Invoking callback for controller: \(controllerId)")
                 DispatchQueue.main.async {
                     callback(bannerView)
                 }
+            } else {
+                print("[FlutterAdmobNativeAds] WARNING: No callback registered for controller: \(controllerId)")
             }
         }
 
@@ -366,10 +385,10 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
         // Destroy existing loader
         bannerAdLoaders[controllerId]?.destroy()
 
-        guard let channel = channel else {
+        guard let bannerChannel = bannerChannel else {
             result(FlutterError(
                 code: "CHANNEL_ERROR",
-                message: "Method channel not available",
+                message: "Banner method channel not available",
                 details: nil
             ))
             return
@@ -380,7 +399,7 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
         let loader = BannerAdLoader(
             adUnitId: adUnitId,
             controllerId: controllerId,
-            channel: channel,
+            channel: bannerChannel,
             adSize: adSize,
             enableDebugLogs: enableDebugLogs
         )
@@ -389,10 +408,17 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
 
         // Set callback to notify registered platform views
         loader.setOnAdLoadedCallback { [weak self] bannerView in
-            if let self = self, let callback = self.bannerAdCallbacks[controllerId] {
+            guard let self = self else { return }
+            print("[FlutterAdmobNativeAds] Banner ad loaded callback invoked for controller: \(controllerId)")
+            print("[FlutterAdmobNativeAds] Registered callbacks: \(self.bannerAdCallbacks.keys)")
+
+            if let callback = self.bannerAdCallbacks[controllerId] {
+                print("[FlutterAdmobNativeAds] Invoking callback for controller: \(controllerId)")
                 DispatchQueue.main.async {
                     callback(bannerView)
                 }
+            } else {
+                print("[FlutterAdmobNativeAds] WARNING: No callback registered for controller: \(controllerId)")
             }
         }
 
@@ -436,6 +462,10 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
         // Clear callbacks
         adLoadedCallbacks.removeAll()
         bannerAdCallbacks.removeAll()
+
+        // Clear channels
+        channel = nil
+        bannerChannel = nil
 
         // Clear singleton instance
         FlutterAdmobNativeAdsPlugin.sharedInstance = nil

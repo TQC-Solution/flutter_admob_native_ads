@@ -44,15 +44,24 @@ class BannerAdLoader: NSObject {
 
     /// Loads a banner ad.
     func loadAd() {
-        log("Loading banner ad for unit: \(adUnitId)")
+        log("Loading banner ad for unit: \(adUnitId), size: \(adSize)")
+
+        guard let rootVC = rootViewController() else {
+            log("ERROR: Could not get root view controller!")
+            return
+        }
+
+        log("Got root view controller: \(rootVC)")
 
         let bannerView = GADBannerView(adSize: adSize)
         bannerView.adUnitID = adUnitId
-        bannerView.rootViewController = rootViewController()
+        bannerView.rootViewController = rootVC
         bannerView.delegate = self
 
         self.bannerView = bannerView
         bannerView.load(GADRequest())
+
+        log("Started banner ad request")
     }
 
     /// Gets the currently loaded banner view.
@@ -71,6 +80,13 @@ class BannerAdLoader: NSObject {
     // MARK: - Private Methods
 
     private func rootViewController() -> UIViewController? {
+        // iOS 13+ uses connectedScenes
+        if #available(iOS 13.0, *) {
+            return UIApplication.shared.connectedScenes
+                .compactMap { ($0 as? UIWindowScene)?.windows.first }
+                .first?.rootViewController
+        }
+        // Fallback for older iOS versions
         return UIApplication.shared.windows.first?.rootViewController
     }
 

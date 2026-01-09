@@ -351,9 +351,9 @@ class _BannerAdsPageState extends State<BannerAdsPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 4),
                       Text('Interval: $_reloadIntervalSeconds seconds'),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 4),
                       ElevatedButton(
                         onPressed: _stopSmartReload,
                         style: ElevatedButton.styleFrom(

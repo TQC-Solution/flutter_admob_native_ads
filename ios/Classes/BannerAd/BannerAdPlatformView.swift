@@ -53,9 +53,14 @@ class BannerAdPlatformView: NSObject, FlutterPlatformView {
     }
 
     private func onAdLoaded(_ view: GADBannerView) {
-        log("Banner ad loaded, adding to container")
+        log("Banner ad loaded, adding to container. Banner size: \(view.bounds.size)")
 
-        bannerView?.removeFromSuperview()
+        // Remove old banner view if exists
+        if let oldBanner = bannerView {
+            log("Removing old banner view")
+            oldBanner.removeFromSuperview()
+        }
+
         bannerView = view
 
         containerView.addSubview(view)
@@ -67,6 +72,8 @@ class BannerAdPlatformView: NSObject, FlutterPlatformView {
             view.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             view.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
         ])
+
+        log("Banner added to container with constraints. Container frame: \(containerView.bounds)")
     }
 
     private func log(_ message: String) {
