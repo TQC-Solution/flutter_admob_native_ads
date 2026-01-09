@@ -17,6 +17,7 @@ import 'widgets/preloaded_ad_display.dart';
 
 // Pages
 import 'pages/preloaded_ad_page.dart';
+import 'pages/banner_ads_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -63,10 +64,15 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
   int _reloadIntervalSeconds = 30;
   String _reloadStatus = 'Not started';
 
+  // Banner Ad Demo
+  BannerAdController? _bannerController;
+  BannerAdSize _selectedBannerSize = BannerAdSize.adaptiveBanner;
+
   @override
   void dispose() {
     _preloadedController?.dispose();
     _smartReloadController?.dispose();
+    _bannerController?.dispose();
     super.dispose();
   }
 
@@ -260,6 +266,27 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
     });
   }
 
+  // ============================================================================
+  // BANNER AD METHODS
+  // ============================================================================
+
+  /// Navigate to Banner Ads page
+  void _openBannerAdsPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const BannerAdsPage()),
+    );
+  }
+
+  /// Select banner size
+  void _selectBannerSize(BannerAdSize size) {
+    setState(() {
+      _selectedBannerSize = size;
+      _bannerController?.dispose();
+      _bannerController = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -345,10 +372,104 @@ class _NativeAdsDemoState extends State<NativeAdsDemo> {
 
                   // Info card
                   LayoutInfoCard(layoutType: _selectedLayout),
+
+                  const SizedBox(height: 16),
+
+                  // Banner Ad Section
+                  _buildBannerAdSection(),
                 ],
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  /// Build the banner ad section
+  Widget _buildBannerAdSection() {
+    return Card(
+      elevation: 2,
+      color: _isDarkTheme ? Colors.grey[850] : Colors.orange[50],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.notifications_active,
+                          color: Colors.orange,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Banner Ads',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange[900],
+                          ),
+                        ),
+                      ],
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: _openBannerAdsPage,
+                      icon: const Icon(Icons.open_in_new, size: 18),
+                      label: const Text('Full Demo'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Banner size selector
+                Wrap(
+                  spacing: 8,
+                  children: BannerAdSize.values.map((size) {
+                    final isSelected = _selectedBannerSize == size;
+                    return FilterChip(
+                      label: Text(size.name),
+                      selected: isSelected,
+                      onSelected: (_) => _selectBannerSize(size),
+                      selectedColor: Colors.orange,
+                      checkmarkColor: Colors.white,
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+
+          // Banner Ad Widget
+          BannerAdWidget(
+            key: ValueKey('banner-$_selectedBannerSize'),
+            options: BannerAdOptions(
+              adUnitId: AdConstants.testBannerAdUnitId,
+              size: _selectedBannerSize,
+              enableDebugLogs: true,
+            ),
+            height: _selectedBannerSize.recommendedHeight,
+            onAdLoaded: () {
+              debugPrint(
+                '[Banner Demo] Banner loaded: ${_selectedBannerSize.name}',
+              );
+            },
+            onAdFailed: (error) {
+              debugPrint('[Banner Demo] Banner failed: $error');
+            },
+          ),
+
+          SizedBox(height: 8),
         ],
       ),
     );

@@ -2,8 +2,12 @@ package com.tqc.ads.flutter_admob_native_ads
 
 import android.content.Context
 import android.util.Log
+import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.nativead.NativeAd
 import com.tqc.ads.flutter_admob_native_ads.ad_loader.NativeAdLoader
+import com.tqc.ads.flutter_admob_native_ads.banner.BannerAdLoader
+import com.tqc.ads.flutter_admob_native_ads.banner.BannerAdSizeExtensions
+import com.tqc.ads.flutter_admob_native_ads.banner.BannerAdViewFactory
 import com.tqc.ads.flutter_admob_native_ads.platform_view.NativeAdViewFactory
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.BinaryMessenger
@@ -23,6 +27,7 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
     companion object {
         private const val TAG = "FlutterAdmobNativeAds"
         private const val CHANNEL_NAME = "flutter_admob_native_ads"
+        private const val BANNER_CHANNEL_NAME = "flutter_admob_banner_ads"
 
         // View type identifiers for all 12 forms
         private const val VIEW_TYPE_FORM_1 = "flutter_admob_native_ads_form1"
@@ -38,6 +43,9 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
         private const val VIEW_TYPE_FORM_11 = "flutter_admob_native_ads_form11"
         private const val VIEW_TYPE_FORM_12 = "flutter_admob_native_ads_form12"
 
+        // View type for banner ads
+        private const val VIEW_TYPE_BANNER = "flutter_admob_banner_ads"
+
         // Singleton instance for accessing preloaded ads from platform views
         @Volatile
         private var instance: FlutterAdmobNativeAdsPlugin? = null
@@ -46,6 +54,7 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     private lateinit var channel: MethodChannel
+    private lateinit var bannerChannel: MethodChannel
     private lateinit var context: Context
     private lateinit var messenger: BinaryMessenger
 
@@ -54,6 +63,12 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
 
     // Registry of ad loaded callbacks by controller ID (for platform views)
     private val adLoadedCallbacks = mutableMapOf<String, (NativeAd) -> Unit>()
+
+    // Registry of active banner ad loaders by controller ID
+    private val bannerAdLoaders = mutableMapOf<String, BannerAdLoader>()
+
+    // Registry of banner ad loaded callbacks by controller ID (for platform views)
+    private val bannerAdCallbacks = mutableMapOf<String, (AdView) -> Unit>()
 
     /**
      * Gets the preloaded native ad for the given controller ID.
@@ -83,6 +98,34 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
         adLoadedCallbacks.remove(controllerId)
     }
 
+    /**
+     * Gets the preloaded banner ad view for the given controller ID.
+     * Returns null if no ad is loaded for the controller.
+     */
+    fun getBannerAd(controllerId: String): AdView? {
+        return bannerAdLoaders[controllerId]?.getAdView()
+    }
+
+    /**
+     * Registers a callback to be invoked when a banner ad is loaded for the given controller.
+     * This allows platform views to receive ads without creating their own loaders.
+     */
+    fun registerBannerAdCallback(controllerId: String, callback: (AdView) -> Unit) {
+        bannerAdCallbacks[controllerId] = callback
+
+        // If ad is already loaded, invoke callback immediately
+        getBannerAd(controllerId)?.let { adView ->
+            callback(adView)
+        }
+    }
+
+    /**
+     * Unregisters the banner ad loaded callback for the given controller.
+     */
+    fun unregisterBannerAdCallback(controllerId: String) {
+        bannerAdCallbacks.remove(controllerId)
+    }
+
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         Log.d(TAG, "Plugin attached to engine")
 
@@ -91,9 +134,13 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
         context = flutterPluginBinding.applicationContext
         messenger = flutterPluginBinding.binaryMessenger
 
-        // Setup method channel
+        // Setup method channel for native ads
         channel = MethodChannel(messenger, CHANNEL_NAME)
         channel.setMethodCallHandler(this)
+
+        // Setup method channel for banner ads
+        bannerChannel = MethodChannel(messenger, BANNER_CHANNEL_NAME)
+        bannerChannel.setMethodCallHandler(this)
 
         // Register platform view factories
         registerPlatformViews(flutterPluginBinding)
@@ -150,7 +197,13 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
             NativeAdViewFactory(messenger, "form12")
         )
 
-        Log.d(TAG, "Platform view factories registered: Form1-Form12")
+        // Register banner ad view factory
+        binding.platformViewRegistry.registerViewFactory(
+            VIEW_TYPE_BANNER,
+            BannerAdViewFactory(messenger)
+        )
+
+        Log.d(TAG, "Platform view factories registered: Form1-Form12, Banner")
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
@@ -158,6 +211,9 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
             "loadAd" -> handleLoadAd(call, result)
             "reloadAd" -> handleReloadAd(call, result)
             "disposeAd" -> handleDisposeAd(call, result)
+            "loadBannerAd" -> handleLoadBannerAd(call, result)
+            "reloadBannerAd" -> handleReloadBannerAd(call, result)
+            "disposeBannerAd" -> handleDisposeBannerAd(call, result)
             "getPlatformVersion" -> result.success("Android ${android.os.Build.VERSION.RELEASE}")
             else -> result.notImplemented()
         }
@@ -254,14 +310,109 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
         result.success(null)
     }
 
+    private fun handleLoadBannerAd(call: MethodCall, result: Result) {
+        val controllerId = call.argument<String>("controllerId")
+        val adUnitId = call.argument<String>("adUnitId")
+        val sizeIndex = call.argument<Int>("size") ?: 5
+        val enableDebugLogs = call.argument<Boolean>("enableDebugLogs") ?: false
+        val customHeight = call.argument<Int>("adaptiveBannerHeight")
+
+        if (controllerId.isNullOrEmpty() || adUnitId.isNullOrEmpty()) {
+            result.error("INVALID_ARGS", "controllerId and adUnitId are required", null)
+            return
+        }
+
+        Log.d(TAG, "Loading banner ad for controller: $controllerId")
+
+        val adSize = BannerAdSizeExtensions.getAdSize(sizeIndex, context, customHeight)
+
+        val loader = BannerAdLoader(
+            context = context,
+            adUnitId = adUnitId,
+            controllerId = controllerId,
+            channel = bannerChannel,
+            adSize = adSize,
+            enableDebugLogs = enableDebugLogs
+        )
+
+        loader.setOnAdLoadedCallback { adView ->
+            bannerAdCallbacks[controllerId]?.invoke(adView)
+        }
+
+        bannerAdLoaders[controllerId] = loader
+        loader.loadAd()
+
+        result.success(null)
+    }
+
+    private fun handleReloadBannerAd(call: MethodCall, result: Result) {
+        val controllerId = call.argument<String>("controllerId")
+        val adUnitId = call.argument<String>("adUnitId")
+        val sizeIndex = call.argument<Int>("size") ?: 5
+        val enableDebugLogs = call.argument<Boolean>("enableDebugLogs") ?: false
+        val customHeight = call.argument<Int>("adaptiveBannerHeight")
+
+        if (controllerId.isNullOrEmpty() || adUnitId.isNullOrEmpty()) {
+            result.error("INVALID_ARGS", "controllerId and adUnitId are required", null)
+            return
+        }
+
+        Log.d(TAG, "Reloading banner ad for controller: $controllerId")
+
+        // Destroy existing loader
+        bannerAdLoaders[controllerId]?.destroy()
+
+        val adSize = BannerAdSizeExtensions.getAdSize(sizeIndex, context, customHeight)
+
+        val loader = BannerAdLoader(
+            context = context,
+            adUnitId = adUnitId,
+            controllerId = controllerId,
+            channel = bannerChannel,
+            adSize = adSize,
+            enableDebugLogs = enableDebugLogs
+        )
+
+        loader.setOnAdLoadedCallback { adView ->
+            bannerAdCallbacks[controllerId]?.invoke(adView)
+        }
+
+        bannerAdLoaders[controllerId] = loader
+        loader.loadAd()
+
+        result.success(null)
+    }
+
+    private fun handleDisposeBannerAd(call: MethodCall, result: Result) {
+        val controllerId = call.argument<String>("controllerId")
+
+        if (controllerId.isNullOrEmpty()) {
+            result.error("INVALID_ARGS", "controllerId is required", null)
+            return
+        }
+
+        Log.d(TAG, "Disposing banner ad for controller: $controllerId")
+
+        bannerAdLoaders[controllerId]?.destroy()
+        bannerAdLoaders.remove(controllerId)
+        bannerAdCallbacks.remove(controllerId)
+
+        result.success(null)
+    }
+
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         Log.d(TAG, "Plugin detached from engine")
 
         channel.setMethodCallHandler(null)
+        bannerChannel.setMethodCallHandler(null)
 
         // Clean up all loaders
         adLoaders.values.forEach { it.destroy() }
         adLoaders.clear()
+
+        // Clean up all banner loaders
+        bannerAdLoaders.values.forEach { it.destroy() }
+        bannerAdLoaders.clear()
 
         instance = null
     }
