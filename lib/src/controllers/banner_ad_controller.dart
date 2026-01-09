@@ -3,16 +3,16 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import '../models/native_ad_events.dart';
-import '../models/native_ad_options.dart';
+import '../models/banner_ad_events.dart';
+import '../models/banner_ad_options.dart';
 import '../services/app_lifecycle_manager.dart';
 import '../services/network_connectivity_manager.dart';
 import '../services/preload_scheduler.dart';
 import '../services/reload_scheduler.dart';
 
-export 'native_ad_controller.dart' show NativeAdState;
+export 'banner_ad_controller.dart' show BannerAdState;
 
-/// Controller for managing native ad lifecycle and state.
+/// Controller for managing banner ad lifecycle and state.
 ///
 /// This controller handles communication with the native platform,
 /// manages ad loading state, and routes callbacks from the native SDK
@@ -20,9 +20,9 @@ export 'native_ad_controller.dart' show NativeAdState;
 ///
 /// Example:
 /// ```dart
-/// final controller = NativeAdController(
-///   options: NativeAdOptions(adUnitId: 'xxx'),
-///   events: NativeAdEvents(
+/// final controller = BannerAdController(
+///   options: BannerAdOptions(adUnitId: 'xxx'),
+///   events: BannerAdEvents(
 ///     onAdLoaded: () => print('Loaded'),
 ///     onAdFailed: (error, code) => print('Failed: $error'),
 ///   ),
@@ -32,11 +32,11 @@ export 'native_ad_controller.dart' show NativeAdState;
 /// // ... use controller
 /// controller.dispose();
 /// ```
-class NativeAdController {
-  /// Creates a [NativeAdController] with the given options and events.
-  NativeAdController({
+class BannerAdController {
+  /// Creates a [BannerAdController] with the given options and events.
+  BannerAdController({
     required this.options,
-    this.events = const NativeAdEvents(),
+    this.events = const BannerAdEvents(),
   }) : _id = _generateId() {
     _setupChannel();
 
@@ -55,14 +55,14 @@ class NativeAdController {
   final String _id;
 
   /// Configuration options for the ad.
-  final NativeAdOptions options;
+  final BannerAdOptions options;
 
   /// Event callbacks for ad lifecycle events.
-  NativeAdEvents events;
+  BannerAdEvents events;
 
   /// Method channel for platform communication.
   static const MethodChannel _channel =
-      MethodChannel('flutter_admob_native_ads');
+      MethodChannel('flutter_admob_banner_ads');
 
   /// Whether the controller has been disposed.
   bool _isDisposed = false;
@@ -71,14 +71,14 @@ class NativeAdController {
   bool _isPreloaded = false;
 
   /// Stream controller for state changes.
-  final StreamController<NativeAdState> _stateController =
-      StreamController<NativeAdState>.broadcast();
+  final StreamController<BannerAdState> _stateController =
+      StreamController<BannerAdState>.broadcast();
 
   /// Completer for preload operation (null if not preloading).
   Completer<bool>? _preloadCompleter;
 
   /// Current state of the ad.
-  NativeAdState _state = NativeAdState.initial;
+  BannerAdState _state = BannerAdState.initial;
 
   /// Error message if loading failed.
   String? _errorMessage;
@@ -97,10 +97,6 @@ class NativeAdController {
   /// Whether the ad is currently visible on screen.
   bool _isAdVisible = false;
 
-  /// Reference to preloaded ad controller for cache management.
-  /// Set via [setPreloadedAdController] when using cache-based reload.
-  NativeAdController? _preloadedAdController;
-
   /// Counter for generating unique IDs.
   static int _idCounter = 0;
 
@@ -108,19 +104,19 @@ class NativeAdController {
   String get id => _id;
 
   /// Gets the current state of the ad.
-  NativeAdState get state => _state;
+  BannerAdState get state => _state;
 
   /// Stream of state changes.
-  Stream<NativeAdState> get stateStream => _stateController.stream;
+  Stream<BannerAdState> get stateStream => _stateController.stream;
 
   /// Whether the ad is currently loading.
-  bool get isLoading => _state == NativeAdState.loading;
+  bool get isLoading => _state == BannerAdState.loading;
 
   /// Whether the ad has been loaded successfully.
-  bool get isLoaded => _state == NativeAdState.loaded;
+  bool get isLoaded => _state == BannerAdState.loaded;
 
   /// Whether the ad failed to load.
-  bool get hasError => _state == NativeAdState.error;
+  bool get hasError => _state == BannerAdState.error;
 
   /// Gets the error message if loading failed.
   String? get errorMessage => _errorMessage;
@@ -140,7 +136,7 @@ class NativeAdController {
   /// Generates a unique ID for the controller.
   static String _generateId() {
     _idCounter++;
-    return 'native_ad_${DateTime.now().millisecondsSinceEpoch}_$_idCounter';
+    return 'banner_ad_${DateTime.now().millisecondsSinceEpoch}_$_idCounter';
   }
 
   /// Sets up the method channel for receiving callbacks.
@@ -169,7 +165,7 @@ class NativeAdController {
       _preloadScheduler!.initialize();
 
       if (options.enableDebugLogs) {
-        debugPrint('[NativeAdController] Smart preload initialized for $_id');
+        debugPrint('[BannerAdController] Smart preload initialized for $_id');
       }
 
       // Trigger initial evaluation
@@ -198,9 +194,9 @@ class NativeAdController {
       lifecycleManager: _lifecycleManager!,
       networkManager: _networkManager!,
       reloadCallback: _performReload,
-      cacheCheckCallback: _checkCachedAd,
-      showCachedAdCallback: _showCachedAd,
-      preloadTriggerCallback: _triggerPreloadForCache,
+      cacheCheckCallback: () => false, // Banner ads don't use cache
+      showCachedAdCallback: () async {},
+      preloadTriggerCallback: () async {},
       reloadIntervalSeconds: options.reloadIntervalSeconds,
       retryDelaySeconds: options.retryDelaySeconds,
       enableDebugLogs: options.enableDebugLogs,
@@ -208,20 +204,7 @@ class NativeAdController {
     _reloadScheduler!.initialize();
 
     if (options.enableDebugLogs) {
-      debugPrint('[NativeAdController] Smart reload initialized for $_id');
-    }
-  }
-
-  /// Sets a preloaded ad controller for cache-based reload.
-  ///
-  /// When reload is triggered and this controller has a cached ad,
-  /// it will be shown immediately instead of requesting a new ad.
-  void setPreloadedAdController(NativeAdController? controller) {
-    _preloadedAdController = controller;
-    if (options.enableDebugLogs) {
-      debugPrint(
-        '[NativeAdController] Preloaded controller set: ${controller?.id}',
-      );
+      debugPrint('[BannerAdController] Smart reload initialized for $_id');
     }
   }
 
@@ -236,7 +219,7 @@ class NativeAdController {
     _reloadScheduler?.updateAdVisibility(isVisible);
 
     if (options.enableDebugLogs) {
-      debugPrint('[NativeAdController] Visibility updated: $isVisible');
+      debugPrint('[BannerAdController] Visibility updated: $isVisible');
     }
   }
 
@@ -247,15 +230,14 @@ class NativeAdController {
     _reloadScheduler?.updateReloadInterval(seconds);
   }
 
-  /// Triggers a smart reload (visibility-aware with cache check).
+  /// Triggers a smart reload (visibility-aware).
   ///
   /// Only works when enableSmartReload is true.
-  /// Respects visibility check and cache priority.
   void triggerSmartReload() {
     if (!options.enableSmartReload || _reloadScheduler == null) {
       if (options.enableDebugLogs) {
         debugPrint(
-          '[NativeAdController] Smart reload not enabled, using direct reload',
+          '[BannerAdController] Smart reload not enabled, using direct reload',
         );
       }
       reload();
@@ -263,77 +245,6 @@ class NativeAdController {
     }
 
     _reloadScheduler!.triggerReload();
-  }
-
-  /// Internal: Checks if a cached ad is available.
-  bool _checkCachedAd() {
-    if (_preloadedAdController == null) return false;
-    return _preloadedAdController!.isLoaded &&
-        !_preloadedAdController!.isDisposed;
-  }
-
-  /// Internal: Shows the cached ad.
-  Future<void> _showCachedAd() async {
-    // In the current architecture, showing cached ad means:
-    // 1. The widget will swap to use the preloaded controller
-    // 2. This is handled via events to the widget
-    if (options.enableDebugLogs) {
-      debugPrint('[NativeAdController] Showing cached ad from preload');
-    }
-
-    // Emit a special event to notify widget to swap controllers
-    events.onCachedAdReady?.call();
-  }
-
-  /// Internal: Triggers preload for next cache.
-  Future<void> _triggerPreloadForCache() async {
-    if (_preloadedAdController != null && !_preloadedAdController!.isDisposed) {
-      if (options.enableDebugLogs) {
-        debugPrint('[NativeAdController] Triggering preload for next cache');
-      }
-      _preloadedAdController!.preload();
-    }
-  }
-
-  /// Internal: Performs the actual reload.
-  Future<void> _performReload() async {
-    if (_isDisposed) return;
-
-    _state = NativeAdState.loading;
-    _errorMessage = null;
-    _errorCode = null;
-    _stateController.add(_state);
-
-    // Notify schedulers of state change
-    _preloadScheduler?.updateAdState(_state.index);
-    
-    if (options.enableDebugLogs) {
-      debugPrint('[NativeAdController] Performing reload: $_id');
-    }
-
-    try {
-      await _channel.invokeMethod('reloadAd', {
-        'controllerId': _id,
-        ...options.toMap(),
-      });
-    } on PlatformException catch (e) {
-      _handleReloadFailed(e.message ?? 'Platform error', -1);
-    }
-  }
-
-  void _handleReloadFailed(String error, int code) {
-    _state = NativeAdState.error;
-    _errorMessage = error;
-    _errorCode = code;
-    _stateController.add(_state);
-
-    _reloadScheduler?.onReloadFailed();
-    
-    events.onAdFailed?.call(error, code);
-
-    if (options.enableDebugLogs) {
-      debugPrint('[NativeAdController] Reload failed: $error (code: $code)');
-    }
   }
 
   /// Handles method calls from the native platform.
@@ -367,12 +278,17 @@ class NativeAdController {
       case 'onAdClosed':
         _handleAdClosed();
         break;
+      case 'onAdPaid':
+        final value = call.arguments?['value'] as num? ?? 0;
+        final currency = call.arguments?['currencyCode'] as String? ?? 'USD';
+        _handleAdPaid(value.toDouble(), currency);
+        break;
     }
   }
 
   /// Handles successful ad load.
   void _handleAdLoaded() {
-    _state = NativeAdState.loaded;
+    _state = BannerAdState.loaded;
     _errorMessage = null;
     _errorCode = null;
     _stateController.add(_state);
@@ -381,7 +297,7 @@ class NativeAdController {
     _preloadScheduler?.onAdLoaded();
     _preloadScheduler?.updateAdState(_state.index);
     _reloadScheduler?.onReloadSuccess();
-    
+
     events.onAdLoaded?.call();
 
     // Complete preload if pending
@@ -392,13 +308,13 @@ class NativeAdController {
     }
 
     if (options.enableDebugLogs) {
-      debugPrint('[NativeAdController] Ad loaded: $_id');
+      debugPrint('[BannerAdController] Ad loaded: $_id');
     }
   }
 
   /// Handles ad load failure.
   void _handleAdFailed(String error, int code) {
-    _state = NativeAdState.error;
+    _state = BannerAdState.error;
     _errorMessage = error;
     _errorCode = code;
     _stateController.add(_state);
@@ -407,7 +323,7 @@ class NativeAdController {
     _preloadScheduler?.onAdFailed();
     _preloadScheduler?.updateAdState(_state.index);
     _reloadScheduler?.onReloadFailed();
-    
+
     events.onAdFailed?.call(error, code);
 
     // Complete preload with failure if pending
@@ -417,7 +333,7 @@ class NativeAdController {
     }
 
     if (options.enableDebugLogs) {
-      debugPrint('[NativeAdController] Ad failed: $error (code: $code)');
+      debugPrint('[BannerAdController] Ad failed: $error (code: $code)');
     }
   }
 
@@ -425,7 +341,7 @@ class NativeAdController {
   void _handleAdClicked() {
     events.onAdClicked?.call();
     if (options.enableDebugLogs) {
-      debugPrint('[NativeAdController] Ad clicked: $_id');
+      debugPrint('[BannerAdController] Ad clicked: $_id');
     }
   }
 
@@ -436,7 +352,7 @@ class NativeAdController {
 
     events.onAdImpression?.call();
     if (options.enableDebugLogs) {
-      debugPrint('[NativeAdController] Ad impression: $_id');
+      debugPrint('[BannerAdController] Ad impression: $_id');
     }
   }
 
@@ -444,7 +360,7 @@ class NativeAdController {
   void _handleAdOpened() {
     events.onAdOpened?.call();
     if (options.enableDebugLogs) {
-      debugPrint('[NativeAdController] Ad opened: $_id');
+      debugPrint('[BannerAdController] Ad opened: $_id');
     }
   }
 
@@ -452,11 +368,19 @@ class NativeAdController {
   void _handleAdClosed() {
     events.onAdClosed?.call();
     if (options.enableDebugLogs) {
-      debugPrint('[NativeAdController] Ad closed: $_id');
+      debugPrint('[BannerAdController] Ad closed: $_id');
     }
   }
 
-  /// Preloads the native ad and waits for completion.
+  /// Handles ad paid event.
+  void _handleAdPaid(double value, String currency) {
+    events.onAdPaid?.call(value, currency);
+    if (options.enableDebugLogs) {
+      debugPrint('[BannerAdController] Ad paid: \$$value $currency');
+    }
+  }
+
+  /// Preloads the banner ad and waits for completion.
   ///
   /// Unlike [loadAd], this method waits until the ad is fully loaded
   /// or fails to load. Use this when you want to preload ads before
@@ -466,7 +390,7 @@ class NativeAdController {
   ///
   /// Example:
   /// ```dart
-  /// final controller = NativeAdController(options: options);
+  /// final controller = BannerAdController(options: options);
   /// final success = await controller.preload();
   /// if (success) {
   ///   // Ad is ready, show the widget
@@ -478,7 +402,7 @@ class NativeAdController {
     }
 
     // Already preloaded or loaded
-    if (_isPreloaded || _state == NativeAdState.loaded) {
+    if (_isPreloaded || _state == BannerAdState.loaded) {
       return true;
     }
 
@@ -492,7 +416,7 @@ class NativeAdController {
     return _preloadCompleter!.future;
   }
 
-  /// Loads the native ad.
+  /// Loads the banner ad.
   ///
   /// This triggers the native platform to load an ad with the
   /// configured options. The result is communicated through
@@ -509,7 +433,7 @@ class NativeAdController {
     // If smart preload enabled, let scheduler decide
     if (options.enableSmartPreload && _preloadScheduler != null) {
       if (options.enableDebugLogs) {
-        debugPrint('[NativeAdController] Smart preload enabled, evaluating...');
+        debugPrint('[BannerAdController] Smart preload enabled, evaluating...');
       }
       _preloadScheduler!.evaluateAndLoad();
       return;
@@ -526,7 +450,7 @@ class NativeAdController {
   Future<void> _performLoadAd() async {
     if (_isDisposed) return;
 
-    _state = NativeAdState.loading;
+    _state = BannerAdState.loading;
     _errorMessage = null;
     _errorCode = null;
     _stateController.add(_state);
@@ -535,11 +459,11 @@ class NativeAdController {
     _preloadScheduler?.updateAdState(_state.index);
 
     if (options.enableDebugLogs) {
-      debugPrint('[NativeAdController] Loading ad: $_id');
+      debugPrint('[BannerAdController] Loading ad: $_id');
     }
 
     try {
-      await _channel.invokeMethod('loadAd', {
+      await _channel.invokeMethod('loadBannerAd', {
         'controllerId': _id,
         ...options.toMap(),
       });
@@ -548,7 +472,7 @@ class NativeAdController {
     }
   }
 
-  /// Reloads the native ad.
+  /// Reloads the banner ad.
   ///
   /// This destroys any existing ad and loads a new one.
   Future<void> reload() async {
@@ -557,15 +481,41 @@ class NativeAdController {
     }
 
     if (options.enableDebugLogs) {
-      debugPrint('[NativeAdController] Reloading ad: $_id');
+      debugPrint('[BannerAdController] Reloading ad: $_id');
     }
 
     // Use the same reload flow as smart reload
     await _performReload();
   }
 
+  /// Internal: Performs the actual reload.
+  Future<void> _performReload() async {
+    if (_isDisposed) return;
+
+    _state = BannerAdState.loading;
+    _errorMessage = null;
+    _errorCode = null;
+    _stateController.add(_state);
+
+    // Notify schedulers of state change
+    _preloadScheduler?.updateAdState(_state.index);
+
+    if (options.enableDebugLogs) {
+      debugPrint('[BannerAdController] Performing reload: $_id');
+    }
+
+    try {
+      await _channel.invokeMethod('reloadBannerAd', {
+        'controllerId': _id,
+        ...options.toMap(),
+      });
+    } on PlatformException catch (e) {
+      _handleAdFailed(e.message ?? 'Platform error', -1);
+    }
+  }
+
   /// Updates the event callbacks.
-  void updateEvents(NativeAdEvents newEvents) {
+  void updateEvents(BannerAdEvents newEvents) {
     events = newEvents;
   }
 
@@ -584,14 +534,14 @@ class NativeAdController {
     _networkManager?.dispose();
 
     if (options.enableDebugLogs) {
-      debugPrint('[NativeAdController] Disposing: $_id');
+      debugPrint('[BannerAdController] Disposing: $_id');
     }
 
     try {
-      await _channel.invokeMethod('disposeAd', {'controllerId': _id});
+      await _channel.invokeMethod('disposeBannerAd', {'controllerId': _id});
     } on PlatformException catch (e) {
       if (options.enableDebugLogs) {
-        debugPrint('[NativeAdController] Dispose error: ${e.message}');
+        debugPrint('[BannerAdController] Dispose error: ${e.message}');
       }
     }
 
@@ -599,8 +549,8 @@ class NativeAdController {
   }
 }
 
-/// Represents the state of a native ad.
-enum NativeAdState {
+/// Represents the state of a banner ad.
+enum BannerAdState {
   /// Initial state, ad has not been loaded yet.
   initial,
 

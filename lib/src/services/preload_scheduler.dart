@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 
-import '../controllers/native_ad_controller.dart';
 import 'app_lifecycle_manager.dart';
 import 'network_connectivity_manager.dart';
 
@@ -48,7 +47,7 @@ class PreloadScheduler {
   // State
   int _retryCount = 0;
   DateTime? _lastImpressionTime;
-  NativeAdState _currentAdState = NativeAdState.initial;
+  int _currentAdState = 0; // 0=initial, 1=loading, 2=loaded, 3=error
   Timer? _retryTimer;
   StreamSubscription? _lifecycleSubscription;
   StreamSubscription? _networkSubscription;
@@ -62,6 +61,9 @@ class PreloadScheduler {
     Duration(seconds: 20),
     Duration(seconds: 40),
   ];
+  // State constants: 0=initial, 1=loading, 2=loaded, 3=error
+  static const _stateLoading = 1;
+  static const _stateLoaded = 2;
 
   /// Initializes the scheduler and starts listening to lifecycle and network changes.
   void initialize() {
@@ -149,13 +151,13 @@ class PreloadScheduler {
     if (!_canAttemptLoad) return;
 
     // LAYER 2: Cache/Loading checks
-    if (_currentAdState == NativeAdState.loading) {
+    if (_currentAdState == _stateLoading) {
       _log('⏳ Ad is currently loading, waiting 25 seconds...');
       _scheduleWaitRetry(const Duration(seconds: 25));
       return;
     }
 
-    if (_currentAdState == NativeAdState.loaded) {
+    if (_currentAdState == _stateLoaded) {
       _log('✅ Ad already cached, waiting 10 seconds before refresh check...');
       _scheduleWaitRetry(const Duration(seconds: 10));
       return;
@@ -229,13 +231,13 @@ class PreloadScheduler {
 
   /// Updates the current ad state.
   ///
-  /// Called by controller when ad state changes (initial, loading, loaded, error).
+  /// Called by controller when ad state changes (0=initial, 1=loading, 2=loaded, 3=error).
   /// Used by Layer 2 to avoid redundant requests.
-  void updateAdState(NativeAdState state) {
+  void updateAdState(int state) {
     if (_isDisposed) return;
 
     _currentAdState = state;
-    _log('📊 Ad state updated: ${state.name}');
+    _log('📊 Ad state updated: $state');
   }
 
   /// Disposes the scheduler and cleans up resources.
