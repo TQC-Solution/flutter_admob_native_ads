@@ -6,12 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-import '../controllers/native_ad_controller.dart';
-import '../models/native_ad_events.dart';
-import '../models/native_ad_options.dart';
-import 'shimmer_ad_placeholder.dart';
+import '../controllers/banner_ad_controller.dart';
+import '../models/banner_ad_events.dart';
+import '../models/banner_ad_options.dart';
+import '../widgets/native_ad_widget.dart' show AdGestureRecognizer;
+import '../widgets/banner_shimmer_placeholder.dart';
 
-/// A widget that displays a native ad.
+/// A widget that displays a banner ad.
 ///
 /// This widget wraps the native platform view and handles:
 /// - Ad loading and lifecycle
@@ -20,28 +21,25 @@ import 'shimmer_ad_placeholder.dart';
 ///
 /// Example:
 /// ```dart
-/// NativeAdWidget(
-///   options: NativeAdOptions(
+/// BannerAdWidget(
+///   options: BannerAdOptions(
 ///     adUnitId: 'ca-app-pub-xxx/xxx',
-///     layoutType: NativeAdLayoutType.standard,
-///     style: NativeAdStyle.light(),
+///     size: BannerAdSize.adaptiveBanner,
 ///   ),
-///   height: 300,
 ///   onAdLoaded: () => print('Ad loaded'),
 ///   onAdFailed: (error) => print('Ad failed: $error'),
 /// )
 /// ```
-class NativeAdWidget extends StatefulWidget {
-  /// Creates a [NativeAdWidget].
+class BannerAdWidget extends StatefulWidget {
+  /// Creates a [BannerAdWidget].
   ///
   /// [options] is required and contains the ad configuration.
   /// [height] is optional; if not provided, uses the recommended height
-  /// for the layout type.
-  const NativeAdWidget({
+  /// for the banner size.
+  const BannerAdWidget({
     super.key,
     required this.options,
     this.controller,
-    this.preloadedController,
     this.height,
     this.width,
     this.loadingWidget,
@@ -50,28 +48,22 @@ class NativeAdWidget extends StatefulWidget {
     this.onAdFailed,
     this.onAdClicked,
     this.onAdImpression,
-    this.onCachedAdReady,
+    this.onAdPaid,
     this.autoLoad = true,
     this.visibilityThreshold = 0.5,
   });
 
   /// Configuration options for the ad.
-  final NativeAdOptions options;
+  final BannerAdOptions options;
 
   /// Optional external controller for managing the ad.
   ///
   /// If not provided, an internal controller will be created.
-  final NativeAdController? controller;
-
-  /// Optional preloaded controller for cache-based reload.
-  ///
-  /// When smart reload is enabled and this controller has a loaded ad,
-  /// it will be used immediately instead of requesting a new ad.
-  final NativeAdController? preloadedController;
+  final BannerAdController? controller;
 
   /// Height of the ad widget.
   ///
-  /// If not specified, uses the recommended height for the layout type.
+  /// If not specified, uses the recommended height for the banner size.
   final double? height;
 
   /// Width of the ad widget.
@@ -102,10 +94,8 @@ class NativeAdWidget extends StatefulWidget {
   /// Callback when an ad impression is recorded.
   final VoidCallback? onAdImpression;
 
-  /// Callback when a cached ad is ready to be shown.
-  ///
-  /// Used by smart reload to notify when widget should swap to cached ad.
-  final VoidCallback? onCachedAdReady;
+  /// Callback when a paid event is recorded.
+  final void Function(double value, String currency)? onAdPaid;
 
   /// Whether to automatically load the ad when the widget is created.
   ///
@@ -120,11 +110,11 @@ class NativeAdWidget extends StatefulWidget {
   final double visibilityThreshold;
 
   @override
-  State<NativeAdWidget> createState() => _NativeAdWidgetState();
+  State<BannerAdWidget> createState() => _BannerAdWidgetState();
 }
 
-class _NativeAdWidgetState extends State<NativeAdWidget> {
-  late NativeAdController _controller;
+class _BannerAdWidgetState extends State<BannerAdWidget> {
+  late BannerAdController _controller;
   bool _ownsController = false;
   bool _isLoading = true;
   bool _hasError = false;
@@ -146,22 +136,17 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
       _controller = widget.controller!;
       _ownsController = false;
     } else {
-      _controller = NativeAdController(
+      _controller = BannerAdController(
         options: widget.options,
-        events: NativeAdEvents(
+        events: BannerAdEvents(
           onAdLoaded: _handleAdLoaded,
           onAdFailed: _handleAdFailed,
           onAdClicked: widget.onAdClicked,
           onAdImpression: widget.onAdImpression,
-          onCachedAdReady: _handleCachedAdReady,
+          onAdPaid: widget.onAdPaid,
         ),
       );
       _ownsController = true;
-    }
-
-    // Set preloaded controller for cache-based reload
-    if (widget.preloadedController != null) {
-      _controller.setPreloadedAdController(widget.preloadedController);
     }
 
     // If controller is preloaded and loaded, skip loading state
@@ -176,15 +161,15 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
 
       if (widget.options.enableDebugLogs) {
         debugPrint(
-          '[NativeAdWidget] State changed: ${state.name}, '
+          '[BannerAdWidget] State changed: ${state.name}, '
           'isPreloaded: ${_controller.isPreloaded}, '
           'isLoaded: ${_controller.isLoaded}',
         );
       }
 
       setState(() {
-        _isLoading = state == NativeAdState.loading;
-        _hasError = state == NativeAdState.error;
+        _isLoading = state == BannerAdState.loading;
+        _hasError = state == BannerAdState.error;
         if (_hasError) {
           _errorMessage = _controller.errorMessage ?? 'Unknown error';
         }
@@ -193,12 +178,12 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
 
     // Update events if using external controller
     if (!_ownsController) {
-      _controller.updateEvents(NativeAdEvents(
+      _controller.updateEvents(BannerAdEvents(
         onAdLoaded: _handleAdLoaded,
         onAdFailed: _handleAdFailed,
         onAdClicked: widget.onAdClicked,
         onAdImpression: widget.onAdImpression,
-        onCachedAdReady: _handleCachedAdReady,
+        onAdPaid: widget.onAdPaid,
       ));
     }
 
@@ -227,17 +212,6 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
     widget.onAdFailed?.call(error);
   }
 
-  void _handleCachedAdReady() {
-    if (!mounted) return;
-
-    // Notify parent widget that cached ad is ready
-    widget.onCachedAdReady?.call();
-
-    if (widget.options.enableDebugLogs) {
-      debugPrint('[NativeAdWidget] Cached ad ready, notifying parent');
-    }
-  }
-
   void _handleVisibilityChanged(VisibilityInfo info) {
     final isNowVisible = info.visibleFraction >= widget.visibilityThreshold;
 
@@ -249,7 +223,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
 
       if (widget.options.enableDebugLogs) {
         debugPrint(
-          '[NativeAdWidget] Visibility changed: $isNowVisible '
+          '[BannerAdWidget] Visibility changed: $isNowVisible '
           '(${(info.visibleFraction * 100).toStringAsFixed(0)}%)',
         );
       }
@@ -257,13 +231,8 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
   }
 
   @override
-  void didUpdateWidget(NativeAdWidget oldWidget) {
+  void didUpdateWidget(BannerAdWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    // Update preloaded controller if changed
-    if (oldWidget.preloadedController != widget.preloadedController) {
-      _controller.setPreloadedAdController(widget.preloadedController);
-    }
 
     // If options changed, reload the ad
     if (oldWidget.options != widget.options) {
@@ -281,7 +250,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final height = widget.height ?? widget.options.layoutType.recommendedHeight;
+    final height = widget.height ?? widget.options.size.recommendedHeight;
     final width = widget.width;
 
     // Wrap in VisibilityDetector for smart reload visibility tracking
@@ -299,7 +268,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
   Widget _buildContent() {
     if (widget.options.enableDebugLogs) {
       debugPrint(
-        '[NativeAdWidget] Building content: isLoading=$_isLoading, '
+        '[BannerAdWidget] Building content: isLoading=$_isLoading, '
         'hasError=$_hasError, controllerState=${_controller.state.name}',
       );
     }
@@ -317,16 +286,16 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
 
   Widget _buildLoadingState() {
     if (widget.options.enableDebugLogs) {
-      debugPrint('[NativeAdWidget] Building loading state (shimmer)');
+      debugPrint('[BannerAdWidget] Building loading state (shimmer)');
     }
 
     if (widget.loadingWidget != null) {
       return widget.loadingWidget!;
     }
 
-    // Use shimmer loading placeholder for smoother UX
-    return ShimmerAdPlaceholder(
-      layoutType: widget.options.layoutType,
+    // Use shimmer loading placeholder for smoother UX (same as native ads)
+    return BannerShimmerPlaceholder(
+      size: widget.options.size,
     );
   }
 
@@ -335,18 +304,19 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
       return widget.errorWidget!(error);
     }
 
+    // Default error state - empty container
     return SizedBox.shrink();
   }
 
   Widget _buildPlatformView() {
     if (widget.options.enableDebugLogs) {
       debugPrint(
-        '[NativeAdWidget] Building platform view: controllerId=${_controller.id}, '
+        '[BannerAdWidget] Building platform view: controllerId=${_controller.id}, '
         'isPreloaded=${_controller.isPreloaded}, isLoaded=${_controller.isLoaded}',
       );
     }
 
-    final viewType = widget.options.layoutType.viewType;
+    final viewType = widget.options.size.viewType;
     final creationParams = {
       'controllerId': _controller.id,
       'isPreloaded': _controller.isPreloaded,
@@ -358,7 +328,6 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
         viewType: viewType,
         creationParams: creationParams,
         creationParamsCodec: const StandardMessageCodec(),
-        onPlatformViewCreated: _onPlatformViewCreated,
         gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
           Factory<OneSequenceGestureRecognizer>(
             () => AdGestureRecognizer(),
@@ -370,7 +339,6 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
         viewType: viewType,
         creationParams: creationParams,
         creationParamsCodec: const StandardMessageCodec(),
-        onPlatformViewCreated: _onPlatformViewCreated,
         gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
           Factory<OneSequenceGestureRecognizer>(
             () => AdGestureRecognizer(),
@@ -383,30 +351,5 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
       child: Text('Platform not supported'),
     );
   }
-
-  void _onPlatformViewCreated(int id) {
-    if (widget.options.enableDebugLogs) {
-      debugPrint('[NativeAdWidget] Platform view created: $id');
-    }
-  }
 }
 
-/// A gesture recognizer that eagerly claims all pointer events.
-///
-/// This allows the native ad view to receive all touch events.
-class AdGestureRecognizer extends OneSequenceGestureRecognizer {
-  @override
-  void addAllowedPointer(PointerDownEvent event) {
-    startTrackingPointer(event.pointer);
-    resolve(GestureDisposition.accepted);
-  }
-
-  @override
-  String get debugDescription => 'ad_eager';
-
-  @override
-  void didStopTrackingLastPointer(int pointer) {}
-
-  @override
-  void handleEvent(PointerEvent event) {}
-}

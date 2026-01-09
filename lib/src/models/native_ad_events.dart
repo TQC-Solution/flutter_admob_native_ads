@@ -19,6 +19,12 @@ typedef OnAdOpenedCallback = void Function();
 /// Callback invoked when the ad overlay is closed.
 typedef OnAdClosedCallback = void Function();
 
+/// Callback invoked when a cached ad is ready to be shown.
+///
+/// Used by smart reload to notify the widget that a preloaded ad
+/// is available and should replace the current ad.
+typedef OnCachedAdReadyCallback = void Function();
+
 /// Container class for all native ad event callbacks.
 ///
 /// Use this class to group all event handlers when configuring a native ad.
@@ -40,6 +46,7 @@ class NativeAdEvents {
     this.onAdImpression,
     this.onAdOpened,
     this.onAdClosed,
+    this.onCachedAdReady,
   });
 
   /// Callback when ad loads successfully.
@@ -60,6 +67,12 @@ class NativeAdEvents {
   /// Callback when ad overlay closes.
   final OnAdClosedCallback? onAdClosed;
 
+  /// Callback when a cached ad is ready to be shown.
+  ///
+  /// Used by smart reload to notify when a preloaded ad
+  /// is available and should replace the current ad.
+  final OnCachedAdReadyCallback? onCachedAdReady;
+
   /// Creates a copy with updated callbacks.
   NativeAdEvents copyWith({
     OnAdLoadedCallback? onAdLoaded,
@@ -68,6 +81,7 @@ class NativeAdEvents {
     OnAdImpressionCallback? onAdImpression,
     OnAdOpenedCallback? onAdOpened,
     OnAdClosedCallback? onAdClosed,
+    OnCachedAdReadyCallback? onCachedAdReady,
   }) {
     return NativeAdEvents(
       onAdLoaded: onAdLoaded ?? this.onAdLoaded,
@@ -76,6 +90,7 @@ class NativeAdEvents {
       onAdImpression: onAdImpression ?? this.onAdImpression,
       onAdOpened: onAdOpened ?? this.onAdOpened,
       onAdClosed: onAdClosed ?? this.onAdClosed,
+      onCachedAdReady: onCachedAdReady ?? this.onCachedAdReady,
     );
   }
 }

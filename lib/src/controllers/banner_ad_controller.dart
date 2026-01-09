@@ -4,17 +4,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../models/ad_state_base.dart';
-import '../models/native_ad_events.dart';
-import '../models/native_ad_options.dart';
+import '../models/banner_ad_events.dart';
+import '../models/banner_ad_options.dart';
 import '../services/app_lifecycle_manager.dart';
 import '../services/network_connectivity_manager.dart';
 import '../services/preload_scheduler.dart';
 import '../services/reload_scheduler.dart';
 import 'ad_controller_mixin.dart';
 
-export 'native_ad_controller.dart' show NativeAdState;
+export 'banner_ad_controller.dart' show BannerAdState;
 
-/// Controller for managing native ad lifecycle and state.
+/// Controller for managing banner ad lifecycle and state.
 ///
 /// This controller handles communication with the native platform,
 /// manages ad loading state, and routes callbacks from the native SDK
@@ -22,9 +22,9 @@ export 'native_ad_controller.dart' show NativeAdState;
 ///
 /// Example:
 /// ```dart
-/// final controller = NativeAdController(
-///   options: NativeAdOptions(adUnitId: 'xxx'),
-///   events: NativeAdEvents(
+/// final controller = BannerAdController(
+///   options: BannerAdOptions(adUnitId: 'xxx'),
+///   events: BannerAdEvents(
 ///     onAdLoaded: () => print('Loaded'),
 ///     onAdFailed: (error, code) => print('Failed: $error'),
 ///   ),
@@ -34,13 +34,13 @@ export 'native_ad_controller.dart' show NativeAdState;
 /// // ... use controller
 /// controller.dispose();
 /// ```
-class NativeAdController extends Object with AdControllerMixin<NativeAdState> {
-  /// Creates a [NativeAdController] with the given options and events.
-  NativeAdController({
+class BannerAdController extends Object with AdControllerMixin<BannerAdState> {
+  /// Creates a [BannerAdController] with the given options and events.
+  BannerAdController({
     required this.options,
-    this.events = const NativeAdEvents(),
+    this.events = const BannerAdEvents(),
   }) : _id = _generateId(),
-       _state = NativeAdState.initial {
+       _state = BannerAdState.initial {
     setupChannel();
 
     // Initialize smart preload if enabled
@@ -58,22 +58,22 @@ class NativeAdController extends Object with AdControllerMixin<NativeAdState> {
   final String _id;
 
   /// Configuration options for the ad.
-  final NativeAdOptions options;
+  final BannerAdOptions options;
 
   /// Event callbacks for ad lifecycle events.
-  NativeAdEvents events;
+  BannerAdEvents events;
 
   /// Method channel for platform communication.
   @override
-  final MethodChannel channel = const MethodChannel('flutter_admob_native_ads');
+  final MethodChannel channel = const MethodChannel('flutter_admob_banner_ads');
 
   /// Current state of the ad.
-  NativeAdState _state;
+  BannerAdState _state;
 
   /// Stream controller for state changes.
   @override
-  final StreamController<NativeAdState> stateController =
-      StreamController<NativeAdState>.broadcast();
+  final StreamController<BannerAdState> stateController =
+      StreamController<BannerAdState>.broadcast();
 
   /// Completer for preload operation (null if not preloading).
   @override
@@ -113,20 +113,17 @@ class NativeAdController extends Object with AdControllerMixin<NativeAdState> {
   @override
   bool isAdVisible = false;
 
-  /// Reference to preloaded ad controller for cache management.
-  NativeAdController? _preloadedAdController;
-
   /// Counter for generating unique IDs.
   static int _idCounter = 0;
 
   /// Generates a unique ID for the controller.
   static String _generateId() {
     _idCounter++;
-    return 'native_ad_${DateTime.now().millisecondsSinceEpoch}_$_idCounter';
+    return 'banner_ad_${DateTime.now().millisecondsSinceEpoch}_$_idCounter';
   }
 
   @override
-  Type get controllerType => NativeAdController;
+  Type get controllerType => BannerAdController;
 
   // AdControllerMixin implementation
 
@@ -140,25 +137,25 @@ class NativeAdController extends Object with AdControllerMixin<NativeAdState> {
   String get id => _id;
 
   @override
-  NativeAdState get state => _state;
+  BannerAdState get state => _state;
 
   @override
-  set state(NativeAdState newState) => _state = newState;
+  set state(BannerAdState newState) => _state = newState;
 
   @override
-  NativeAdState stateFromIndex(int index) => NativeAdState.values[index];
+  BannerAdState stateFromIndex(int index) => BannerAdState.values[index];
 
   @override
   int get stateIndex => _state.index;
 
   @override
-  String get loadMethodName => 'loadAd';
+  String get loadMethodName => 'loadBannerAd';
 
   @override
-  String get reloadMethodName => 'reloadAd';
+  String get reloadMethodName => 'reloadBannerAd';
 
   @override
-  String get disposeMethodName => 'disposeAd';
+  String get disposeMethodName => 'disposeBannerAd';
 
   @override
   void Function() get onAdLoadedCallback => () => events.onAdLoaded?.call();
@@ -180,29 +177,21 @@ class NativeAdController extends Object with AdControllerMixin<NativeAdState> {
   void Function() get onAdClosedCallback => () => events.onAdClosed?.call();
 
   @override
-  bool checkCachedAd() {
-    if (_preloadedAdController == null) return false;
-    return _preloadedAdController!.isLoaded &&
-        !_preloadedAdController!.isDisposed;
-  }
-
-  @override
-  Future<void> showCachedAd() async {
+  void handleAdPaid(double value, String currency) {
+    events.onAdPaid?.call(value, currency);
     if (enableDebugLogs) {
-      debugPrint('[NativeAdController] Showing cached ad from preload');
+      debugPrint('[BannerAdController] Ad paid: \$$value $currency');
     }
-    events.onCachedAdReady?.call();
   }
 
   @override
-  Future<void> triggerPreloadForCache() async {
-    if (_preloadedAdController != null && !_preloadedAdController!.isDisposed) {
-      if (enableDebugLogs) {
-        debugPrint('[NativeAdController] Triggering preload for next cache');
-      }
-      _preloadedAdController!.preload();
-    }
-  }
+  bool checkCachedAd() => false; // Banner ads don't use cache
+
+  @override
+  Future<void> showCachedAd() async {} // Banner ads don't use cache
+
+  @override
+  Future<void> triggerPreloadForCache() async {} // Banner ads don't use cache
 
   // Public API
 
@@ -210,36 +199,25 @@ class NativeAdController extends Object with AdControllerMixin<NativeAdState> {
   String get controllerId => _id;
 
   /// Stream of state changes.
-  Stream<NativeAdState> get stateStream => stateController.stream;
+  Stream<BannerAdState> get stateStream => stateController.stream;
 
   /// Whether the ad is currently loading.
-  bool get isLoading => state == NativeAdState.loading;
+  bool get isLoading => state == BannerAdState.loading;
 
   /// Whether the ad has been loaded successfully.
-  bool get isLoaded => state == NativeAdState.loaded;
+  bool get isLoaded => state == BannerAdState.loaded;
 
   /// Whether the ad failed to load.
-  bool get hasError => state == NativeAdState.error;
-
-  /// Sets a preloaded ad controller for cache-based reload.
-  ///
-  /// When reload is triggered and this controller has a cached ad,
-  /// it will be shown immediately instead of requesting a new ad.
-  void setPreloadedAdController(NativeAdController? controller) {
-    _preloadedAdController = controller;
-    if (enableDebugLogs) {
-      debugPrint('[NativeAdController] Preloaded controller set: ${controller?.id}');
-    }
-  }
+  bool get hasError => state == BannerAdState.error;
 
   /// Updates the event callbacks.
-  void updateEvents(NativeAdEvents newEvents) {
+  void updateEvents(BannerAdEvents newEvents) {
     events = newEvents;
   }
 }
 
-/// Represents the state of a native ad.
-enum NativeAdState implements AdStateBase {
+/// Represents the state of a banner ad.
+enum BannerAdState implements AdStateBase {
   /// Initial state, ad has not been loaded yet.
   initial,
 
@@ -253,11 +231,11 @@ enum NativeAdState implements AdStateBase {
   error;
 
   @override
-  bool get isLoading => this == NativeAdState.loading;
+  bool get isLoading => this == BannerAdState.loading;
 
   @override
-  bool get isLoaded => this == NativeAdState.loaded;
+  bool get isLoaded => this == BannerAdState.loaded;
 
   @override
-  bool get hasError => this == NativeAdState.error;
+  bool get hasError => this == BannerAdState.error;
 }

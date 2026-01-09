@@ -5,6 +5,161 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2026-01-09
+
+### Added
+- **Banner Ad Support** with full AdMob size compatibility
+  - All 7 AdMob banner sizes: Banner (50dp), Full Banner (60dp), Leaderboard (90dp), Medium Rectangle (250dp), Smart Banner (adaptive), Adaptive Banner (custom height), Inline Adaptive Banner
+  - `BannerAdController` with smart preload/reload support
+  - `BannerAdWidget` with visibility tracking and shimmer loading state
+  - `BannerAdSize` enum with size-to-height mapping
+  - `BannerAdOptions` configuration class
+  - `BannerAdEvents` with onAdPaid callback support
+  - Test ad unit ID helpers for both platforms
+
+- **AdControllerMixin** for code sharing between controllers
+  - Extracted ~90% duplicate code from NativeAdController and BannerAdController
+  - Shared smart preload/reload logic
+  - Shared visibility tracking
+  - Shared event handling and state management
+  - Easier to add new ad types (Interstitial, Rewarded)
+
+### Changed
+- **NativeAdController** refactored to use AdControllerMixin
+  - Reduced from ~600 lines to ~260 lines
+  - Maintains all existing functionality
+  - Better code organization and maintainability
+
+- **BannerAdController** now uses AdControllerMixin
+  - Reduced from ~560 lines to ~240 lines
+  - Full feature parity with NativeAdController
+  - Supports smart preload/reload with visibility tracking
+
+### Technical Details
+**Banner Ad Usage:**
+```dart
+// Create controller
+final controller = BannerAdController(
+  options: BannerAdOptions(
+    adUnitId: 'ca-app-pub-xxx/xxx',
+    size: BannerAdSize.adaptiveBanner,
+    adaptiveBannerHeight: 60, // Custom height for adaptive
+    enableSmartPreload: true,
+    enableSmartReload: true,
+  ),
+  events: BannerAdEvents(
+    onAdLoaded: () => print('Loaded'),
+    onAdFailed: (error, code) => print('Failed: $error'),
+    onAdPaid: (value, currency) => print('Paid: $value $currency'),
+  ),
+);
+
+// Load ad
+await controller.loadAd();
+
+// Display widget
+BannerAdWidget(
+  controller: controller,
+  height: 60,
+)
+
+// Smart reload
+controller.updateVisibility(true); // Called automatically by widget
+controller.reload();
+```
+
+**Files Modified:**
+- `lib/src/controllers/ad_controller_mixin.dart` - NEW: Shared controller logic
+- `lib/src/models/ad_state_base.dart` - NEW: Base class for state enums
+- `lib/src/controllers/native_ad_controller.dart` - Refactored with mixin
+- `lib/src/controllers/banner_ad_controller.dart` - Refactored with mixin
+- `lib/src/models/banner_ad_size.dart` - NEW: Banner size enum
+- `lib/src/models/banner_ad_options.dart` - NEW: Banner options
+- `lib/src/models/banner_ad_events.dart` - NEW: Banner events
+- `lib/src/widgets/banner_ad_widget.dart` - NEW: Banner widget
+- Android: `banner/` package with BannerAdLoader, BannerAdPlatformView, etc.
+- iOS: `BannerAd/` classes with GADBannerView integration
+
+## [1.0.3] - 2026-01-08
+
+### Added
+- **Smart Preload System** with 4-layer awareness for intelligent ad loading
+  - `PreloadScheduler` service orchestrates intelligent ad preloading
+  - Layer 1 - Awareness: Checks app foreground, internet, cooldown, retry limit
+  - Layer 2 - Cache/Loading: Avoids redundant requests if ad loading or cached
+  - Layer 3 - Request: Single point for actual ad SDK calls
+  - Layer 4 - Backoff: Exponential retry delays on failure (10s → 20s → 40s)
+  - 90-second cooldown after ad impressions
+  - Max 3 retry attempts with exponential backoff
+  - Reset retry counter when network is restored
+
+- **Smart Reload System** with visibility-aware logic
+  - `ReloadScheduler` service orchestrates intelligent ad reloading
+  - Cache-first strategy: uses preloaded ad if available, otherwise requests new
+  - Visibility check: only reloads when app in foreground AND ad is visible
+  - Remote config support for automatic reload intervals
+  - 10-15 second retry delay on failed reloads
+  - Automatic background preload after showing cached ad
+
+- **AppLifecycleManager** service
+  - Monitors app foreground/background state using WidgetsBindingObserver
+  - Provides `isAppInForeground` getter and `foregroundStream` for state changes
+  - Prevents ad loading when app is in background
+
+- **NetworkConnectivityManager** service
+  - Monitors internet connectivity using connectivity_plus package
+  - Provides `isConnected` getter and `connectivityStream` for state changes
+  - Resets retry counters when connectivity is restored
+
+- **Enhanced NativeAdController** with smart scheduling support
+  - New `preloadScheduler` and `reloadScheduler` properties
+  - `setPreloadScheduler()` and `setReloadScheduler()` methods for service injection
+  - Enhanced state management for preload/reload coordination
+  - Better event callbacks for scheduler integration
+
+### Changed
+- Updated preload method to integrate with `PreloadScheduler`
+- Added connectivity_plus dependency for network monitoring
+- Enhanced event system for scheduler callbacks
+
+### Technical Details
+**Smart Preload Pattern:**
+```dart
+final scheduler = PreloadScheduler(
+  lifecycleManager: lifecycleManager,
+  networkManager: networkManager,
+  loadAdCallback: () => controller.preload(),
+  enableDebugLogs: true,
+);
+scheduler.initialize();
+
+// Scheduler automatically handles when to load
+scheduler.evaluateAndLoad();
+```
+
+**Smart Reload Pattern:**
+```dart
+final reloadScheduler = ReloadScheduler(
+  lifecycleManager: lifecycleManager,
+  networkManager: networkManager,
+  reloadCallback: () => controller.reload(),
+  cacheCheckCallback: () => preloadedController.isLoaded,
+  showCachedAdCallback: () => showPreloadedAd(),
+  preloadTriggerCallback: () => preloadedController.preload(),
+  reloadIntervalSeconds: 60, // Auto-reload every 60s
+);
+reloadScheduler.initialize();
+```
+
+**Files Modified:**
+- `lib/src/services/preload_scheduler.dart` - NEW: 4-layer preload orchestration
+- `lib/src/services/reload_scheduler.dart` - NEW: Visibility-aware reload orchestration
+- `lib/src/services/app_lifecycle_manager.dart` - NEW: App lifecycle monitoring
+- `lib/src/services/network_connectivity_manager.dart` - NEW: Network connectivity monitoring
+- `lib/src/controllers/native_ad_controller.dart` - Enhanced with scheduler support
+- `lib/src/models/native_ad_events.dart` - Enhanced event callbacks
+- `lib/src/models/native_ad_options.dart` - Updated options
+
 ## [1.0.2] - 2025-12-16
 
 ### Added

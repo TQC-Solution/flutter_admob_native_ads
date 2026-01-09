@@ -8,14 +8,14 @@ void main() {
       expect(NativeAdLayoutType.form1.toInt(), 1);
     });
 
-    test('fromInt returns form1 for all values', () {
+    test('fromInt returns correct form for valid values', () {
       expect(NativeAdLayoutType.fromInt(1), NativeAdLayoutType.form1);
-      expect(NativeAdLayoutType.fromInt(2), NativeAdLayoutType.form1);
+      expect(NativeAdLayoutType.fromInt(2), NativeAdLayoutType.form2);
       expect(NativeAdLayoutType.fromInt(99), NativeAdLayoutType.form1);
     });
 
     test('recommendedHeight returns expected value', () {
-      expect(NativeAdLayoutType.form1.recommendedHeight, 300);
+      expect(NativeAdLayoutType.form1.recommendedHeight, 65);
     });
 
     test('viewType returns correct identifier', () {
@@ -99,11 +99,11 @@ void main() {
     test('default constructor has expected default values', () {
       final style = NativeAdStyle();
 
-      expect(style.ctaCornerRadius, 8);
-      expect(style.containerCornerRadius, 12);
-      expect(style.headlineFontSize, 16);
-      expect(style.bodyFontSize, 14);
-      expect(style.iconSize, 48);
+      expect(style.ctaCornerRadius, 99);
+      expect(style.containerCornerRadius, 8);
+      expect(style.headlineFontSize, 14);
+      expect(style.bodyFontSize, 10);
+      expect(style.iconSize, 42);
       expect(style.showAdLabel, true);
       expect(style.adLabelText, 'Ad');
     });

@@ -66,17 +66,30 @@
 /// ```
 library;
 
-// Models
+// Native Ad Models
 export 'src/models/ad_layout_type.dart';
 export 'src/models/native_ad_events.dart';
 export 'src/models/native_ad_options.dart';
 export 'src/models/native_ad_style.dart';
 
+// Banner Ad Models
+export 'src/models/banner_ad_size.dart';
+export 'src/models/banner_ad_events.dart';
+export 'src/models/banner_ad_options.dart';
+
 // Controllers
 export 'src/controllers/native_ad_controller.dart';
+export 'src/controllers/banner_ad_controller.dart';
 
 // Widgets
 export 'src/widgets/native_ad_widget.dart';
+export 'src/widgets/banner_ad_widget.dart';
+
+// Services (for advanced usage)
+export 'src/services/app_lifecycle_manager.dart';
+export 'src/services/network_connectivity_manager.dart';
+export 'src/services/preload_scheduler.dart';
+export 'src/services/reload_scheduler.dart';
 
 // Utils (for advanced usage)
 export 'src/utils/color_extension.dart';
