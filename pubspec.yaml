@@ -9,10 +9,15 @@ repository: https://github.com/TQC-Solution/flutter_admob_native_ads
 version: 1.0.3
 =======
 version: 1.0.4
+<<<<<<< HEAD
 >>>>>>> 96054d9 (update CHANGELOG.md + README.md)
 homepage: https://github.com/tqc/flutter_admob_native_ads
 repository: https://github.com/tqc/flutter_admob_native_ads
 >>>>>>> 3a1bc15 (update readMe + change log)
+=======
+homepage: https://github.com/TQC-Solution/flutter_admob_native_ads
+repository: https://github.com/TQC-Solution/flutter_admob_native_ads
+>>>>>>> 62841f9 (url TQC)
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
