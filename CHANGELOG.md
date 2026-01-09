@@ -5,6 +5,81 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2026-01-09
+
+### Added
+- **Banner Ad Support** with full AdMob size compatibility
+  - All 7 AdMob banner sizes: Banner (50dp), Full Banner (60dp), Leaderboard (90dp), Medium Rectangle (250dp), Smart Banner (adaptive), Adaptive Banner (custom height), Inline Adaptive Banner
+  - `BannerAdController` with smart preload/reload support
+  - `BannerAdWidget` with visibility tracking and shimmer loading state
+  - `BannerAdSize` enum with size-to-height mapping
+  - `BannerAdOptions` configuration class
+  - `BannerAdEvents` with onAdPaid callback support
+  - Test ad unit ID helpers for both platforms
+
+- **AdControllerMixin** for code sharing between controllers
+  - Extracted ~90% duplicate code from NativeAdController and BannerAdController
+  - Shared smart preload/reload logic
+  - Shared visibility tracking
+  - Shared event handling and state management
+  - Easier to add new ad types (Interstitial, Rewarded)
+
+### Changed
+- **NativeAdController** refactored to use AdControllerMixin
+  - Reduced from ~600 lines to ~260 lines
+  - Maintains all existing functionality
+  - Better code organization and maintainability
+
+- **BannerAdController** now uses AdControllerMixin
+  - Reduced from ~560 lines to ~240 lines
+  - Full feature parity with NativeAdController
+  - Supports smart preload/reload with visibility tracking
+
+### Technical Details
+**Banner Ad Usage:**
+```dart
+// Create controller
+final controller = BannerAdController(
+  options: BannerAdOptions(
+    adUnitId: 'ca-app-pub-xxx/xxx',
+    size: BannerAdSize.adaptiveBanner,
+    adaptiveBannerHeight: 60, // Custom height for adaptive
+    enableSmartPreload: true,
+    enableSmartReload: true,
+  ),
+  events: BannerAdEvents(
+    onAdLoaded: () => print('Loaded'),
+    onAdFailed: (error, code) => print('Failed: $error'),
+    onAdPaid: (value, currency) => print('Paid: $value $currency'),
+  ),
+);
+
+// Load ad
+await controller.loadAd();
+
+// Display widget
+BannerAdWidget(
+  controller: controller,
+  height: 60,
+)
+
+// Smart reload
+controller.updateVisibility(true); // Called automatically by widget
+controller.reload();
+```
+
+**Files Modified:**
+- `lib/src/controllers/ad_controller_mixin.dart` - NEW: Shared controller logic
+- `lib/src/models/ad_state_base.dart` - NEW: Base class for state enums
+- `lib/src/controllers/native_ad_controller.dart` - Refactored with mixin
+- `lib/src/controllers/banner_ad_controller.dart` - Refactored with mixin
+- `lib/src/models/banner_ad_size.dart` - NEW: Banner size enum
+- `lib/src/models/banner_ad_options.dart` - NEW: Banner options
+- `lib/src/models/banner_ad_events.dart` - NEW: Banner events
+- `lib/src/widgets/banner_ad_widget.dart` - NEW: Banner widget
+- Android: `banner/` package with BannerAdLoader, BannerAdPlatformView, etc.
+- iOS: `BannerAd/` classes with GADBannerView integration
+
 ## [1.0.3] - 2026-01-08
 
 ### Added
