@@ -41,7 +41,8 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
     private var adLoaders: [String: NativeAdLoader] = [:]
 
     /// Registry of ad loaded callbacks by controller ID (for platform views)
-    private var adLoadedCallbacks: [String: (GADNativeAd) -> Void] = [:]
+    /// Changed to support multiple callbacks per controllerId (Array instead of single callback)
+    private var adLoadedCallbacks: [String: [(GADNativeAd) -> Void]] = [:]
 
     /// Registry of banner ad loaders by controller ID
     private var bannerAdLoaders: [String: BannerAdLoader] = [:]
@@ -57,12 +58,29 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
 
     /// Registers a callback to be invoked when an ad is loaded for the given controller.
     /// This allows platform views to receive ads without creating their own loaders.
+    ///
+    /// Supports multiple callbacks for the same controllerId (e.g., multiple widgets
+    /// sharing the same controller).
     public func registerAdLoadedCallback(controllerId: String, callback: @escaping (GADNativeAd) -> Void) {
-        adLoadedCallbacks[controllerId] = callback
+        if adLoadedCallbacks[controllerId] == nil {
+            adLoadedCallbacks[controllerId] = []
+        }
+        adLoadedCallbacks[controllerId]?.append(callback)
+
+        let count = adLoadedCallbacks[controllerId]?.count ?? 0
+        print("[FlutterAdmobNativeAds] Registered callback for controller: \(controllerId). Total callbacks: \(count)")
+
+        if count > 1 {
+            print("[FlutterAdmobNativeAds] ⚠️ WARNING: Multiple callbacks registered for controller: \(controllerId). " +
+                    "This may indicate multiple widgets are sharing the same controller. " +
+                    "Each widget should have its own NativeAdController instance.")
+        }
 
         // If ad is already loaded, invoke callback immediately
         if let ad = getPreloadedAd(controllerId: controllerId) {
-            callback(ad)
+            DispatchQueue.main.async {
+                callback(ad)
+            }
         }
     }
 
@@ -477,10 +495,12 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
 extension FlutterAdmobNativeAdsPlugin: NativeAdLoaderDelegate {
 
     func adLoader(_ loader: NativeAdLoader, didReceiveNativeAd nativeAd: GADNativeAd) {
-        // Notify registered callbacks for this controller
-        if let callback = adLoadedCallbacks[loader.controllerId] {
+        // Notify ALL registered callbacks for this controller
+        if let callbacks = adLoadedCallbacks[loader.controllerId] {
             DispatchQueue.main.async {
-                callback(nativeAd)
+                for callback in callbacks {
+                    callback(nativeAd)
+                }
             }
         }
     }
