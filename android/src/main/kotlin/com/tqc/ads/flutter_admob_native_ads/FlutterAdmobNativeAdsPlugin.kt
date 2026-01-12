@@ -62,7 +62,8 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
     private val adLoaders = mutableMapOf<String, NativeAdLoader>()
 
     // Registry of ad loaded callbacks by controller ID (for platform views)
-    private val adLoadedCallbacks = mutableMapOf<String, (NativeAd) -> Unit>()
+    // Changed to support multiple callbacks per controllerId (List instead of single callback)
+    private val adLoadedCallbacks = mutableMapOf<String, MutableList<(NativeAd) -> Unit>>()
 
     // Registry of active banner ad loaders by controller ID
     private val bannerAdLoaders = mutableMapOf<String, BannerAdLoader>()
@@ -81,9 +82,20 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
     /**
      * Registers a callback to be invoked when an ad is loaded for the given controller.
      * This allows platform views to receive ads without creating their own loaders.
+     *
+     * Supports multiple callbacks for the same controllerId (e.g., multiple widgets
+     * sharing the same controller).
      */
     fun registerAdLoadedCallback(controllerId: String, callback: (NativeAd) -> Unit) {
-        adLoadedCallbacks[controllerId] = callback
+        val callbacks = adLoadedCallbacks.getOrPut(controllerId) { mutableListOf() }
+        callbacks.add(callback)
+
+        Log.d(TAG, "Registered callback for controller: $controllerId. Total callbacks: ${callbacks.size}")
+        if (callbacks.size > 1) {
+            Log.w(TAG, "⚠️ WARNING: Multiple callbacks registered for controller: $controllerId. " +
+                    "This may indicate multiple widgets are sharing the same controller. " +
+                    "Each widget should have its own NativeAdController instance.")
+        }
 
         // If ad is already loaded, invoke callback immediately
         getPreloadedAd(controllerId)?.let { ad ->
@@ -246,7 +258,14 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
 
         // Set callback to notify registered platform views
         loader.setOnAdLoadedCallback { nativeAd ->
-            adLoadedCallbacks[controllerId]?.invoke(nativeAd)
+            // Invoke ALL registered callbacks for this controllerId
+            adLoadedCallbacks[controllerId]?.forEach { callback ->
+                try {
+                    callback(nativeAd)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error invoking ad loaded callback for controller: $controllerId", e)
+                }
+            }
         }
 
         adLoaders[controllerId] = loader
@@ -285,7 +304,14 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
 
         // Set callback to notify registered platform views
         loader.setOnAdLoadedCallback { nativeAd ->
-            adLoadedCallbacks[controllerId]?.invoke(nativeAd)
+            // Invoke ALL registered callbacks for this controllerId
+            adLoadedCallbacks[controllerId]?.forEach { callback ->
+                try {
+                    callback(nativeAd)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error invoking ad loaded callback for controller: $controllerId", e)
+                }
+            }
         }
 
         adLoaders[controllerId] = loader
