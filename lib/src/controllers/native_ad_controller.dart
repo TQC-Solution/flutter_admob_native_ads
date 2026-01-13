@@ -14,6 +14,19 @@ import 'ad_controller_mixin.dart';
 
 export 'native_ad_controller.dart' show NativeAdState;
 
+/// Global registry of all active controllers for method call dispatching
+final _controllerRegistry = <NativeAdController>[];
+
+/// Global method call handler that dispatches events to all controllers
+Future<dynamic> _globalMethodCallHandler(MethodCall call) async {
+  // Dispatch the call to all controllers
+  for (final controller in _controllerRegistry) {
+    await controller.handleMethodCall(call);
+  }
+}
+
+bool _globalHandlerInitialized = false;
+
 /// Controller for managing native ad lifecycle and state.
 ///
 /// This controller handles communication with the native platform,
@@ -41,7 +54,14 @@ class NativeAdController extends Object with AdControllerMixin<NativeAdState> {
     this.events = const NativeAdEvents(),
   }) : _id = _generateId(),
        _state = NativeAdState.initial {
-    setupChannel();
+    // Register controller in global registry for method call dispatching
+    _controllerRegistry.add(this);
+
+    // Set up global handler only once (first controller)
+    if (!_globalHandlerInitialized) {
+      channel.setMethodCallHandler(_globalMethodCallHandler);
+      _globalHandlerInitialized = true;
+    }
 
     // Initialize smart preload if enabled
     if (options.enableSmartPreload) {
@@ -235,6 +255,20 @@ class NativeAdController extends Object with AdControllerMixin<NativeAdState> {
   /// Updates the event callbacks.
   void updateEvents(NativeAdEvents newEvents) {
     events = newEvents;
+  }
+
+  @override
+  Future<void> dispose() async {
+    // Unregister from global registry
+    _controllerRegistry.remove(this);
+
+    // If this was the last controller, clear the global handler
+    if (_controllerRegistry.isEmpty) {
+      _globalHandlerInitialized = false;
+    }
+
+    // Call the mixin's dispose
+    await super.dispose();
   }
 }
 

@@ -14,6 +14,19 @@ import 'ad_controller_mixin.dart';
 
 export 'banner_ad_controller.dart' show BannerAdState;
 
+/// Global registry of all active banner controllers for method call dispatching
+final _bannerControllerRegistry = <BannerAdController>[];
+
+/// Global method call handler that dispatches events to all banner controllers
+Future<dynamic> _globalBannerMethodCallHandler(MethodCall call) async {
+  // Dispatch the call to all controllers
+  for (final controller in _bannerControllerRegistry) {
+    await controller.handleMethodCall(call);
+  }
+}
+
+bool _globalBannerHandlerInitialized = false;
+
 /// Controller for managing banner ad lifecycle and state.
 ///
 /// This controller handles communication with the native platform,
@@ -41,7 +54,14 @@ class BannerAdController extends Object with AdControllerMixin<BannerAdState> {
     this.events = const BannerAdEvents(),
   }) : _id = _generateId(),
        _state = BannerAdState.initial {
-    setupChannel();
+    // Register controller in global registry for method call dispatching
+    _bannerControllerRegistry.add(this);
+
+    // Set up global handler only once (first controller)
+    if (!_globalBannerHandlerInitialized) {
+      channel.setMethodCallHandler(_globalBannerMethodCallHandler);
+      _globalBannerHandlerInitialized = true;
+    }
 
     // Initialize smart preload if enabled
     if (options.enableSmartPreload) {
@@ -213,6 +233,20 @@ class BannerAdController extends Object with AdControllerMixin<BannerAdState> {
   /// Updates the event callbacks.
   void updateEvents(BannerAdEvents newEvents) {
     events = newEvents;
+  }
+
+  @override
+  Future<void> dispose() async {
+    // Unregister from global registry
+    _bannerControllerRegistry.remove(this);
+
+    // If this was the last controller, clear the global handler
+    if (_bannerControllerRegistry.isEmpty) {
+      _globalBannerHandlerInitialized = false;
+    }
+
+    // Call the mixin's dispose
+    await super.dispose();
   }
 }
 

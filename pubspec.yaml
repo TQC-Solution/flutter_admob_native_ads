@@ -1,6 +1,6 @@
 name: flutter_admob_native_ads
 description: A Flutter plugin for displaying AdMob Native Ads with customizable layouts and SwiftUI-style declarative styling.
-version: 1.0.4+1
+version: 1.0.4+2
 homepage: https://github.com/TQC-Solution/flutter_admob_native_ads
 repository: https://github.com/TQC-Solution/flutter_admob_native_ads
 
