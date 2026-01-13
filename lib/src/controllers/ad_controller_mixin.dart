@@ -127,7 +127,7 @@ mixin AdControllerMixin<TState> {
 
   /// Sets up the method channel for receiving callbacks.
   void setupChannel() {
-    channel.setMethodCallHandler(_handleMethodCall);
+    channel.setMethodCallHandler(handleMethodCall);
   }
 
   /// Initializes smart preload services when enableSmartPreload is true.
@@ -267,7 +267,7 @@ mixin AdControllerMixin<TState> {
   }
 
   /// Handles method calls from the native platform.
-  Future<dynamic> _handleMethodCall(MethodCall call) async {
+  Future<dynamic> handleMethodCall(MethodCall call) async {
     // Check if this call is for this controller
     final String? controllerId = call.arguments?['controllerId'];
     if (controllerId != null && controllerId != id) {
