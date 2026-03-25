@@ -10,8 +10,7 @@ import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdOptions
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
-import java.time.Duration
-import java.time.Instant
+import java.util.concurrent.TimeUnit
 
 /**
  * Handles loading native ads from AdMob.
@@ -50,33 +49,33 @@ class NativeAdLoader(
      */
     data class LoadedAd(
         val ad: NativeAd,
-        val loadedAt: Instant = Instant.now(),
+        val loadedAtMillis: Long = System.currentTimeMillis(),
         val adUnitId: String
     ) {
         /**
-         * Returns the age of this ad (time since loaded).
+         * Returns the age of this ad in minutes.
          */
-        val age: Duration
-            get() = Duration.between(loadedAt, Instant.now())
+        val ageMinutes: Long
+            get() = TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - loadedAtMillis)
 
         /**
          * Returns true if this ad has expired (age >= 60 minutes).
          */
         val isExpired: Boolean
-            get() = age.toMinutes() >= AD_TTL_MINUTES
+            get() = ageMinutes >= AD_TTL_MINUTES
 
         /**
          * Returns true if this ad is near expiry (age >= 55 minutes).
          */
         val isNearExpiry: Boolean
-            get() = age.toMinutes() >= AD_EXPIRY_WARNING_MINUTES
+            get() = ageMinutes >= AD_EXPIRY_WARNING_MINUTES
 
         /**
          * Returns the number of minutes until expiry.
          * Returns 0 if already expired.
          */
         val minutesUntilExpiry: Long
-            get() = maxOf(0, AD_TTL_MINUTES - age.toMinutes())
+            get() = maxOf(0, AD_TTL_MINUTES - ageMinutes)
     }
 
     private var adLoader: AdLoader? = null
@@ -171,7 +170,7 @@ class NativeAdLoader(
 
         // Check if ad has expired
         if (cached.isExpired) {
-            log("Ad expired (age: ${cached.age.toMinutes()}min)")
+            log("Ad expired (age: ${cached.ageMinutes}min)")
             loadedAd = null
             return null
         }
@@ -185,12 +184,12 @@ class NativeAdLoader(
     }
 
     /**
-     * Gets the age of the currently loaded ad.
+     * Gets the age of the currently loaded ad in minutes.
      *
-     * @return The age of the ad, or null if no ad is loaded
+     * @return The age of the ad in minutes, or null if no ad is loaded
      */
-    fun getAdAge(): Duration? {
-        return loadedAd?.age
+    fun getAdAgeMinutes(): Long? {
+        return loadedAd?.ageMinutes
     }
 
     /**
