@@ -69,6 +69,12 @@ class BannerAdPlatformView: NSObject, FlutterPlatformView {
             view.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             view.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
         ])
+
+        // Register this view for pause/resume rendering (fix GPU crashes)
+        if let controllerId = controllerId {
+            FlutterAdmobNativeAdsPlugin.shared()?.registerActiveBannerAdView(controllerId: controllerId, view: view)
+            log("Registered banner view for pause/resume rendering")
+        }
     }
 
     private func log(_ message: String) {
@@ -78,6 +84,11 @@ class BannerAdPlatformView: NSObject, FlutterPlatformView {
     }
 
     deinit {
+        // Unregister from pause/resume tracking
+        if let controllerId = controllerId {
+            FlutterAdmobNativeAdsPlugin.shared()?.unregisterActiveBannerAdView(controllerId: controllerId)
+        }
+
         if let controllerId = controllerId {
             FlutterAdmobNativeAdsPlugin.shared()?.unregisterBannerAdCallback(controllerId: controllerId)
         }

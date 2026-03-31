@@ -98,6 +98,12 @@ class BannerAdPlatformView(
             FrameLayout.LayoutParams.MATCH_PARENT
         ))
 
+        // Register this view for pause/resume rendering (fix GPU crashes on MediaTek)
+        controllerId?.let { id ->
+            FlutterAdmobNativeAdsPlugin.registerActiveBannerAdView(id, bannerView)
+            log("Registered banner view for pause/resume rendering")
+        }
+
         log("Banner view added to container")
     }
 
@@ -117,9 +123,14 @@ class BannerAdPlatformView(
     override fun dispose() {
         log("Disposing banner platform view")
 
+        // Unregister from pause/resume tracking
+        controllerId?.let { id: String ->
+            FlutterAdmobNativeAdsPlugin.unregisterActiveBannerAdView(id)
+        }
+
         // Unregister callback
-        controllerId?.let {
-            FlutterAdmobNativeAdsPlugin.getInstance()?.unregisterBannerAdCallback(it)
+        controllerId?.let { id: String ->
+            FlutterAdmobNativeAdsPlugin.getInstance()?.unregisterBannerAdCallback(id)
         }
 
         // Remove view from container but don't destroy the ad

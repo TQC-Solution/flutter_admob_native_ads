@@ -93,6 +93,12 @@ class NativeAdPlatformView: NSObject, FlutterPlatformView {
                 adView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
             ])
         }
+
+        // Register this view for pause/resume rendering (fix GPU crashes)
+        if let controllerId = controllerId {
+            FlutterAdmobNativeAdsPlugin.shared()?.registerActiveNativeAdView(controllerId: controllerId, view: adView)
+            log("Registered view for pause/resume rendering")
+        }
     }
 
     private func populateAdView(_ nativeAd: GADNativeAd) {
@@ -180,6 +186,11 @@ class NativeAdPlatformView: NSObject, FlutterPlatformView {
     }
 
     deinit {
+        // Unregister from pause/resume tracking
+        if let controllerId = controllerId {
+            FlutterAdmobNativeAdsPlugin.shared()?.unregisterActiveNativeAdView(controllerId: controllerId)
+        }
+
         // Unregister callback from plugin when view is deallocated
         if let controllerId = controllerId {
             FlutterAdmobNativeAdsPlugin.shared()?.unregisterAdLoadedCallback(controllerId: controllerId)

@@ -57,6 +57,10 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
         private val bannerAdCallbacks = mutableMapOf<String, (AdView) -> Unit>()
         private val loadedBannerAds = mutableMapOf<String, AdView>()
 
+        // Maps to track active ad views for pause/resume rendering (fix GPU crashes on MediaTek)
+        private val activeNativeAdViews = mutableMapOf<String, android.view.View>()
+        private val activeBannerAdViews = mutableMapOf<String, android.view.View>()
+
         fun getInstance(): FlutterAdmobNativeAdsPlugin? = instance
 
         fun getAdLoaders(): Map<String, NativeAdLoader> = adLoaders
@@ -124,6 +128,23 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
             bannerAdLoaders.values.forEach { it.destroy() }
             bannerAdLoaders.clear()
             loadedBannerAds.clear()
+        }
+
+        // Methods for tracking active ad views (pause/resume rendering)
+        fun registerActiveNativeAdView(controllerId: String, view: android.view.View) {
+            activeNativeAdViews[controllerId] = view
+        }
+
+        fun unregisterActiveNativeAdView(controllerId: String) {
+            activeNativeAdViews.remove(controllerId)
+        }
+
+        fun registerActiveBannerAdView(controllerId: String, view: android.view.View) {
+            activeBannerAdViews[controllerId] = view
+        }
+
+        fun unregisterActiveBannerAdView(controllerId: String) {
+            activeBannerAdViews.remove(controllerId)
         }
     }
 
@@ -293,6 +314,8 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
             "loadBannerAd" -> handleLoadBannerAd(call, result)
             "reloadBannerAd" -> handleReloadBannerAd(call, result)
             "disposeBannerAd" -> handleDisposeBannerAd(call, result)
+            "pauseAdRendering" -> handlePauseAdRendering(call, result)
+            "resumeAdRendering" -> handleResumeAdRendering(call, result)
             "getPlatformVersion" -> result.success("Android ${android.os.Build.VERSION.RELEASE}")
             else -> result.notImplemented()
         }
@@ -464,6 +487,52 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
         getBannerAdLoaders()[controllerId]?.destroy()
         removeBannerAdLoader(controllerId)
         clearBannerAdCallback(controllerId)
+
+        result.success(null)
+    }
+
+    private fun handlePauseAdRendering(call: MethodCall, result: Result) {
+        val controllerId = call.argument<String>("controllerId")
+
+        if (controllerId.isNullOrEmpty()) {
+            result.error("INVALID_ARGS", "controllerId is required", null)
+            return
+        }
+
+        // Pause native ad view rendering
+        activeNativeAdViews[controllerId]?.let { view ->
+            view.visibility = android.view.View.INVISIBLE
+            Log.d(TAG, "Paused rendering for native ad controller: $controllerId")
+        }
+
+        // Pause banner ad view rendering
+        activeBannerAdViews[controllerId]?.let { view ->
+            view.visibility = android.view.View.INVISIBLE
+            Log.d(TAG, "Paused rendering for banner ad controller: $controllerId")
+        }
+
+        result.success(null)
+    }
+
+    private fun handleResumeAdRendering(call: MethodCall, result: Result) {
+        val controllerId = call.argument<String>("controllerId")
+
+        if (controllerId.isNullOrEmpty()) {
+            result.error("INVALID_ARGS", "controllerId is required", null)
+            return
+        }
+
+        // Resume native ad view rendering
+        activeNativeAdViews[controllerId]?.let { view ->
+            view.visibility = android.view.View.VISIBLE
+            Log.d(TAG, "Resumed rendering for native ad controller: $controllerId")
+        }
+
+        // Resume banner ad view rendering
+        activeBannerAdViews[controllerId]?.let { view ->
+            view.visibility = android.view.View.VISIBLE
+            Log.d(TAG, "Resumed rendering for banner ad controller: $controllerId")
+        }
 
         result.success(null)
     }
