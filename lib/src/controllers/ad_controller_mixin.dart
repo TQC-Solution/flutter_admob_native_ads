@@ -90,6 +90,9 @@ mixin AdControllerMixin<TState> {
   AppLifecycleManager? get lifecycleManager;
   set lifecycleManager(AppLifecycleManager? value);
 
+  /// Stream subscription for pause rendering events.
+  StreamSubscription<bool>? _pauseRenderingSubscription;
+
   NetworkConnectivityManager? get networkManager;
   set networkManager(NetworkConnectivityManager? value);
 
@@ -143,6 +146,13 @@ mixin AdControllerMixin<TState> {
     // Initialize lifecycle manager
     lifecycleManager!.initialize();
 
+    // Subscribe to pause rendering events to prevent GPU crashes
+    _pauseRenderingSubscription = lifecycleManager!.pauseRenderingStream.listen(
+      (shouldPause) {
+        _handlePauseRendering(shouldPause);
+      },
+    );
+
     // Initialize network manager asynchronously
     networkManager!.initialize().then((_) {
       // Create scheduler after network check completes
@@ -163,7 +173,17 @@ mixin AdControllerMixin<TState> {
   /// Initializes smart reload services when enableSmartReload is true.
   void initializeSmartReload() {
     // Reuse lifecycle manager from preload if available, otherwise create new
+    final isNewLifecycleManager = lifecycleManager == null;
     lifecycleManager ??= AppLifecycleManager()..initialize();
+
+    // Subscribe to pause rendering events if we created a new lifecycle manager
+    if (isNewLifecycleManager) {
+      _pauseRenderingSubscription = lifecycleManager!.pauseRenderingStream.listen(
+        (shouldPause) {
+          _handlePauseRendering(shouldPause);
+        },
+      );
+    }
 
     // Reuse network manager from preload if available, otherwise create new
     if (networkManager == null) {
@@ -477,11 +497,35 @@ mixin AdControllerMixin<TState> {
     await performReload();
   }
 
+  /// Handles pause rendering events from app lifecycle.
+  ///
+  /// When app goes to background (shouldPause=true), we pause ad rendering
+  /// to prevent GPU crashes on devices with buggy drivers (e.g., MediaTek).
+  /// When app returns to foreground (shouldPause=false), we resume rendering.
+  void _handlePauseRendering(bool shouldPause) {
+    if (isDisposed) return;
+
+    final methodName = shouldPause ? 'pauseAdRendering' : 'resumeAdRendering';
+
+    if (enableDebugLogs) {
+      debugPrint('[$controllerType] $methodName (app lifecycle: ${shouldPause ? "background" : "foreground"})');
+    }
+
+    channel.invokeMethod(methodName, {'controllerId': id}).catchError((e) {
+      if (enableDebugLogs) {
+        debugPrint('[$controllerType] $methodName error: $e');
+      }
+    });
+  }
+
   /// Disposes the controller and releases resources.
   Future<void> dispose() async {
     if (isDisposed) return;
 
     isDisposed = true;
+
+    // Cancel pause rendering subscription
+    _pauseRenderingSubscription?.cancel();
 
     // Dispose smart preload and reload services
     preloadScheduler?.dispose();

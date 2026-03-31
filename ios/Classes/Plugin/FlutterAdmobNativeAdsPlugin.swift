@@ -53,6 +53,12 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
     /// Cache of loaded banner ads (to handle race condition between ad load and platform view creation)
     private var loadedBannerAds: [String: GADBannerView] = [:]
 
+    /// Maps to track active native ad views for pause/resume rendering (fix GPU crashes)
+    private var activeNativeAdViews: [String: UIView] = [:]
+
+    /// Maps to track active banner ad views for pause/resume rendering (fix GPU crashes)
+    private var activeBannerAdViews: [String: UIView] = [:]
+
     /// Gets the preloaded native ad for the given controller ID.
     /// Returns nil if no ad is loaded for the controller or if the ad has expired.
     public func getPreloadedAd(controllerId: String) -> GADNativeAd? {
@@ -117,6 +123,30 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
     /// Unregisters the banner ad loaded callback for the given controller.
     public func unregisterBannerAdCallback(controllerId: String) {
         bannerAdCallbacks.removeValue(forKey: controllerId)
+    }
+
+    // MARK: - Active Ad View Tracking (Pause/Resume Rendering)
+
+    /// Registers an active native ad view for pause/resume rendering
+    public func registerActiveNativeAdView(controllerId: String, view: UIView) {
+        activeNativeAdViews[controllerId] = view
+        print("[FlutterAdmobNativeAds] Registered native ad view for pause/resume: \(controllerId)")
+    }
+
+    /// Unregisters an active native ad view
+    public func unregisterActiveNativeAdView(controllerId: String) {
+        activeNativeAdViews.removeValue(forKey: controllerId)
+    }
+
+    /// Registers an active banner ad view for pause/resume rendering
+    public func registerActiveBannerAdView(controllerId: String, view: UIView) {
+        activeBannerAdViews[controllerId] = view
+        print("[FlutterAdmobNativeAds] Registered banner ad view for pause/resume: \(controllerId)")
+    }
+
+    /// Unregisters an active banner ad view
+    public func unregisterActiveBannerAdView(controllerId: String) {
+        activeBannerAdViews.removeValue(forKey: controllerId)
     }
 
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -212,6 +242,10 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
             handleReloadBannerAd(call, result: result)
         case "disposeBannerAd":
             handleDisposeBannerAd(call, result: result)
+        case "pauseAdRendering":
+            handlePauseAdRendering(call, result: result)
+        case "resumeAdRendering":
+            handleResumeAdRendering(call, result: result)
         case "getPlatformVersion":
             result("iOS \(UIDevice.current.systemVersion)")
         default:
@@ -473,6 +507,58 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
         bannerAdLoaders.removeValue(forKey: controllerId)
         bannerAdCallbacks.removeValue(forKey: controllerId)
         loadedBannerAds.removeValue(forKey: controllerId)
+
+        result(nil)
+    }
+
+    private func handlePauseAdRendering(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let controllerId = args["controllerId"] as? String else {
+            result(FlutterError(
+                code: "INVALID_ARGS",
+                message: "controllerId is required",
+                details: nil
+            ))
+            return
+        }
+
+        // Pause native ad view rendering by hiding it
+        if let view = activeNativeAdViews[controllerId] {
+            view.isHidden = true
+            print("[FlutterAdmobNativeAds] Paused rendering for native ad controller: \(controllerId)")
+        }
+
+        // Pause banner ad view rendering by hiding it
+        if let view = activeBannerAdViews[controllerId] {
+            view.isHidden = true
+            print("[FlutterAdmobNativeAds] Paused rendering for banner ad controller: \(controllerId)")
+        }
+
+        result(nil)
+    }
+
+    private func handleResumeAdRendering(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let controllerId = args["controllerId"] as? String else {
+            result(FlutterError(
+                code: "INVALID_ARGS",
+                message: "controllerId is required",
+                details: nil
+            ))
+            return
+        }
+
+        // Resume native ad view rendering by showing it
+        if let view = activeNativeAdViews[controllerId] {
+            view.isHidden = false
+            print("[FlutterAdmobNativeAds] Resumed rendering for native ad controller: \(controllerId)")
+        }
+
+        // Resume banner ad view rendering by showing it
+        if let view = activeBannerAdViews[controllerId] {
+            view.isHidden = false
+            print("[FlutterAdmobNativeAds] Resumed rendering for banner ad controller: \(controllerId)")
+        }
 
         result(nil)
     }

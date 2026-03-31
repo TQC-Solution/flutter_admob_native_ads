@@ -28,6 +28,9 @@ class AppLifecycleManager with WidgetsBindingObserver {
   bool _isInForeground = true;
   final _foregroundController = StreamController<bool>.broadcast();
 
+  /// Stream controller for pause rendering events.
+  final _pauseRenderingController = StreamController<bool>.broadcast();
+
   /// Whether the app is currently in foreground (resumed state).
   ///
   /// Returns `true` when app is active and visible to user.
@@ -38,6 +41,13 @@ class AppLifecycleManager with WidgetsBindingObserver {
   ///
   /// Only emits when state actually changes (debounced).
   Stream<bool> get foregroundStream => _foregroundController.stream;
+
+  /// Stream that emits `true` when app should pause ad rendering (backgrounded),
+  /// `false` when ad rendering should resume (foreground).
+  ///
+  /// Used to prevent GPU crashes on devices with buggy drivers (e.g., MediaTek)
+  /// by hiding ad views when app goes to background.
+  Stream<bool> get pauseRenderingStream => _pauseRenderingController.stream;
 
   /// Initializes the lifecycle manager and starts monitoring app state.
   ///
@@ -58,6 +68,10 @@ class AppLifecycleManager with WidgetsBindingObserver {
     // Only emit when state actually changes
     if (wasInForeground != _isInForeground) {
       _foregroundController.add(_isInForeground);
+
+      // Also emit pause rendering event to prevent GPU crashes
+      // when app goes to background on devices with buggy drivers
+      _pauseRenderingController.add(!_isInForeground);
     }
   }
 
@@ -68,5 +82,6 @@ class AppLifecycleManager with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _foregroundController.close();
+    _pauseRenderingController.close();
   }
 }

@@ -102,6 +102,14 @@ class NativeAdPlatformView(
         if (nativeAdView?.parent == null) {
             container.addView(nativeAdView)
         }
+
+        // Register this view for pause/resume rendering (fix GPU crashes on MediaTek)
+        controllerId?.let { id ->
+            nativeAdView?.let { view ->
+                FlutterAdmobNativeAdsPlugin.registerActiveNativeAdView(id, view)
+                log("Registered view for pause/resume rendering")
+            }
+        }
     }
 
     private fun populateAdView(nativeAd: NativeAd) {
@@ -188,9 +196,14 @@ class NativeAdPlatformView(
     override fun dispose() {
         log("Disposing platform view")
 
+        // Unregister from pause/resume tracking
+        controllerId?.let { id: String ->
+            FlutterAdmobNativeAdsPlugin.unregisterActiveNativeAdView(id)
+        }
+
         // Unregister callback from plugin
-        controllerId?.let {
-            FlutterAdmobNativeAdsPlugin.getInstance()?.unregisterAdLoadedCallback(it)
+        controllerId?.let { id: String ->
+            FlutterAdmobNativeAdsPlugin.getInstance()?.unregisterAdLoadedCallback(id)
         }
 
         nativeAdView = null
