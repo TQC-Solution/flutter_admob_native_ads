@@ -7,6 +7,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.OnPaidEventListener
 import io.flutter.plugin.common.MethodChannel
 
 /**
@@ -41,6 +42,15 @@ class BannerAdLoader(
         adView = AdView(context)
         adView?.adUnitId = adUnitId
         adView?.setAdSize(adSize)
+
+        adView?.setOnPaidEventListener(OnPaidEventListener { adValue ->
+            val valueInCurrency = adValue.valueMicros / 1_000_000.0
+            sendEvent("onAdPaid", mapOf(
+                "controllerId" to controllerId,
+                "value" to valueInCurrency,
+                "currencyCode" to adValue.currencyCode
+            ))
+        })
 
         adView?.adListener = object : AdListener() {
             override fun onAdLoaded() {

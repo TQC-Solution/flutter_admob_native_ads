@@ -52,6 +52,7 @@ class NativeAdWidget extends StatefulWidget {
     this.onAdClicked,
     this.onAdImpression,
     this.onCachedAdReady,
+    this.onAdPaid,
     this.autoLoad = true,
     this.visibilityThreshold = 0.5,
   });
@@ -108,6 +109,9 @@ class NativeAdWidget extends StatefulWidget {
   /// Used by smart reload to notify when widget should swap to cached ad.
   final VoidCallback? onCachedAdReady;
 
+  /// Callback when a paid event is recorded (ILRD).
+  final void Function(double value, String currency)? onAdPaid;
+
   /// Whether to automatically load the ad when the widget is created.
   ///
   /// Defaults to true. Set to false if you want to manually control
@@ -162,6 +166,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
           onAdClicked: widget.onAdClicked,
           onAdImpression: widget.onAdImpression,
           onCachedAdReady: _handleCachedAdReady,
+          onAdPaid: widget.onAdPaid,
         ),
       );
       _ownsController = true;
@@ -201,6 +206,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
         onAdClicked: widget.onAdClicked,
         onAdImpression: widget.onAdImpression,
         onCachedAdReady: _handleCachedAdReady,
+        onAdPaid: widget.onAdPaid,
       ));
     }
 

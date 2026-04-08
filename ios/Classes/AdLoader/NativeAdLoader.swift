@@ -206,6 +206,16 @@ extension NativeAdLoader: GADNativeAdLoaderDelegate {
             adUnitId: adUnitId
         )
 
+        nativeAd.paidEventHandler = { [weak self] adValue in
+            guard let self = self else { return }
+            let valueInDollars = Double(truncating: adValue.value) / 1_000_000.0
+            self.sendEvent("onAdPaid", arguments: [
+                "controllerId": self.controllerId,
+                "value": valueInDollars,
+                "currencyCode": adValue.currencyCode
+            ])
+        }
+
         nativeAd.delegate = self
 
         sendEvent("onAdLoaded", arguments: [
