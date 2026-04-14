@@ -7,11 +7,11 @@ import GoogleMobileAds
  * Đây là ví dụ hoàn chỉnh để bạn tham khảo và phát triển.
  *
  * Layout structure:
- * GADNativeAdView
+ * NativeAdView
  * └── UIView (Main Container với gradient background)
  *     ├── UIStackView (Content - Vertical)
  *     │   ├── UIView (Header)
- *     │   │   ├── GADMediaView (Full width với rounded corners)
+ *     │   │   ├── MediaView (Full width với rounded corners)
  *     │   │   └── UIView (Icon overlay - bottom left của media)
  *     │   │       └── UIImageView (Icon - circular với border)
  *     │   ├── UIStackView (Info Section - với padding)
@@ -45,8 +45,8 @@ enum FormExampleBuilder {
     private static let cardPadding: CGFloat = 8
     private static let contentPadding: CGFloat = 12  // Reduced from 16 for tighter spacing
 
-    static func build(styleManager: AdStyleManager) -> GADNativeAdView {
-        let nativeAdView = GADNativeAdView()
+    static func build(styleManager: AdStyleManager) -> NativeAdView {
+        let nativeAdView = NativeAdView()
         nativeAdView.translatesAutoresizingMaskIntoConstraints = false
 
         // Main container với gradient background
@@ -108,7 +108,7 @@ enum FormExampleBuilder {
             ctaButton: ctaButton
         )
 
-        // Map views to GADNativeAdView
+        // Map views to NativeAdView
         mapViews(
             nativeAdView: nativeAdView,
             mediaView: mediaView,
@@ -154,12 +154,12 @@ enum FormExampleBuilder {
         return container
     }
 
-    private static func createHeaderSection() -> (UIView, GADMediaView, UIImageView) {
+    private static func createHeaderSection() -> (UIView, MediaView, UIImageView) {
         let headerView = UIView()
         headerView.translatesAutoresizingMaskIntoConstraints = false
 
         // Media View với rounded corners
-        let mediaView = GADMediaView()
+        let mediaView = MediaView()
         mediaView.translatesAutoresizingMaskIntoConstraints = false
         mediaView.backgroundColor = UIColor(white: 0.94, alpha: 1)
         mediaView.layer.cornerRadius = cardCornerRadius
@@ -369,11 +369,11 @@ enum FormExampleBuilder {
     }
 
     private static func setupConstraints(
-        nativeAdView: GADNativeAdView,
+        nativeAdView: NativeAdView,
         mainContainer: UIView,
         contentStack: UIStackView,
         headerView: UIView,
-        mediaView: GADMediaView,
+        mediaView: MediaView,
         iconView: UIImageView,
         adBadge: UILabel,
         ctaButton: UIButton
@@ -407,8 +407,8 @@ enum FormExampleBuilder {
     }
 
     private static func mapViews(
-        nativeAdView: GADNativeAdView,
-        mediaView: GADMediaView,
+        nativeAdView: NativeAdView,
+        mediaView: MediaView,
         iconView: UIImageView,
         headlineLabel: UILabel,
         ratingContainer: UIView,

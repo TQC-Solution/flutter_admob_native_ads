@@ -5,8 +5,8 @@ import GoogleMobileAds
 /// Layout: [Square Media] [Ad] Title / Body [CTA Button]
 enum Form2Builder {
     
-    static func build(styleManager: AdStyleManager) -> GADNativeAdView {
-        let nativeAdView = GADNativeAdView()
+    static func build(styleManager: AdStyleManager) -> NativeAdView {
+        let nativeAdView = NativeAdView()
         nativeAdView.translatesAutoresizingMaskIntoConstraints = false
         
         let mainStack = UIStackView()
@@ -18,7 +18,7 @@ enum Form2Builder {
         styleManager.styleMainContainer(mainStack)
         
         // Media View (Left) - Square
-        let mediaView = GADMediaView()
+        let mediaView = MediaView()
         mediaView.translatesAutoresizingMaskIntoConstraints = false
         mediaView.backgroundColor = UIColor(white: 0.94, alpha: 1)
         mediaView.layer.cornerRadius = 8

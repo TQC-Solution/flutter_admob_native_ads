@@ -42,16 +42,16 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
 
     /// Registry of ad loaded callbacks by controller ID (for platform views)
     /// Changed to support multiple callbacks per controllerId (Array instead of single callback)
-    private var adLoadedCallbacks: [String: [(GADNativeAd) -> Void]] = [:]
+    private var adLoadedCallbacks: [String: [(NativeAd) -> Void]] = [:]
 
     /// Registry of banner ad loaders by controller ID
     private var bannerAdLoaders: [String: BannerAdLoader] = [:]
 
     /// Registry of banner ad loaded callbacks by controller ID (for platform views)
-    private var bannerAdCallbacks: [String: (GADBannerView) -> Void] = [:]
+    private var bannerAdCallbacks: [String: (BannerView) -> Void] = [:]
 
     /// Cache of loaded banner ads (to handle race condition between ad load and platform view creation)
-    private var loadedBannerAds: [String: GADBannerView] = [:]
+    private var loadedBannerAds: [String: BannerView] = [:]
 
     /// Maps to track active native ad views for pause/resume rendering (fix GPU crashes)
     private var activeNativeAdViews: [String: UIView] = [:]
@@ -61,7 +61,7 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
 
     /// Gets the preloaded native ad for the given controller ID.
     /// Returns nil if no ad is loaded for the controller or if the ad has expired.
-    public func getPreloadedAd(controllerId: String) -> GADNativeAd? {
+    public func getPreloadedAd(controllerId: String) -> NativeAd? {
         return adLoaders[controllerId]?.getNativeAd()
     }
 
@@ -70,7 +70,7 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
     ///
     /// Supports multiple callbacks for the same controllerId (e.g., multiple widgets
     /// sharing the same controller).
-    public func registerAdLoadedCallback(controllerId: String, callback: @escaping (GADNativeAd) -> Void) {
+    public func registerAdLoadedCallback(controllerId: String, callback: @escaping (NativeAd) -> Void) {
         if adLoadedCallbacks[controllerId] == nil {
             adLoadedCallbacks[controllerId] = []
         }
@@ -101,13 +101,13 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
     /// Gets the preloaded banner ad view for the given controller ID.
     /// Returns nil if no ad is loaded for the controller.
     /// Checks the cache first, then falls back to the loader.
-    public func getBannerAd(controllerId: String) -> GADBannerView? {
+    public func getBannerAd(controllerId: String) -> BannerView? {
         return loadedBannerAds[controllerId] ?? bannerAdLoaders[controllerId]?.getBannerView()
     }
 
     /// Registers a callback to be invoked when a banner ad is loaded for the given controller.
     /// This allows platform views to receive ads without creating their own loaders.
-    public func registerBannerAdCallback(controllerId: String, callback: @escaping (GADBannerView) -> Void) {
+    public func registerBannerAdCallback(controllerId: String, callback: @escaping (BannerView) -> Void) {
         print("[FlutterAdmobNativeAds] Registering banner callback for controller: \(controllerId)")
         bannerAdCallbacks[controllerId] = callback
 
@@ -590,9 +590,9 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
 
 // MARK: - NativeAdLoaderDelegate
 
-extension FlutterAdmobNativeAdsPlugin: NativeAdLoaderDelegate {
+extension FlutterAdmobNativeAdsPlugin: NativeAdLoaderEventDelegate {
 
-    func adLoader(_ loader: NativeAdLoader, didReceiveNativeAd nativeAd: GADNativeAd) {
+    func adLoader(_ loader: NativeAdLoader, didReceiveNativeAd nativeAd: NativeAd) {
         // Notify ALL registered callbacks for this controller
         if let callbacks = adLoadedCallbacks[loader.controllerId] {
             DispatchQueue.main.async {
@@ -613,7 +613,7 @@ extension FlutterAdmobNativeAdsPlugin: NativeAdLoaderDelegate {
 
 extension FlutterAdmobNativeAdsPlugin: BannerAdLoaderDelegate {
 
-    func adLoader(_ loader: BannerAdLoader, didReceiveBannerAd bannerView: GADBannerView) {
+    func adLoader(_ loader: BannerAdLoader, didReceiveBannerAd bannerView: BannerView) {
         // Notify registered callbacks for this controller
         if let callback = bannerAdCallbacks[loader.controllerId] {
             DispatchQueue.main.async {

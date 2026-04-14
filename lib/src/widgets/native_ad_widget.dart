@@ -52,6 +52,7 @@ class NativeAdWidget extends StatefulWidget {
     this.onAdFailed,
     this.onAdClicked,
     this.onAdImpression,
+    this.onAdPaid,
     this.onCachedAdReady,
     this.onAdPaid,
     this.autoLoad = true,
@@ -107,6 +108,9 @@ class NativeAdWidget extends StatefulWidget {
 
   /// Callback when an ad impression is recorded.
   final VoidCallback? onAdImpression;
+
+  /// Callback when a paid event is recorded.
+  final void Function(double value, String currency)? onAdPaid;
 
   /// Callback when a cached ad is ready to be shown.
   ///
@@ -170,6 +174,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
           onAdFailed: _handleAdFailed,
           onAdClicked: widget.onAdClicked,
           onAdImpression: widget.onAdImpression,
+          onAdPaid: widget.onAdPaid,
           onCachedAdReady: _handleCachedAdReady,
           onAdPaid: widget.onAdPaid,
         ),
@@ -211,6 +216,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
         onAdFailed: _handleAdFailed,
         onAdClicked: widget.onAdClicked,
         onAdImpression: widget.onAdImpression,
+        onAdPaid: widget.onAdPaid,
         onCachedAdReady: _handleCachedAdReady,
         onAdPaid: widget.onAdPaid,
       ));

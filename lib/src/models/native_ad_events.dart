@@ -16,6 +16,12 @@ typedef OnAdClickedCallback = void Function();
 /// Callback invoked when an ad impression is recorded.
 typedef OnAdImpressionCallback = void Function();
 
+/// Callback invoked when a paid event is recorded.
+///
+/// [value] is the ad value in the specified currency.
+/// [currencyCode] is the ISO 4217 currency code (e.g., "USD").
+typedef OnAdPaidCallback = void Function(double value, String currencyCode);
+
 /// Callback invoked when the ad opens an overlay (e.g., full-screen view).
 typedef OnAdOpenedCallback = void Function();
 
@@ -51,6 +57,7 @@ class NativeAdEvents {
     this.onAdFailed,
     this.onAdClicked,
     this.onAdImpression,
+    this.onAdPaid,
     this.onAdOpened,
     this.onAdClosed,
     this.onCachedAdReady,
@@ -71,6 +78,9 @@ class NativeAdEvents {
 
   /// Callback when ad impression is recorded.
   final OnAdImpressionCallback? onAdImpression;
+
+  /// Callback when a paid event is recorded.
+  final OnAdPaidCallback? onAdPaid;
 
   /// Callback when ad opens overlay.
   final OnAdOpenedCallback? onAdOpened;
@@ -94,6 +104,7 @@ class NativeAdEvents {
     OnAdFailedCallback? onAdFailed,
     OnAdClickedCallback? onAdClicked,
     OnAdImpressionCallback? onAdImpression,
+    OnAdPaidCallback? onAdPaid,
     OnAdOpenedCallback? onAdOpened,
     OnAdClosedCallback? onAdClosed,
     OnCachedAdReadyCallback? onCachedAdReady,
@@ -105,6 +116,7 @@ class NativeAdEvents {
       onAdFailed: onAdFailed ?? this.onAdFailed,
       onAdClicked: onAdClicked ?? this.onAdClicked,
       onAdImpression: onAdImpression ?? this.onAdImpression,
+      onAdPaid: onAdPaid ?? this.onAdPaid,
       onAdOpened: onAdOpened ?? this.onAdOpened,
       onAdClosed: onAdClosed ?? this.onAdClosed,
       onCachedAdReady: onCachedAdReady ?? this.onCachedAdReady,

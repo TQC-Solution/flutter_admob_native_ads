@@ -7,7 +7,7 @@ import GoogleMobileAds
  */
 enum AdLayoutBuilder {
     
-    static func buildLayout(layoutType: Int, styleOptions: AdStyleOptions) -> GADNativeAdView {
+    static func buildLayout(layoutType: Int, styleOptions: AdStyleOptions) -> NativeAdView {
         let styleManager = AdStyleManager(options: styleOptions)
         
         switch layoutType {

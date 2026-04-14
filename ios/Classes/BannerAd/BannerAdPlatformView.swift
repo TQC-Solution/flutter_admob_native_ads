@@ -6,7 +6,7 @@ import GoogleMobileAds
 class BannerAdPlatformView: NSObject, FlutterPlatformView {
 
     private let containerView: UIView
-    private var bannerView: GADBannerView?
+    private var bannerView: BannerView?
     private let enableDebugLogs: Bool
     private let controllerId: String?
 
@@ -52,7 +52,7 @@ class BannerAdPlatformView: NSObject, FlutterPlatformView {
         }
     }
 
-    private func onAdLoaded(_ view: GADBannerView) {
+    private func onAdLoaded(_ view: BannerView) {
         // Remove old banner view if exists
         if let oldBanner = bannerView {
             oldBanner.removeFromSuperview()
