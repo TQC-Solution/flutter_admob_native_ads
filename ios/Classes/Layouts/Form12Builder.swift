@@ -3,8 +3,8 @@ import GoogleMobileAds
 
 /// Form12 Builder - Dark Style Variant (ad_12.png)
 enum Form12Builder {
-    static func build(styleManager: AdStyleManager) -> GADNativeAdView {
-        let nativeAdView = GADNativeAdView()
+    static func build(styleManager: AdStyleManager) -> NativeAdView {
+        let nativeAdView = NativeAdView()
         nativeAdView.translatesAutoresizingMaskIntoConstraints = false
         
         let mainStack = UIStackView()
@@ -35,7 +35,7 @@ enum Form12Builder {
         titleRow.addArrangedSubview(headlineLabel)
         mainStack.addArrangedSubview(titleRow)
         
-        let mediaView = GADMediaView()
+        let mediaView = MediaView()
         mediaView.backgroundColor = UIColor(white: 0.88, alpha: 1)
         mediaView.layer.cornerRadius = 8
         mediaView.clipsToBounds = true

@@ -3,8 +3,8 @@ import GoogleMobileAds
 
 /// Form7 Builder - Horizontal Large Media Left (ad_7.png)
 enum Form7Builder {
-    static func build(styleManager: AdStyleManager) -> GADNativeAdView {
-        let nativeAdView = GADNativeAdView()
+    static func build(styleManager: AdStyleManager) -> NativeAdView {
+        let nativeAdView = NativeAdView()
         nativeAdView.translatesAutoresizingMaskIntoConstraints = false
         
         let mainStack = UIStackView()
@@ -14,7 +14,7 @@ enum Form7Builder {
         mainStack.alignment = .center
         styleManager.styleMainContainer(mainStack)
         
-        let mediaView = GADMediaView()
+        let mediaView = MediaView()
         mediaView.backgroundColor = UIColor(white: 0.94, alpha: 1)
         mediaView.layer.cornerRadius = 8
         mediaView.clipsToBounds = true

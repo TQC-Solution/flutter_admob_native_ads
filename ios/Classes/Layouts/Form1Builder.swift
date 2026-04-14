@@ -5,8 +5,8 @@ import GoogleMobileAds
 /// Layout: [Icon] [Ad] Title / Body [CTA Button]
 enum Form1Builder {
     
-    static func build(styleManager: AdStyleManager) -> GADNativeAdView {
-        let nativeAdView = GADNativeAdView()
+    static func build(styleManager: AdStyleManager) -> NativeAdView {
+        let nativeAdView = NativeAdView()
         nativeAdView.translatesAutoresizingMaskIntoConstraints = false
         
         // Main horizontal container

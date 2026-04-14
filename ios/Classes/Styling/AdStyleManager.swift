@@ -13,7 +13,7 @@ class AdStyleManager {
     // MARK: - Container Styling
 
     /// Applies container styles to the NativeAdView.
-    func applyContainerStyle(to view: GADNativeAdView) {
+    func applyContainerStyle(to view: NativeAdView) {
         view.backgroundColor = options.containerBackgroundColor
         view.layer.cornerRadius = options.containerCornerRadius
         view.clipsToBounds = true
@@ -130,7 +130,7 @@ class AdStyleManager {
     }
 
     /// Applies media view styles.
-    func styleMediaView(_ mediaView: GADMediaView) {
+    func styleMediaView(_ mediaView: MediaView) {
         mediaView.layer.cornerRadius = options.mediaViewCornerRadius
         mediaView.clipsToBounds = true
         mediaView.contentMode = .scaleAspectFill

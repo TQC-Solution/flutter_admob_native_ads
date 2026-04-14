@@ -3,8 +3,8 @@ import GoogleMobileAds
 
 /// Form5 Builder - Vertical Icon Top (ad_5.png)
 enum Form5Builder {
-    static func build(styleManager: AdStyleManager) -> GADNativeAdView {
-        let nativeAdView = GADNativeAdView()
+    static func build(styleManager: AdStyleManager) -> NativeAdView {
+        let nativeAdView = NativeAdView()
         nativeAdView.translatesAutoresizingMaskIntoConstraints = false
         
         let mainStack = UIStackView()
@@ -50,7 +50,7 @@ enum Form5Builder {
         bodyLabel.numberOfLines = 1
         mainStack.addArrangedSubview(bodyLabel)
         
-        let mediaView = GADMediaView()
+        let mediaView = MediaView()
         mediaView.backgroundColor = UIColor(white: 0.94, alpha: 1)
         mediaView.layer.cornerRadius = 8
         mediaView.clipsToBounds = true

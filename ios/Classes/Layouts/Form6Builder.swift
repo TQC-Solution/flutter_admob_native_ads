@@ -4,8 +4,8 @@ import GoogleMobileAds
 /// Form6 Builder - Vertical Smaller Media (ad_6.png)
 /// Layout: Column[Row[Icon + Column[Row[AD + Title] + Body]] + Media + CTA]
 enum Form6Builder {
-    static func build(styleManager: AdStyleManager) -> GADNativeAdView {
-        let nativeAdView = GADNativeAdView()
+    static func build(styleManager: AdStyleManager) -> NativeAdView {
+        let nativeAdView = NativeAdView()
         nativeAdView.translatesAutoresizingMaskIntoConstraints = false
 
         // Main vertical container
@@ -99,7 +99,7 @@ enum Form6Builder {
         contentContainer.addArrangedSubview(headerRow)
 
         // Media view (120dp height)
-        let mediaView = GADMediaView()
+        let mediaView = MediaView()
         mediaView.backgroundColor = UIColor(white: 0.94, alpha: 1)
         mediaView.layer.cornerRadius = 8
         mediaView.clipsToBounds = true
