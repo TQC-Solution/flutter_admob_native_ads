@@ -34,9 +34,6 @@ typedef OnAdClosedCallback = void Function();
 /// is available and should replace the current ad.
 typedef OnCachedAdReadyCallback = void Function();
 
-/// Callback when AdMob reports estimated earnings (value in currency units, not micros).
-typedef OnNativeAdPaidCallback = void Function(double value, String currencyCode);
-
 /// Container class for all native ad event callbacks.
 ///
 /// Use this class to group all event handlers when configuring a native ad.
@@ -61,7 +58,6 @@ class NativeAdEvents {
     this.onAdOpened,
     this.onAdClosed,
     this.onCachedAdReady,
-    this.onAdPaid,
   });
 
   /// Fires when [NativeAdController.loadAd] / reload begins a network attempt.
@@ -94,9 +90,6 @@ class NativeAdEvents {
   /// is available and should replace the current ad.
   final OnCachedAdReadyCallback? onCachedAdReady;
 
-  /// Callback when the ad receives paid event (ILRD) from the SDK.
-  final OnNativeAdPaidCallback? onAdPaid;
-
   /// Creates a copy with updated callbacks.
   NativeAdEvents copyWith({
     OnNativeAdLoadAttemptStartedCallback? onLoadAttemptStarted,
@@ -108,7 +101,6 @@ class NativeAdEvents {
     OnAdOpenedCallback? onAdOpened,
     OnAdClosedCallback? onAdClosed,
     OnCachedAdReadyCallback? onCachedAdReady,
-    OnNativeAdPaidCallback? onAdPaid,
   }) {
     return NativeAdEvents(
       onLoadAttemptStarted: onLoadAttemptStarted ?? this.onLoadAttemptStarted,
@@ -120,7 +112,6 @@ class NativeAdEvents {
       onAdOpened: onAdOpened ?? this.onAdOpened,
       onAdClosed: onAdClosed ?? this.onAdClosed,
       onCachedAdReady: onCachedAdReady ?? this.onCachedAdReady,
-      onAdPaid: onAdPaid ?? this.onAdPaid,
     );
   }
 }

@@ -266,11 +266,6 @@ class NativeAdController extends Object with AdControllerMixin<NativeAdState> {
   }
 
   @override
-  void handleAdPaid(double value, String currency) {
-    events.onAdPaid?.call(value, currency);
-  }
-
-  @override
   Future<void> dispose() async {
     // Unregister from global registry
     // Changed from List.remove to Map.remove for O(1) performance

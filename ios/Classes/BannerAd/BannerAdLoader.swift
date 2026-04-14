@@ -73,14 +73,9 @@ class BannerAdLoader: NSObject {
     // MARK: - Private Methods
 
     private func rootViewController() -> UIViewController? {
-        // iOS 13+ uses connectedScenes
-        if #available(iOS 13.0, *) {
-            return UIApplication.shared.connectedScenes
-                .compactMap { ($0 as? UIWindowScene)?.windows.first }
-                .first?.rootViewController
-        }
-        // Fallback for older iOS versions
-        return UIApplication.shared.windows.first?.rootViewController
+        return UIApplication.shared.connectedScenes
+            .compactMap { ($0 as? UIWindowScene)?.windows.first }
+            .first?.rootViewController
     }
 
     private func sendEvent(_ method: String, arguments: [String: Any]) {
@@ -150,7 +145,7 @@ extension BannerAdLoader: BannerViewDelegate {
     }
 
     func bannerView(_ bannerView: BannerView, didReceiveAdValue value: AdValue) {
-        let valueInDollars = Double(value.value) / 1_000_000.0
+        let valueInDollars = Double(truncating: value.value) / 1_000_000.0
         sendEvent("onAdPaid", arguments: [
             "controllerId": controllerId,
             "value": valueInDollars,

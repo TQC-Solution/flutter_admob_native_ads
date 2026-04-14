@@ -53,7 +53,16 @@ class AdStyleManager {
         button.layer.cornerRadius = min(options.ctaCornerRadius, maxCornerRadius)
         button.clipsToBounds = true
 
-        button.contentEdgeInsets = options.ctaPadding
+        if #available(iOS 15.0, *) {
+            var configuration = button.configuration ?? .plain()
+            configuration.contentInsets = NSDirectionalEdgeInsets(
+                top: options.ctaPadding.top,
+                leading: options.ctaPadding.left,
+                bottom: options.ctaPadding.bottom,
+                trailing: options.ctaPadding.right
+            )
+            button.configuration = configuration
+        }
 
         if let borderColor = options.ctaBorderColor,
            let borderWidth = options.ctaBorderWidth {
