@@ -47,6 +47,7 @@ class NativeAdWidget extends StatefulWidget {
     this.width,
     this.loadingWidget,
     this.errorWidget,
+    this.onLoadAttemptStarted,
     this.onAdLoaded,
     this.onAdFailed,
     this.onAdClicked,
@@ -91,6 +92,9 @@ class NativeAdWidget extends StatefulWidget {
   /// Receives the error message as a parameter.
   /// If not provided, shows a default error message.
   final Widget Function(String error)? errorWidget;
+
+  /// Fires when a load or reload attempt starts (before the platform request).
+  final VoidCallback? onLoadAttemptStarted;
 
   /// Callback when the ad loads successfully.
   final VoidCallback? onAdLoaded;
@@ -161,6 +165,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
       _controller = NativeAdController(
         options: widget.options,
         events: NativeAdEvents(
+          onLoadAttemptStarted: widget.onLoadAttemptStarted,
           onAdLoaded: _handleAdLoaded,
           onAdFailed: _handleAdFailed,
           onAdClicked: widget.onAdClicked,
@@ -201,6 +206,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
     // Update events if using external controller
     if (!_ownsController) {
       _controller.updateEvents(NativeAdEvents(
+        onLoadAttemptStarted: widget.onLoadAttemptStarted,
         onAdLoaded: _handleAdLoaded,
         onAdFailed: _handleAdFailed,
         onAdClicked: widget.onAdClicked,

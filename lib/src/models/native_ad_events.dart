@@ -1,3 +1,6 @@
+/// Fires when a load or reload **attempt** starts (before network request).
+typedef OnNativeAdLoadAttemptStartedCallback = void Function();
+
 /// Callback invoked when an ad has been successfully loaded.
 typedef OnAdLoadedCallback = void Function();
 
@@ -43,6 +46,7 @@ typedef OnNativeAdPaidCallback = void Function(double value, String currencyCode
 class NativeAdEvents {
   /// Creates a [NativeAdEvents] instance with optional callbacks.
   const NativeAdEvents({
+    this.onLoadAttemptStarted,
     this.onAdLoaded,
     this.onAdFailed,
     this.onAdClicked,
@@ -52,6 +56,9 @@ class NativeAdEvents {
     this.onCachedAdReady,
     this.onAdPaid,
   });
+
+  /// Fires when [NativeAdController.loadAd] / reload begins a network attempt.
+  final OnNativeAdLoadAttemptStartedCallback? onLoadAttemptStarted;
 
   /// Callback when ad loads successfully.
   final OnAdLoadedCallback? onAdLoaded;
@@ -82,6 +89,7 @@ class NativeAdEvents {
 
   /// Creates a copy with updated callbacks.
   NativeAdEvents copyWith({
+    OnNativeAdLoadAttemptStartedCallback? onLoadAttemptStarted,
     OnAdLoadedCallback? onAdLoaded,
     OnAdFailedCallback? onAdFailed,
     OnAdClickedCallback? onAdClicked,
@@ -92,6 +100,7 @@ class NativeAdEvents {
     OnNativeAdPaidCallback? onAdPaid,
   }) {
     return NativeAdEvents(
+      onLoadAttemptStarted: onLoadAttemptStarted ?? this.onLoadAttemptStarted,
       onAdLoaded: onAdLoaded ?? this.onAdLoaded,
       onAdFailed: onAdFailed ?? this.onAdFailed,
       onAdClicked: onAdClicked ?? this.onAdClicked,

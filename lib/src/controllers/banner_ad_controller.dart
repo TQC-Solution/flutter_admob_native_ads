@@ -191,6 +191,10 @@ class BannerAdController extends Object with AdControllerMixin<BannerAdState> {
   void Function() get onAdLoadedCallback => () => events.onAdLoaded?.call();
 
   @override
+  void Function() get onLoadAttemptStartedCallback =>
+      () => events.onLoadAttemptStarted?.call();
+
+  @override
   void Function(String error, int code) get onAdFailedCallback =>
       (error, code) => events.onAdFailed?.call(error, code);
 
