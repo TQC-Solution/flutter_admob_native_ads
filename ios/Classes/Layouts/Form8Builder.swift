@@ -5,8 +5,8 @@ import GoogleMobileAds
 /// Layout: Row[Media (left) + Column[Row[Ad Badge + Title] + Body + CTA Button]]
 /// Compact layout optimized for mobile
 enum Form8Builder {
-    static func build(styleManager: AdStyleManager) -> GADNativeAdView {
-        let nativeAdView = GADNativeAdView()
+    static func build(styleManager: AdStyleManager) -> NativeAdView {
+        let nativeAdView = NativeAdView()
         nativeAdView.translatesAutoresizingMaskIntoConstraints = false
 
         // Main horizontal stack containing media (left) and content column (right)
@@ -18,7 +18,7 @@ enum Form8Builder {
         styleManager.styleMainContainer(mainStack)
 
         // Left section: Media view (120x120)
-        let mediaView = GADMediaView()
+        let mediaView = MediaView()
         mediaView.translatesAutoresizingMaskIntoConstraints = false
         mediaView.layer.cornerRadius = 8
         mediaView.clipsToBounds = true

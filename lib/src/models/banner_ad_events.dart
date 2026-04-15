@@ -1,3 +1,6 @@
+/// Callback when a load or reload **attempt** starts (before network request).
+typedef OnBannerAdLoadAttemptStartedCallback = void Function();
+
 /// Callback type for when a banner ad is loaded successfully.
 typedef OnBannerAdLoadedCallback = void Function();
 
@@ -41,6 +44,7 @@ typedef OnBannerAdPaidCallback = void Function(double value, String currencyCode
 class BannerAdEvents {
   /// Creates a [BannerAdEvents] instance.
   const BannerAdEvents({
+    this.onLoadAttemptStarted,
     this.onAdLoaded,
     this.onAdFailed,
     this.onAdClicked,
@@ -49,6 +53,9 @@ class BannerAdEvents {
     this.onAdClosed,
     this.onAdPaid,
   });
+
+  /// Fires when [BannerAdController.loadAd] / reload begins a network attempt.
+  final OnBannerAdLoadAttemptStartedCallback? onLoadAttemptStarted;
 
   /// Called when an ad is loaded successfully.
   final OnBannerAdLoadedCallback? onAdLoaded;

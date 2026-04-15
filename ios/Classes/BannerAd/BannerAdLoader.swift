@@ -4,7 +4,7 @@ import Flutter
 
 /// Protocol for banner ad loader callbacks.
 protocol BannerAdLoaderDelegate: AnyObject {
-    func adLoader(_ loader: BannerAdLoader, didReceiveBannerAd bannerView: GADBannerView)
+    func adLoader(_ loader: BannerAdLoader, didReceiveBannerAd bannerView: BannerView)
     func adLoader(_ loader: BannerAdLoader, didFailWithError error: Error)
 }
 
@@ -15,18 +15,18 @@ class BannerAdLoader: NSObject {
     let controllerId: String
     private let channel: FlutterMethodChannel
     private let enableDebugLogs: Bool
-    private let adSize: GADAdSize
+    private let adSize: AdSize
 
-    private var bannerView: GADBannerView?
+    private var bannerView: BannerView?
 
     weak var delegate: BannerAdLoaderDelegate?
-    private var onAdLoadedCallback: ((GADBannerView) -> Void)?
+    private var onAdLoadedCallback: ((BannerView) -> Void)?
 
     init(
         adUnitId: String,
         controllerId: String,
         channel: FlutterMethodChannel,
-        adSize: GADAdSize,
+        adSize: AdSize,
         enableDebugLogs: Bool = false
     ) {
         self.adUnitId = adUnitId
@@ -38,7 +38,7 @@ class BannerAdLoader: NSObject {
     }
 
     /// Sets the callback for when an ad is loaded.
-    func setOnAdLoadedCallback(callback: @escaping (GADBannerView) -> Void) {
+    func setOnAdLoadedCallback(callback: @escaping (BannerView) -> Void) {
         onAdLoadedCallback = callback
     }
 
@@ -49,17 +49,17 @@ class BannerAdLoader: NSObject {
             return
         }
 
-        let bannerView = GADBannerView(adSize: adSize)
+        let bannerView = BannerView(adSize: adSize)
         bannerView.adUnitID = adUnitId
         bannerView.rootViewController = rootVC
         bannerView.delegate = self
 
         self.bannerView = bannerView
-        bannerView.load(GADRequest())
+        bannerView.load(Request())
     }
 
     /// Gets the currently loaded banner view.
-    func getBannerView() -> GADBannerView? {
+    func getBannerView() -> BannerView? {
         return bannerView
     }
 
@@ -73,14 +73,9 @@ class BannerAdLoader: NSObject {
     // MARK: - Private Methods
 
     private func rootViewController() -> UIViewController? {
-        // iOS 13+ uses connectedScenes
-        if #available(iOS 13.0, *) {
-            return UIApplication.shared.connectedScenes
-                .compactMap { ($0 as? UIWindowScene)?.windows.first }
-                .first?.rootViewController
-        }
-        // Fallback for older iOS versions
-        return UIApplication.shared.windows.first?.rootViewController
+        return UIApplication.shared.connectedScenes
+            .compactMap { ($0 as? UIWindowScene)?.windows.first }
+            .first?.rootViewController
     }
 
     private func sendEvent(_ method: String, arguments: [String: Any]) {
@@ -96,11 +91,11 @@ class BannerAdLoader: NSObject {
     }
 }
 
-// MARK: - GADBannerViewDelegate
+// MARK: - BannerViewDelegate
 
-extension BannerAdLoader: GADBannerViewDelegate {
+extension BannerAdLoader: BannerViewDelegate {
 
-    func bannerViewDidReceiveAd(_ bannerView: GADBannerView) {
+    func bannerViewDidReceiveAd(_ bannerView: BannerView) {
         sendEvent("onAdLoaded", arguments: [
             "controllerId": controllerId
         ])
@@ -109,7 +104,7 @@ extension BannerAdLoader: GADBannerViewDelegate {
         delegate?.adLoader(self, didReceiveBannerAd: bannerView)
     }
 
-    func bannerView(_ bannerView: GADBannerView, didFailToReceiveAdWithError error: Error) {
+    func bannerView(_ bannerView: BannerView, didFailToReceiveAdWithError error: Error) {
         log("Banner ad failed to load: \(error.localizedDescription)")
 
         let nsError = error as NSError
@@ -122,35 +117,35 @@ extension BannerAdLoader: GADBannerViewDelegate {
         delegate?.adLoader(self, didFailWithError: error)
     }
 
-    func bannerViewDidRecordClick(_ bannerView: GADBannerView) {
+    func bannerViewDidRecordClick(_ bannerView: BannerView) {
         sendEvent("onAdClicked", arguments: [
             "controllerId": controllerId
         ])
     }
 
-    func bannerViewDidRecordImpression(_ bannerView: GADBannerView) {
+    func bannerViewDidRecordImpression(_ bannerView: BannerView) {
         sendEvent("onAdImpression", arguments: [
             "controllerId": controllerId
         ])
     }
 
-    func bannerViewWillPresentScreen(_ bannerView: GADBannerView) {
+    func bannerViewWillPresentScreen(_ bannerView: BannerView) {
         sendEvent("onAdOpened", arguments: [
             "controllerId": controllerId
         ])
     }
 
-    func bannerViewWillDismissScreen(_ bannerView: GADBannerView) {
+    func bannerViewWillDismissScreen(_ bannerView: BannerView) {
     }
 
-    func bannerViewDidDismissScreen(_ bannerView: GADBannerView) {
+    func bannerViewDidDismissScreen(_ bannerView: BannerView) {
         sendEvent("onAdClosed", arguments: [
             "controllerId": controllerId
         ])
     }
 
-    func bannerView(_ bannerView: GADBannerView, didReceiveAdValue value: GADAdValue) {
-        let valueInDollars = Double(value.value) / 1_000_000.0
+    func bannerView(_ bannerView: BannerView, didReceiveAdValue value: AdValue) {
+        let valueInDollars = Double(truncating: value.value) / 1_000_000.0
         sendEvent("onAdPaid", arguments: [
             "controllerId": controllerId,
             "value": valueInDollars,

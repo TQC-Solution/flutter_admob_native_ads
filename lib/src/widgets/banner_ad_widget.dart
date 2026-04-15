@@ -45,6 +45,7 @@ class BannerAdWidget extends StatefulWidget {
     this.width,
     this.loadingWidget,
     this.errorWidget,
+    this.onLoadAttemptStarted,
     this.onAdLoaded,
     this.onAdFailed,
     this.onAdClicked,
@@ -82,6 +83,9 @@ class BannerAdWidget extends StatefulWidget {
   /// Receives the error message as a parameter.
   /// If not provided, shows a default error message.
   final Widget Function(String error)? errorWidget;
+
+  /// Fires when a load or reload attempt starts (before the platform request).
+  final VoidCallback? onLoadAttemptStarted;
 
   /// Callback when the ad loads successfully.
   final VoidCallback? onAdLoaded;
@@ -148,6 +152,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
       _controller = BannerAdController(
         options: widget.options,
         events: BannerAdEvents(
+          onLoadAttemptStarted: widget.onLoadAttemptStarted,
           onAdLoaded: _handleAdLoaded,
           onAdFailed: _handleAdFailed,
           onAdClicked: widget.onAdClicked,
@@ -181,6 +186,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
     // Update events if using external controller
     if (!_ownsController) {
       _controller.updateEvents(BannerAdEvents(
+        onLoadAttemptStarted: widget.onLoadAttemptStarted,
         onAdLoaded: _handleAdLoaded,
         onAdFailed: _handleAdFailed,
         onAdClicked: widget.onAdClicked,

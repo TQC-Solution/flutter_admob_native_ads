@@ -3,8 +3,8 @@ import GoogleMobileAds
 
 /// Form10 Builder - Minimal Text Only (ad_10.png)
 enum Form10Builder {
-    static func build(styleManager: AdStyleManager) -> GADNativeAdView {
-        let nativeAdView = GADNativeAdView()
+    static func build(styleManager: AdStyleManager) -> NativeAdView {
+        let nativeAdView = NativeAdView()
         nativeAdView.translatesAutoresizingMaskIntoConstraints = false
 
         // Main vertical stack

@@ -3,15 +3,15 @@ import GoogleMobileAds
 import Flutter
 
 /// Protocol for native ad loader callbacks.
-protocol NativeAdLoaderDelegate: AnyObject {
-    func adLoader(_ loader: NativeAdLoader, didReceiveNativeAd nativeAd: GADNativeAd)
+protocol NativeAdLoaderEventDelegate: AnyObject {
+    func adLoader(_ loader: NativeAdLoader, didReceiveNativeAd nativeAd: NativeAd)
     func adLoader(_ loader: NativeAdLoader, didFailWithError error: Error)
 }
 
 /// Represents a loaded native ad with its metadata.
 struct LoadedAd {
     /// The native ad instance
-    let ad: GADNativeAd
+    let ad: NativeAd
 
     /// Timestamp when the ad was loaded
     let loadedAt: Date
@@ -59,16 +59,16 @@ class NativeAdLoader: NSObject {
     private let channel: FlutterMethodChannel
     private let enableDebugLogs: Bool
 
-    private var adLoader: GADAdLoader?
+    private var adLoader: AdLoader?
     private var loadedAd: LoadedAd?
 
     /// Returns the currently loaded native ad (convenience property for backward compatibility)
-    private(set) var nativeAd: GADNativeAd? {
+    private(set) var nativeAd: NativeAd? {
         get { return loadedAd?.ad }
         set { /* Use setLoadedAd instead */ }
     }
 
-    weak var delegate: NativeAdLoaderDelegate?
+    weak var delegate: NativeAdLoaderEventDelegate?
 
     init(
         adUnitId: String,
@@ -86,7 +86,7 @@ class NativeAdLoader: NSObject {
     /// Loads a native ad.
     func loadAd() {
         // Get root view controller
-        guard let rootViewController = UIApplication.shared.windows.first?.rootViewController else {
+        guard let rootViewController = rootViewController() else {
             log("No root view controller available")
             sendEvent("onAdFailedToLoad", arguments: [
                 "controllerId": controllerId,
@@ -97,10 +97,10 @@ class NativeAdLoader: NSObject {
         }
 
         // Create ad loader
-        let options = GADNativeAdMediaAdLoaderOptions()
+        let options = NativeAdMediaAdLoaderOptions()
         options.mediaAspectRatio = .landscape
 
-        adLoader = GADAdLoader(
+        adLoader = AdLoader(
             adUnitID: adUnitId,
             rootViewController: rootViewController,
             adTypes: [.native],
@@ -110,7 +110,7 @@ class NativeAdLoader: NSObject {
         adLoader?.delegate = self
 
         // Load ad
-        let request = GADRequest()
+        let request = Request()
         adLoader?.load(request)
     }
 
@@ -129,7 +129,7 @@ class NativeAdLoader: NSObject {
     /// Logs a warning if the ad is near expiry (age >= 55 minutes).
     ///
     /// - Returns: The native ad if valid, nil otherwise
-    func getNativeAd() -> GADNativeAd? {
+    func getNativeAd() -> NativeAd? {
         guard let cached = loadedAd else { return nil }
 
         // Check if ad has expired
@@ -169,6 +169,12 @@ class NativeAdLoader: NSObject {
         }
     }
 
+    private func rootViewController() -> UIViewController? {
+        return UIApplication.shared.connectedScenes
+            .compactMap { ($0 as? UIWindowScene)?.windows.first }
+            .first?.rootViewController
+    }
+
     private func log(_ message: String) {
         if enableDebugLogs {
             print("[NativeAdLoader][\(controllerId)] \(message)")
@@ -176,11 +182,11 @@ class NativeAdLoader: NSObject {
     }
 }
 
-// MARK: - GADAdLoaderDelegate
+// MARK: - AdLoaderDelegate
 
-extension NativeAdLoader: GADAdLoaderDelegate {
+extension NativeAdLoader: AdLoaderDelegate {
 
-    func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: Error) {
+    func adLoader(_ adLoader: AdLoader, didFailToReceiveAdWithError error: Error) {
         log("Ad failed to load: \(error.localizedDescription)")
 
         let nsError = error as NSError
@@ -194,17 +200,27 @@ extension NativeAdLoader: GADAdLoaderDelegate {
     }
 }
 
-// MARK: - GADNativeAdLoaderDelegate
+// MARK: - NativeAdLoaderDelegate
 
-extension NativeAdLoader: GADNativeAdLoaderDelegate {
+extension NativeAdLoader: NativeAdLoaderDelegate {
 
-    func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
+    func adLoader(_ adLoader: AdLoader, didReceive nativeAd: NativeAd) {
         // Store new ad with timestamp
         loadedAd = LoadedAd(
             ad: nativeAd,
             loadedAt: Date(),
             adUnitId: adUnitId
         )
+
+        nativeAd.paidEventHandler = { [weak self] adValue in
+            guard let self = self else { return }
+            let valueInDollars = Double(truncating: adValue.value) / 1_000_000.0
+            self.sendEvent("onAdPaid", arguments: [
+                "controllerId": self.controllerId,
+                "value": valueInDollars,
+                "currencyCode": adValue.currencyCode
+            ])
+        }
 
         nativeAd.delegate = self
 
@@ -216,29 +232,29 @@ extension NativeAdLoader: GADNativeAdLoaderDelegate {
     }
 }
 
-// MARK: - GADNativeAdDelegate
+// MARK: - NativeAdDelegate
 
-extension NativeAdLoader: GADNativeAdDelegate {
+extension NativeAdLoader: NativeAdDelegate {
 
-    func nativeAdDidRecordClick(_ nativeAd: GADNativeAd) {
+    func nativeAdDidRecordClick(_ nativeAd: NativeAd) {
         sendEvent("onAdClicked", arguments: [
             "controllerId": controllerId
         ])
     }
 
-    func nativeAdDidRecordImpression(_ nativeAd: GADNativeAd) {
+    func nativeAdDidRecordImpression(_ nativeAd: NativeAd) {
         sendEvent("onAdImpression", arguments: [
             "controllerId": controllerId
         ])
     }
 
-    func nativeAdWillPresentScreen(_ nativeAd: GADNativeAd) {
+    func nativeAdWillPresentScreen(_ nativeAd: NativeAd) {
         sendEvent("onAdOpened", arguments: [
             "controllerId": controllerId
         ])
     }
 
-    func nativeAdDidDismissScreen(_ nativeAd: GADNativeAd) {
+    func nativeAdDidDismissScreen(_ nativeAd: NativeAd) {
         sendEvent("onAdClosed", arguments: [
             "controllerId": controllerId
         ])

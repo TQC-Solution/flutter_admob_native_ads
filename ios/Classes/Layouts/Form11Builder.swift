@@ -3,8 +3,8 @@ import GoogleMobileAds
 
 /// Form11 Builder - Ad + Title + Media + CTA (ad_11.png)
 enum Form11Builder {
-    static func build(styleManager: AdStyleManager) -> GADNativeAdView {
-        let nativeAdView = GADNativeAdView()
+    static func build(styleManager: AdStyleManager) -> NativeAdView {
+        let nativeAdView = NativeAdView()
         nativeAdView.translatesAutoresizingMaskIntoConstraints = false
         
         let mainStack = UIStackView()
@@ -35,7 +35,7 @@ enum Form11Builder {
         titleRow.addArrangedSubview(headlineLabel)
         mainStack.addArrangedSubview(titleRow)
         
-        let mediaView = GADMediaView()
+        let mediaView = MediaView()
         mediaView.backgroundColor = UIColor(white: 0.94, alpha: 1)
         mediaView.layer.cornerRadius = 8
         mediaView.clipsToBounds = true

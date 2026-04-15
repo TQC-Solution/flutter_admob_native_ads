@@ -6,7 +6,7 @@ import GoogleMobileAds
 class NativeAdPlatformView: NSObject, FlutterPlatformView {
 
     private let containerView: UIView
-    private var nativeAdView: GADNativeAdView?
+    private var nativeAdView: NativeAdView?
     private let styleOptions: AdStyleOptions
     private let styleManager: AdStyleManager
     private let enableDebugLogs: Bool
@@ -69,7 +69,7 @@ class NativeAdPlatformView: NSObject, FlutterPlatformView {
         }
     }
 
-    private func onAdLoaded(_ nativeAd: GADNativeAd) {
+    private func onAdLoaded(_ nativeAd: NativeAd) {
         // Layout should already be built, just populate data
         if !isLayoutBuilt || nativeAdView == nil {
             prebuildLayout()
@@ -101,7 +101,7 @@ class NativeAdPlatformView: NSObject, FlutterPlatformView {
         }
     }
 
-    private func populateAdView(_ nativeAd: GADNativeAd) {
+    private func populateAdView(_ nativeAd: NativeAd) {
         guard let adView = nativeAdView else { return }
 
         // Headline (required)
@@ -120,7 +120,7 @@ class NativeAdPlatformView: NSObject, FlutterPlatformView {
         if let ctaButton = adView.callToActionView as? UIButton, let callToAction = nativeAd.callToAction {
             ctaButton.setTitle(callToAction, for: .normal)
             ctaButton.isHidden = false
-            ctaButton.isUserInteractionEnabled = false // GADNativeAdView handles taps
+            ctaButton.isUserInteractionEnabled = false // NativeAdView handles taps
         }
 
         // Icon

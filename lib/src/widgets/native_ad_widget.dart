@@ -47,10 +47,12 @@ class NativeAdWidget extends StatefulWidget {
     this.width,
     this.loadingWidget,
     this.errorWidget,
+    this.onLoadAttemptStarted,
     this.onAdLoaded,
     this.onAdFailed,
     this.onAdClicked,
     this.onAdImpression,
+    this.onAdPaid,
     this.onCachedAdReady,
     this.autoLoad = true,
     this.visibilityThreshold = 0.5,
@@ -91,6 +93,9 @@ class NativeAdWidget extends StatefulWidget {
   /// If not provided, shows a default error message.
   final Widget Function(String error)? errorWidget;
 
+  /// Fires when a load or reload attempt starts (before the platform request).
+  final VoidCallback? onLoadAttemptStarted;
+
   /// Callback when the ad loads successfully.
   final VoidCallback? onAdLoaded;
 
@@ -102,6 +107,9 @@ class NativeAdWidget extends StatefulWidget {
 
   /// Callback when an ad impression is recorded.
   final VoidCallback? onAdImpression;
+
+  /// Callback when a paid event is recorded.
+  final void Function(double value, String currency)? onAdPaid;
 
   /// Callback when a cached ad is ready to be shown.
   ///
@@ -157,10 +165,12 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
       _controller = NativeAdController(
         options: widget.options,
         events: NativeAdEvents(
+          onLoadAttemptStarted: widget.onLoadAttemptStarted,
           onAdLoaded: _handleAdLoaded,
           onAdFailed: _handleAdFailed,
           onAdClicked: widget.onAdClicked,
           onAdImpression: widget.onAdImpression,
+          onAdPaid: widget.onAdPaid,
           onCachedAdReady: _handleCachedAdReady,
         ),
       );
@@ -196,10 +206,12 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
     // Update events if using external controller
     if (!_ownsController) {
       _controller.updateEvents(NativeAdEvents(
+        onLoadAttemptStarted: widget.onLoadAttemptStarted,
         onAdLoaded: _handleAdLoaded,
         onAdFailed: _handleAdFailed,
         onAdClicked: widget.onAdClicked,
         onAdImpression: widget.onAdImpression,
+        onAdPaid: widget.onAdPaid,
         onCachedAdReady: _handleCachedAdReady,
       ));
     }

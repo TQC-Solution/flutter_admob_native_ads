@@ -191,6 +191,10 @@ class NativeAdController extends Object with AdControllerMixin<NativeAdState> {
   void Function() get onAdLoadedCallback => () => events.onAdLoaded?.call();
 
   @override
+  void Function() get onLoadAttemptStartedCallback =>
+      () => events.onLoadAttemptStarted?.call();
+
+  @override
   void Function(String error, int code) get onAdFailedCallback =>
       (error, code) => events.onAdFailed?.call(error, code);
 
@@ -206,6 +210,11 @@ class NativeAdController extends Object with AdControllerMixin<NativeAdState> {
 
   @override
   void Function() get onAdClosedCallback => () => events.onAdClosed?.call();
+
+  @override
+  void handleAdPaid(double value, String currency) {
+    events.onAdPaid?.call(value, currency);
+  }
 
   @override
   bool checkCachedAd() {

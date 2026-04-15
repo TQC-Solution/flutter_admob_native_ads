@@ -51,6 +51,9 @@ mixin AdControllerMixin<TState> {
   /// Event callback for ad loaded.
   void Function() get onAdLoadedCallback;
 
+  /// Fires when a load or reload attempt begins (before platform load call).
+  void Function() get onLoadAttemptStartedCallback;
+
   /// Event callback for ad failed.
   void Function(String error, int code) get onAdFailedCallback;
 
@@ -254,6 +257,7 @@ mixin AdControllerMixin<TState> {
     // Notify schedulers of state change
     preloadScheduler?.updateAdState(stateIndex);
 
+    onLoadAttemptStartedCallback();
     try {
       await channel.invokeMethod(reloadMethodName, {
         'controllerId': id,
@@ -441,6 +445,7 @@ mixin AdControllerMixin<TState> {
     // Notify scheduler of state change
     preloadScheduler?.updateAdState(stateIndex);
 
+    onLoadAttemptStartedCallback();
     try {
       await channel.invokeMethod(loadMethodName, {
         'controllerId': id,

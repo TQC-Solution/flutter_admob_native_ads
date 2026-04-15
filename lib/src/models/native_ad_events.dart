@@ -1,3 +1,6 @@
+/// Fires when a load or reload **attempt** starts (before network request).
+typedef OnNativeAdLoadAttemptStartedCallback = void Function();
+
 /// Callback invoked when an ad has been successfully loaded.
 typedef OnAdLoadedCallback = void Function();
 
@@ -12,6 +15,12 @@ typedef OnAdClickedCallback = void Function();
 
 /// Callback invoked when an ad impression is recorded.
 typedef OnAdImpressionCallback = void Function();
+
+/// Callback invoked when a paid event is recorded.
+///
+/// [value] is the ad value in the specified currency.
+/// [currencyCode] is the ISO 4217 currency code (e.g., "USD").
+typedef OnAdPaidCallback = void Function(double value, String currencyCode);
 
 /// Callback invoked when the ad opens an overlay (e.g., full-screen view).
 typedef OnAdOpenedCallback = void Function();
@@ -40,14 +49,19 @@ typedef OnCachedAdReadyCallback = void Function();
 class NativeAdEvents {
   /// Creates a [NativeAdEvents] instance with optional callbacks.
   const NativeAdEvents({
+    this.onLoadAttemptStarted,
     this.onAdLoaded,
     this.onAdFailed,
     this.onAdClicked,
     this.onAdImpression,
+    this.onAdPaid,
     this.onAdOpened,
     this.onAdClosed,
     this.onCachedAdReady,
   });
+
+  /// Fires when [NativeAdController.loadAd] / reload begins a network attempt.
+  final OnNativeAdLoadAttemptStartedCallback? onLoadAttemptStarted;
 
   /// Callback when ad loads successfully.
   final OnAdLoadedCallback? onAdLoaded;
@@ -60,6 +74,9 @@ class NativeAdEvents {
 
   /// Callback when ad impression is recorded.
   final OnAdImpressionCallback? onAdImpression;
+
+  /// Callback when a paid event is recorded.
+  final OnAdPaidCallback? onAdPaid;
 
   /// Callback when ad opens overlay.
   final OnAdOpenedCallback? onAdOpened;
@@ -75,19 +92,23 @@ class NativeAdEvents {
 
   /// Creates a copy with updated callbacks.
   NativeAdEvents copyWith({
+    OnNativeAdLoadAttemptStartedCallback? onLoadAttemptStarted,
     OnAdLoadedCallback? onAdLoaded,
     OnAdFailedCallback? onAdFailed,
     OnAdClickedCallback? onAdClicked,
     OnAdImpressionCallback? onAdImpression,
+    OnAdPaidCallback? onAdPaid,
     OnAdOpenedCallback? onAdOpened,
     OnAdClosedCallback? onAdClosed,
     OnCachedAdReadyCallback? onCachedAdReady,
   }) {
     return NativeAdEvents(
+      onLoadAttemptStarted: onLoadAttemptStarted ?? this.onLoadAttemptStarted,
       onAdLoaded: onAdLoaded ?? this.onAdLoaded,
       onAdFailed: onAdFailed ?? this.onAdFailed,
       onAdClicked: onAdClicked ?? this.onAdClicked,
       onAdImpression: onAdImpression ?? this.onAdImpression,
+      onAdPaid: onAdPaid ?? this.onAdPaid,
       onAdOpened: onAdOpened ?? this.onAdOpened,
       onAdClosed: onAdClosed ?? this.onAdClosed,
       onCachedAdReady: onCachedAdReady ?? this.onCachedAdReady,

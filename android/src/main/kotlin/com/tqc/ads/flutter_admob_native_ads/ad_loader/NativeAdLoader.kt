@@ -6,6 +6,7 @@ import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.OnPaidEventListener
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdOptions
 import io.flutter.plugin.common.BinaryMessenger
@@ -99,6 +100,15 @@ class NativeAdLoader(
             .forNativeAd { ad ->
                 // Destroy old ad if exists
                 loadedAd?.ad?.destroy()
+
+                ad.setOnPaidEventListener(OnPaidEventListener { adValue ->
+                    val valueInCurrency = adValue.valueMicros / 1_000_000.0
+                    sendEvent("onAdPaid", mapOf(
+                        "controllerId" to controllerId,
+                        "value" to valueInCurrency,
+                        "currencyCode" to adValue.currencyCode
+                    ))
+                })
 
                 // Store new ad with timestamp
                 loadedAd = LoadedAd(

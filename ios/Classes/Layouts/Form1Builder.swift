@@ -5,8 +5,8 @@ import GoogleMobileAds
 /// Layout: [Icon] [Ad] Title / Body [CTA Button]
 enum Form1Builder {
     
-    static func build(styleManager: AdStyleManager) -> GADNativeAdView {
-        let nativeAdView = GADNativeAdView()
+    static func build(styleManager: AdStyleManager) -> NativeAdView {
+        let nativeAdView = NativeAdView()
         nativeAdView.translatesAutoresizingMaskIntoConstraints = false
         
         // Main horizontal container
@@ -91,12 +91,9 @@ enum Form1Builder {
         
         nativeAdView.addSubview(mainStack)
         
-        let contentPadding: CGFloat = 8
         NSLayoutConstraint.activate([
-            // mainStack.topAnchor.constraint(equalTo: nativeAdView.topAnchor, constant: contentPadding),
             mainStack.leadingAnchor.constraint(equalTo: nativeAdView.leadingAnchor),
             mainStack.trailingAnchor.constraint(equalTo: nativeAdView.trailingAnchor),
-            // mainStack.bottomAnchor.constraint(equalTo: nativeAdView.bottomAnchor, constant: -contentPadding)
         ])
         
         nativeAdView.iconView = iconView
