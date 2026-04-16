@@ -247,7 +247,8 @@ class NativeAdController extends Object with AdControllerMixin<NativeAdState> {
   bool get isLoading => state == NativeAdState.loading;
 
   /// Whether the ad has been loaded successfully.
-  bool get isLoaded => state == NativeAdState.loaded;
+  bool get isLoaded =>
+      state == NativeAdState.loaded || state == NativeAdState.shown;
 
   /// Whether the ad failed to load.
   bool get hasError => state == NativeAdState.error;

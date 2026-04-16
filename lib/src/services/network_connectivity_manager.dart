@@ -64,7 +64,7 @@ class NetworkConnectivityManager {
             '[NetworkConnectivityManager] Connectivity check error: $error',
           );
           // Assume connected on error to avoid blocking ad loads
-          if (!_isConnected) {
+          if (!_isConnected && !_connectivityController.isClosed) {
             _isConnected = true;
             _connectivityController.add(true);
           }
@@ -80,6 +80,7 @@ class NetworkConnectivityManager {
   }
 
   void _updateConnectionStatus(List<ConnectivityResult> results) {
+    if (_connectivityController.isClosed) return;
     final wasConnected = _isConnected;
 
     // Consider connected if any connection type is available (WiFi or mobile)

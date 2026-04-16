@@ -35,12 +35,14 @@ import 'shimmer_ad_placeholder.dart';
 class NativeAdWidget extends StatefulWidget {
   /// Creates a [NativeAdWidget].
   ///
-  /// [options] is required and contains the ad configuration.
+  /// Either [options] or [controller] must be provided.
+  /// When [controller] is provided, [options] can be omitted — the widget
+  /// will use [controller.options] automatically.
   /// [height] is optional; if not provided, uses the recommended height
   /// for the layout type.
   const NativeAdWidget({
     super.key,
-    required this.options,
+    this.options,
     this.controller,
     this.preloadedController,
     this.height,
@@ -56,10 +58,16 @@ class NativeAdWidget extends StatefulWidget {
     this.onCachedAdReady,
     this.autoLoad = true,
     this.visibilityThreshold = 0.5,
-  });
+  }) : assert(
+          options != null || controller != null,
+          'Either options or controller must be provided.',
+        );
 
   /// Configuration options for the ad.
-  final NativeAdOptions options;
+  ///
+  /// Optional when [controller] is provided — the widget will fall back to
+  /// [controller.options]. Required when no controller is given.
+  final NativeAdOptions? options;
 
   /// Optional external controller for managing the ad.
   ///
@@ -139,6 +147,11 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
   bool _hasError = false;
   String _errorMessage = '';
   bool _isVisible = false;
+  StreamSubscription<NativeAdState>? _stateSubscription;
+
+  /// Effective options: widget.options if provided, otherwise controller.options.
+  NativeAdOptions get _effectiveOptions =>
+      widget.options ?? _controller.options;
 
   /// Timer for 1-second viewability duration check (audit fix #10).
   Timer? _viewabilityTimer;
@@ -163,7 +176,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
       _ownsController = false;
     } else {
       _controller = NativeAdController(
-        options: widget.options,
+        options: _effectiveOptions,
         events: NativeAdEvents(
           onLoadAttemptStarted: widget.onLoadAttemptStarted,
           onAdLoaded: _handleAdLoaded,
@@ -182,14 +195,18 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
       _controller.setPreloadedAdController(widget.preloadedController);
     }
 
-    // If controller is preloaded and loaded, skip loading state
-    if (_controller.isPreloaded && _controller.isLoaded) {
+    // Sync initial UI state from controller (handles preloaded and reused controllers)
+    if (_controller.isLoaded) {
       _isLoading = false;
       _hasError = false;
+    } else if (_controller.hasError) {
+      _isLoading = false;
+      _hasError = true;
+      _errorMessage = _controller.errorMessage ?? 'Unknown error';
     }
 
     // Listen to state changes
-    _controller.stateStream.listen((state) {
+    _stateSubscription = _controller.stateStream.listen((state) {
       if (!mounted) return;
 
       setState(() {
@@ -266,7 +283,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
             _isVisible = true;
             _controller.updateVisibility(true);
 
-            if (widget.options.enableDebugLogs) {
+            if (_effectiveOptions.enableDebugLogs) {
               final visibleDuration = DateTime.now().difference(_becameVisibleAt!);
               debugPrint('[NativeAdWidget] Ad confirmed visible for 1 second (actual: ${visibleDuration.inMilliseconds}ms)');
             }
@@ -298,15 +315,16 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
     }
 
     // If options changed, reload the ad
-    if (oldWidget.options != widget.options) {
+    if (oldWidget.options != widget.options ||
+        oldWidget.controller?.options != widget.controller?.options) {
       _controller.reload();
     }
   }
 
   @override
   void dispose() {
-    // Cancel viewability timer to prevent memory leaks
     _viewabilityTimer?.cancel();
+    _stateSubscription?.cancel();
 
     if (_ownsController) {
       _controller.dispose();
@@ -316,7 +334,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final height = widget.height ?? widget.options.layoutType.recommendedHeight;
+    final height = widget.height ?? _effectiveOptions.layoutType.recommendedHeight;
     final width = widget.width;
 
     // Wrap in VisibilityDetector for smart reload visibility tracking
@@ -350,7 +368,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
 
     // Use shimmer loading placeholder for smoother UX
     return ShimmerAdPlaceholder(
-      layoutType: widget.options.layoutType,
+      layoutType: _effectiveOptions.layoutType,
     );
   }
 
@@ -363,11 +381,11 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
   }
 
   Widget _buildPlatformView() {
-    final viewType = widget.options.layoutType.viewType;
+    final viewType = _effectiveOptions.layoutType.viewType;
     final creationParams = {
       'controllerId': _controller.id,
       'isPreloaded': _controller.isPreloaded,
-      ...widget.options.toMap(),
+      ..._effectiveOptions.toMap(),
     };
 
     if (Platform.isAndroid) {
