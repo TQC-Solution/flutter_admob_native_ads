@@ -92,8 +92,10 @@ enum Form1Builder {
         nativeAdView.addSubview(mainStack)
         
         NSLayoutConstraint.activate([
+            mainStack.topAnchor.constraint(equalTo: nativeAdView.topAnchor),
             mainStack.leadingAnchor.constraint(equalTo: nativeAdView.leadingAnchor),
             mainStack.trailingAnchor.constraint(equalTo: nativeAdView.trailingAnchor),
+            mainStack.bottomAnchor.constraint(equalTo: nativeAdView.bottomAnchor),
         ])
         
         nativeAdView.iconView = iconView

@@ -2,7 +2,7 @@ import UIKit
 
 /// Data structure containing all styling options for native ads.
 /// Parsed from Flutter parameters.
-struct AdStyleOptions {
+public struct AdStyleOptions {
 
     // MARK: - CTA Button
 
@@ -96,10 +96,10 @@ struct AdStyleOptions {
 
     // MARK: - Initialization
 
-    init() {}
+    public init() {}
 
     /// Creates AdStyleOptions from a Flutter map.
-    static func fromMap(_ map: [String: Any]?) -> AdStyleOptions {
+    public static func fromMap(_ map: [String: Any]?) -> AdStyleOptions {
         guard let map = map else { return AdStyleOptions() }
 
         let styleMap = (map["style"] as? [String: Any]) ?? map

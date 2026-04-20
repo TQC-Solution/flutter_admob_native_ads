@@ -5,9 +5,9 @@ import GoogleMobileAds
  * Factory for building native ad layouts.
  * Supports 12 different layout forms.
  */
-enum AdLayoutBuilder {
+public enum AdLayoutBuilder {
     
-    static func buildLayout(layoutType: Int, styleOptions: AdStyleOptions) -> NativeAdView {
+    public static func buildLayout(layoutType: Int, styleOptions: AdStyleOptions) -> NativeAdView {
         let styleManager = AdStyleManager(options: styleOptions)
         
         switch layoutType {
@@ -40,7 +40,7 @@ enum AdLayoutBuilder {
         }
     }
     
-    static func getLayoutType(from name: String?) -> Int {
+    public static func getLayoutType(from name: String?) -> Int {
         guard let name = name?.lowercased() else { return 1 }
         
         switch name {
