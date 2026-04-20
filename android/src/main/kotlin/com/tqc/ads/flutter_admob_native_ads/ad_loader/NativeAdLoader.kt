@@ -1,6 +1,8 @@
 package com.tqc.ads.flutter_admob_native_ads.ad_loader
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
@@ -82,6 +84,7 @@ class NativeAdLoader(
     private var adLoader: AdLoader? = null
     private var loadedAd: LoadedAd? = null
     private var onAdLoadedCallback: ((NativeAd) -> Unit)? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     private val channel: MethodChannel = MethodChannel(messenger, CHANNEL_NAME)
 
@@ -100,9 +103,14 @@ class NativeAdLoader(
             .forNativeAd { ad ->
                 // Destroy old ad if exists
                 loadedAd?.ad?.destroy()
+                log("Native ad loaded from SDK for adUnitId=$adUnitId")
 
                 ad.setOnPaidEventListener(OnPaidEventListener { adValue ->
                     val valueInCurrency = adValue.valueMicros / 1_000_000.0
+                    log(
+                        "onAdPaid from SDK: valueMicros=${adValue.valueMicros} " +
+                            "value=$valueInCurrency currency=${adValue.currencyCode}"
+                    )
                     sendEvent("onAdPaid", mapOf(
                         "controllerId" to controllerId,
                         "value" to valueInCurrency,
@@ -134,6 +142,7 @@ class NativeAdLoader(
                 }
 
                 override fun onAdImpression() {
+                    log("onAdImpression from SDK")
                     sendEvent("onAdImpression", mapOf("controllerId" to controllerId))
                 }
 
@@ -225,10 +234,17 @@ class NativeAdLoader(
      * Sends an event to Flutter via method channel.
      */
     private fun sendEvent(method: String, arguments: Map<String, Any?>) {
-        try {
-            channel.invokeMethod(method, arguments)
-        } catch (e: Exception) {
-            log("Error sending event $method: ${e.message}")
+        val emit = {
+            try {
+                channel.invokeMethod(method, arguments)
+            } catch (e: Exception) {
+                log("Error sending event $method: ${e.message}")
+            }
+        }
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            emit()
+        } else {
+            mainHandler.post { emit() }
         }
     }
 

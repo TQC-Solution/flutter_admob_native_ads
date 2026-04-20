@@ -1,6 +1,8 @@
 package com.tqc.ads.flutter_admob_native_ads.banner
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
@@ -27,6 +29,7 @@ class BannerAdLoader(
 
     private var adView: AdView? = null
     private var onAdLoadedCallback: ((AdView) -> Unit)? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     /**
      * Sets the callback for when an ad is loaded.
@@ -105,10 +108,17 @@ class BannerAdLoader(
      * Sends an event to Flutter via method channel.
      */
     private fun sendEvent(method: String, arguments: Map<String, Any?>) {
-        try {
-            channel.invokeMethod(method, arguments)
-        } catch (e: Exception) {
-            log("Error sending event $method: ${e.message}")
+        val emit = {
+            try {
+                channel.invokeMethod(method, arguments)
+            } catch (e: Exception) {
+                log("Error sending event $method: ${e.message}")
+            }
+        }
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            emit()
+        } else {
+            mainHandler.post { emit() }
         }
     }
 
