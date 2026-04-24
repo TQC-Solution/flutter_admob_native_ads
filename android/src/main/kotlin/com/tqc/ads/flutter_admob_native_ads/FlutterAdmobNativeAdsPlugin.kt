@@ -368,6 +368,9 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
         // Destroy existing loader
         getAdLoader(controllerId)?.destroy()
 
+        // Clear stale callbacks to prevent old ad load from firing after new load starts
+        clearNativeAdCallbacks(controllerId)
+
         @Suppress("UNCHECKED_CAST")
         val testDeviceIds = call.argument<List<String>>("testDeviceIds")
 
@@ -402,6 +405,7 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
 
         getAdLoader(controllerId)?.destroy()
         removeAdLoader(controllerId)
+        clearNativeAdCallbacks(controllerId)
 
         result.success(null)
     }
@@ -454,6 +458,9 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
 
         getBannerAdLoaders()[controllerId]?.destroy()
 
+        // Clear stale cached banner view so platform views don't render an old ad
+        loadedBannerAds.remove(controllerId)
+
         val adSize = BannerAdSizeExtensions.getAdSize(sizeIndex, context, customHeight)
 
         val loader = BannerAdLoader(
@@ -487,6 +494,7 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
         getBannerAdLoaders()[controllerId]?.destroy()
         removeBannerAdLoader(controllerId)
         clearBannerAdCallback(controllerId)
+        loadedBannerAds.remove(controllerId)
 
         result.success(null)
     }

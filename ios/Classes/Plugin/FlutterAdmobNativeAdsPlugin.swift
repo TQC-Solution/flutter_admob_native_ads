@@ -312,8 +312,9 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
 
         print("[FlutterAdmobNativeAds] Reloading ad for controller: \(controllerId)")
 
-        // Destroy existing loader
+        // Destroy existing loader and clear stale callbacks
         adLoaders[controllerId]?.destroy()
+        adLoadedCallbacks.removeValue(forKey: controllerId)
 
         guard let channel = channel else {
             result(FlutterError(
@@ -355,6 +356,7 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
 
         adLoaders[controllerId]?.destroy()
         adLoaders.removeValue(forKey: controllerId)
+        adLoadedCallbacks.removeValue(forKey: controllerId)
 
         result(nil)
     }
@@ -443,6 +445,7 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
 
         // Destroy existing loader
         bannerAdLoaders[controllerId]?.destroy()
+        loadedBannerAds.removeValue(forKey: controllerId)
 
         guard let bannerChannel = bannerChannel else {
             result(FlutterError(

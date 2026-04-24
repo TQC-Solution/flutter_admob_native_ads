@@ -225,6 +225,8 @@ class NativeAdController extends Object with AdControllerMixin<NativeAdState> {
 
   @override
   Future<void> showCachedAd() async {
+    // Consume the cached ad (get-and-remove pattern)
+    _preloadedAdController = null;
     events.onCachedAdReady?.call();
   }
 
