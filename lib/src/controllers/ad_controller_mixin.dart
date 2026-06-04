@@ -181,7 +181,8 @@ mixin AdControllerMixin<TState> {
 
     // Subscribe to pause rendering events if we created a new lifecycle manager
     if (isNewLifecycleManager) {
-      _pauseRenderingSubscription = lifecycleManager!.pauseRenderingStream.listen(
+      _pauseRenderingSubscription =
+          lifecycleManager!.pauseRenderingStream.listen(
         (shouldPause) {
           _handlePauseRendering(shouldPause);
         },
@@ -513,7 +514,8 @@ mixin AdControllerMixin<TState> {
     final methodName = shouldPause ? 'pauseAdRendering' : 'resumeAdRendering';
 
     if (enableDebugLogs) {
-      debugPrint('[$controllerType] $methodName (app lifecycle: ${shouldPause ? "background" : "foreground"})');
+      debugPrint(
+          '[$controllerType] $methodName (app lifecycle: ${shouldPause ? "background" : "foreground"})');
     }
 
     channel.invokeMethod(methodName, {'controllerId': id}).catchError((e) {

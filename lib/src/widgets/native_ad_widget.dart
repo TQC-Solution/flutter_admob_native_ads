@@ -155,8 +155,10 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
 
   /// Timer for 1-second viewability duration check (audit fix #10).
   Timer? _viewabilityTimer;
+
   /// Timestamp when ad became visible for viewability check.
   DateTime? _becameVisibleAt;
+
   /// Last visible fraction value to detect transitions.
   double _lastVisibleFraction = 0.0;
 
@@ -284,13 +286,14 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
             _controller.updateVisibility(true);
 
             if (_effectiveOptions.enableDebugLogs) {
-              final visibleDuration = DateTime.now().difference(_becameVisibleAt!);
-              debugPrint('[NativeAdWidget] Ad confirmed visible for 1 second (actual: ${visibleDuration.inMilliseconds}ms)');
+              final visibleDuration =
+                  DateTime.now().difference(_becameVisibleAt!);
+              debugPrint(
+                  '[NativeAdWidget] Ad confirmed visible for 1 second (actual: ${visibleDuration.inMilliseconds}ms)');
             }
           }
         }
       });
-
     } else if (!isNowVisible) {
       // Ad no longer visible - cancel timer and update controller
       _viewabilityTimer?.cancel();
@@ -334,7 +337,8 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final height = widget.height ?? _effectiveOptions.layoutType.recommendedHeight;
+    final height =
+        widget.height ?? _effectiveOptions.layoutType.recommendedHeight;
     final width = widget.width;
 
     // Wrap in VisibilityDetector for smart reload visibility tracking

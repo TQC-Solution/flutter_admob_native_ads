@@ -1,0 +1,55 @@
+name: Publish to pub.dev
+
+# Triggered when a version tag is pushed, e.g. `git tag v1.1.0 && git push origin v1.1.0`.
+# Uses pub.dev automated publishing (OIDC) — no secrets required.
+# One-time setup on pub.dev: Package > Admin > Automated publishing >
+# enable "Publishing from GitHub Actions" with:
+#   repository: TQC-Solution/flutter_admob_native_ads
+#   tag pattern: v{{version}}
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Required for OIDC authentication with pub.dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Exchanges the GitHub OIDC token for a temporary pub.dev token.
+      # The credential is stored in the shared pub config, so `flutter pub` picks it up too.
+      - name: Setup Dart (pub.dev OIDC token)
+        uses: dart-lang/setup-dart@v1
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Verify tag matches pubspec version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PUBSPEC_VERSION="$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d'+' -f1)"
+          if [ "$TAG_VERSION" != "$PUBSPEC_VERSION" ]; then
+            echo "::error::Tag v$TAG_VERSION does not match pubspec.yaml version $PUBSPEC_VERSION"
+            exit 1
+          fi
+          echo "Tag matches pubspec version: $PUBSPEC_VERSION"
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Publish
+        run: flutter pub publish --force

@@ -129,8 +129,10 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
 
   /// Timer for 1-second viewability duration check (audit fix #10).
   Timer? _viewabilityTimer;
+
   /// Timestamp when ad became visible for viewability check.
   DateTime? _becameVisibleAt;
+
   /// Last visible fraction value to detect transitions.
   double _lastVisibleFraction = 0.0;
 
@@ -239,13 +241,14 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
             _controller.updateVisibility(true);
 
             if (widget.options.enableDebugLogs) {
-              final visibleDuration = DateTime.now().difference(_becameVisibleAt!);
-              debugPrint('[BannerAdWidget] Ad confirmed visible for 1 second (actual: ${visibleDuration.inMilliseconds}ms)');
+              final visibleDuration =
+                  DateTime.now().difference(_becameVisibleAt!);
+              debugPrint(
+                  '[BannerAdWidget] Ad confirmed visible for 1 second (actual: ${visibleDuration.inMilliseconds}ms)');
             }
           }
         }
       });
-
     } else if (!isNowVisible) {
       // Ad no longer visible - cancel timer and update controller
       _viewabilityTimer?.cancel();
@@ -372,4 +375,3 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
     );
   }
 }
-

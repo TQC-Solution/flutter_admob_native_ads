@@ -26,7 +26,8 @@ typedef OnBannerAdClosedCallback = void Function();
 ///
 /// [value] is the ad value in the specified currency.
 /// [currencyCode] is the ISO 4217 currency code (e.g., "USD").
-typedef OnBannerAdPaidCallback = void Function(double value, String currencyCode);
+typedef OnBannerAdPaidCallback = void Function(
+    double value, String currencyCode);
 
 /// Container for banner ad event callbacks.
 ///
