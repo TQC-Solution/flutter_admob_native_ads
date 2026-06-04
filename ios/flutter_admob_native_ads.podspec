@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'flutter_admob_native_ads'
-  s.version          = '1.0.0'
+  s.version          = '1.1.0'
   s.summary          = 'Flutter plugin for displaying AdMob Native Ads with customizable layouts.'
   s.description      = <<-DESC
 A Flutter plugin for displaying AdMob Native Ads with customizable layouts
