@@ -4,8 +4,8 @@ PODS:
   - Flutter (1.0.0)
   - flutter_admob_native_ads (1.0.0):
     - Flutter
-    - Google-Mobile-Ads-SDK (~> 11.0)
-  - Google-Mobile-Ads-SDK (11.13.0):
+    - Google-Mobile-Ads-SDK (~> 13.4.0)
+  - Google-Mobile-Ads-SDK (13.4.0):
     - GoogleUserMessagingPlatform (>= 1.1)
   - GoogleUserMessagingPlatform (3.1.0)
   - integration_test (0.0.1):
@@ -37,8 +37,8 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  flutter_admob_native_ads: 7dea1660b7441fc63b42445b0b26d80a7dd8d67c
-  Google-Mobile-Ads-SDK: 14f57f2dc33532a24db288897e26494640810407
+  flutter_admob_native_ads: 55d371324dc280662dfb3fd775103efca90fc5bd
+  Google-Mobile-Ads-SDK: 5aa7af5189af2c75d1c32868062cf3692f1376f9
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
 
