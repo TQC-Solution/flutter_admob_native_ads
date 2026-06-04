@@ -90,6 +90,8 @@ android {
 
 **Initialize SDK** in `ios/Runner/AppDelegate.swift`:
 
+> **Note:** Google Mobile Ads SDK 12.0+ renamed `GADMobileAds.sharedInstance()` to `MobileAds.shared`. If you are using an older SDK version (< 12.0), use `GADMobileAds.sharedInstance().start(completionHandler: nil)` instead.
+
 ```swift
 import GoogleMobileAds
 import UIKit
@@ -100,7 +102,7 @@ class AppDelegate: FlutterAppDelegate {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    GADMobileAds.sharedInstance().start(completionHandler: nil)
+    MobileAds.shared.start(completionHandler: nil)
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
@@ -111,7 +113,7 @@ class AppDelegate: FlutterAppDelegate {
 
 ```ruby
 platform :ios, '13.0'
-pod 'Google-Mobile-Ads-SDK', '~> 11.0'
+pod 'Google-Mobile-Ads-SDK', '~> 13.4'
 ```
 
 Run `cd ios && pod install`
@@ -752,9 +754,9 @@ Common issues:
 
 - **Flutter SDK:** >=3.3.0
 - **Dart SDK:** >=3.0.0 <4.0.0
-- **Android:** minSdk 21, compileSdk 34, targetSdk 34
+- **Android:** minSdk 23, compileSdk 34, targetSdk 34
 - **iOS:** deployment target 13.0+
-- **Google Mobile Ads SDK:** Android 23.0.0, iOS 11.0
+- **Google Mobile Ads SDK:** Android 25.3.0, iOS 13.4.0
 
 ## API Reference
 
