@@ -15,9 +15,9 @@ full media layout types with comprehensive styling options.
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'TQC' => 'dev@tqc.com' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source_files = 'flutter_admob_native_ads/Sources/flutter_admob_native_ads/**/*.swift'
   s.dependency 'Flutter'
-  s.dependency 'Google-Mobile-Ads-SDK', '~> 12.14.0'
+  s.dependency 'Google-Mobile-Ads-SDK', '~> 13.4.0'
   s.platform = :ios, '13.0'
 
   # Flutter.framework does not contain a i386 slice.
@@ -25,5 +25,5 @@ full media layout types with comprehensive styling options.
   s.swift_version = '5.0'
 
   # Privacy manifest
-  s.resource_bundles = {'flutter_admob_native_ads_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
+  s.resource_bundles = {'flutter_admob_native_ads_privacy' => ['flutter_admob_native_ads/Sources/flutter_admob_native_ads/Resources/PrivacyInfo.xcprivacy']}
 end

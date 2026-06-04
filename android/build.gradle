@@ -2,14 +2,14 @@ group = "com.tqc.ads.flutter_admob_native_ads"
 version = "1.0-SNAPSHOT"
 
 buildscript {
-    ext.kotlin_version = "1.9.22"
+    ext.kotlin_version = "2.2.20"
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:8.1.0")
+        classpath("com.android.tools.build:gradle:8.7.3")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
     }
 }
@@ -44,19 +44,20 @@ android {
     }
 
     defaultConfig {
-        minSdk = 21
+        // play-services-ads 24.0.0+ requires a minimum Android API level of 23.
+        minSdk = 23
     }
 
     dependencies {
         // Google Mobile Ads SDK
-        implementation("com.google.android.gms:play-services-ads:23.0.0")
+        implementation("com.google.android.gms:play-services-ads:25.3.0")
 
         // Kotlin coroutines for async operations
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
 
         // Testing
         testImplementation("org.jetbrains.kotlin:kotlin-test")
-        testImplementation("org.mockito:mockito-core:5.0.0")
+        testImplementation("org.mockito:mockito-core:5.14.2")
     }
 
     testOptions {
