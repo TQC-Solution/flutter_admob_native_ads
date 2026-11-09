@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- Allow shimmer 4.x alongside 3.x so current dependencies can resolve without forcing older Flutter apps to upgrade.
 - Form6 keeps its headline readable at the recommended height and follows dark/custom surfaces; form10 loading skeleton no longer overflows.
 - Aligned native ad forms 2, 3, 4, 5, 7, 11 and 12 with the reference templates on Android and iOS, including their recommended heights.
 - Native ad text colors now honor `NativeAdStyle` across all Android and iOS layouts, including form1 and form8 (#21).
