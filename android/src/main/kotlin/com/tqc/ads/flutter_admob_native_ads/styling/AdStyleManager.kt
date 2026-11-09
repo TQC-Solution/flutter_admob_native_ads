@@ -18,7 +18,7 @@ import com.tqc.ads.flutter_admob_native_ads.utils.DimensionUtils
  */
 class AdStyleManager(
     private val context: Context,
-    private val options: AdStyleOptions
+    internal val options: AdStyleOptions
 ) {
     // Cache for reusable drawables to avoid repeated allocations
     private var cachedContainerDrawable: GradientDrawable? = null

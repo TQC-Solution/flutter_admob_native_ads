@@ -169,60 +169,40 @@ class ShimmerAdPlaceholder extends StatelessWidget {
 
   // Text-only shimmer (form10)
   Widget _buildTextOnlyShimmer() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Row(
-          children: [
+    // Match form10's title, badge, description and full-width CTA. Scale the
+    // skeleton down for custom widget heights instead of overflowing the card.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final scale = (constraints.maxHeight / 96).clamp(0.0, 1.0);
+        Widget bar(double height, {double width = double.infinity}) =>
             Container(
-              width: 32,
-              height: 32,
+              height: height * scale,
+              width: width,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(height / 2),
               ),
+            );
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            bar(14),
+            bar(10, width: 20),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                bar(10),
+                SizedBox(height: 4 * scale),
+                bar(10, width: 200),
+              ],
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Container(
-                height: 14,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ),
+            bar(32),
           ],
-        ),
-        const SizedBox(height: 12),
-        Container(
-          height: 12,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Container(
-          height: 12,
-          width: 200,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          width: 100,
-          height: 32,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 
