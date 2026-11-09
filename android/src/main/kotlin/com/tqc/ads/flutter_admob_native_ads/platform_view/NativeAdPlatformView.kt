@@ -47,6 +47,8 @@ class NativeAdPlatformView(
     private var isLayoutBuilt = false
     private val controllerId: String?
 
+    private val adLoadedCallback: (NativeAd) -> Unit = { ad -> onAdLoaded(ad) }
+
     init {
         styleOptions = AdStyleOptions.fromMap(creationParams)
         enableDebugLogs = creationParams["enableDebugLogs"] as? Boolean ?: false
@@ -77,9 +79,7 @@ class NativeAdPlatformView(
         val plugin = FlutterAdmobNativeAdsPlugin.getInstance()
 
         // Register callback FIRST to avoid missing ads that load between check and register
-        plugin?.registerAdLoadedCallback(controllerId) { nativeAd ->
-            onAdLoaded(nativeAd)
-        }
+        plugin?.registerAdLoadedCallback(controllerId, adLoadedCallback)
 
         // THEN check if ad is already loaded (from cache/previous load)
         val existingAd = plugin?.getPreloadedAd(controllerId)
@@ -198,12 +198,12 @@ class NativeAdPlatformView(
 
         // Unregister from pause/resume tracking
         controllerId?.let { id: String ->
-            FlutterAdmobNativeAdsPlugin.unregisterActiveNativeAdView(id)
+            FlutterAdmobNativeAdsPlugin.unregisterActiveNativeAdView(id, nativeAdView)
         }
 
         // Unregister callback from plugin
         controllerId?.let { id: String ->
-            FlutterAdmobNativeAdsPlugin.getInstance()?.unregisterAdLoadedCallback(id)
+            FlutterAdmobNativeAdsPlugin.getInstance()?.unregisterAdLoadedCallback(id, adLoadedCallback)
         }
 
         nativeAdView = null

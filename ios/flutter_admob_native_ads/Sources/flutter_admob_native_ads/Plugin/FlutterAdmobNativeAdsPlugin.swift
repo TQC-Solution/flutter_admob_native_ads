@@ -41,8 +41,8 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
     private var adLoaders: [String: NativeAdLoader] = [:]
 
     /// Registry of ad loaded callbacks by controller ID (for platform views)
-    /// Changed to support multiple callbacks per controllerId (Array instead of single callback)
-    private var adLoadedCallbacks: [String: [(NativeAd) -> Void]] = [:]
+    /// Tokens let a replaced platform view remove only its own callback.
+    private var adLoadedCallbacks: [String: [UUID: (NativeAd) -> Void]] = [:]
 
     /// Registry of banner ad loaders by controller ID
     private var bannerAdLoaders: [String: BannerAdLoader] = [:]
@@ -70,11 +70,13 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
     ///
     /// Supports multiple callbacks for the same controllerId (e.g., multiple widgets
     /// sharing the same controller).
-    public func registerAdLoadedCallback(controllerId: String, callback: @escaping (NativeAd) -> Void) {
+    @discardableResult
+    public func registerAdLoadedCallback(controllerId: String, callback: @escaping (NativeAd) -> Void) -> UUID {
+        let token = UUID()
         if adLoadedCallbacks[controllerId] == nil {
-            adLoadedCallbacks[controllerId] = []
+            adLoadedCallbacks[controllerId] = [:]
         }
-        adLoadedCallbacks[controllerId]?.append(callback)
+        adLoadedCallbacks[controllerId]?[token] = callback
 
         let count = adLoadedCallbacks[controllerId]?.count ?? 0
         print("[FlutterAdmobNativeAds] Registered callback for controller: \(controllerId). Total callbacks: \(count)")
@@ -91,11 +93,16 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
                 callback(ad)
             }
         }
+        return token
     }
 
-    /// Unregisters the ad loaded callback for the given controller.
-    public func unregisterAdLoadedCallback(controllerId: String) {
-        adLoadedCallbacks.removeValue(forKey: controllerId)
+    /// Removes only the owning view's callback during platform view replacement.
+    public func unregisterAdLoadedCallback(controllerId: String, token: UUID? = nil) {
+        if let token = token {
+            adLoadedCallbacks[controllerId]?.removeValue(forKey: token)
+        } else {
+            adLoadedCallbacks.removeValue(forKey: controllerId)
+        }
     }
 
     /// Gets the preloaded banner ad view for the given controller ID.
@@ -134,8 +141,10 @@ public class FlutterAdmobNativeAdsPlugin: NSObject, FlutterPlugin {
     }
 
     /// Unregisters an active native ad view
-    public func unregisterActiveNativeAdView(controllerId: String) {
-        activeNativeAdViews.removeValue(forKey: controllerId)
+    public func unregisterActiveNativeAdView(controllerId: String, view: UIView? = nil) {
+        if view == nil || activeNativeAdViews[controllerId] === view {
+            activeNativeAdViews.removeValue(forKey: controllerId)
+        }
     }
 
     /// Registers an active banner ad view for pause/resume rendering
@@ -599,7 +608,7 @@ extension FlutterAdmobNativeAdsPlugin: NativeAdLoaderEventDelegate {
         // Notify ALL registered callbacks for this controller
         if let callbacks = adLoadedCallbacks[loader.controllerId] {
             DispatchQueue.main.async {
-                for callback in callbacks {
+                for callback in callbacks.values {
                     callback(nativeAd)
                 }
             }

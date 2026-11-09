@@ -357,8 +357,23 @@ NativeAdWidget(
 
 ### Built-in Themes
 
+When `style` is omitted from `NativeAdOptions`, `NativeAdWidget` follows the
+nearest Flutter `Theme` and updates when the app switches between light and dark
+mode. This also works with external and preloaded controllers without requesting
+a new ad for a theme change.
+
+An explicit `style` takes precedence over the app theme. To customize colors per
+theme, select the style when building the widget:
+
 ```dart
-// Light theme (default)
+final isDark = Theme.of(context).brightness == Brightness.dark;
+final style = (isDark ? NativeAdStyle.dark() : NativeAdStyle.light()).copyWith(
+  headlineTextColor: Theme.of(context).colorScheme.onSurface,
+);
+```
+
+```dart
+// Explicit light theme
 NativeAdStyle.light()
 
 // Dark theme

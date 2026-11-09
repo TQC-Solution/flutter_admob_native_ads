@@ -1,6 +1,7 @@
 package com.tqc.ads.flutter_admob_native_ads.layouts
 
 import android.content.Context
+import android.widget.TextView
 import com.google.android.gms.ads.nativead.NativeAdView
 import com.tqc.ads.flutter_admob_native_ads.styling.AdStyleManager
 import com.tqc.ads.flutter_admob_native_ads.styling.AdStyleOptions
@@ -39,7 +40,7 @@ object AdLayoutBuilder {
     ): NativeAdView {
         val styleManager = AdStyleManager(context, styleOptions)
         
-        return when (layoutType) {
+        val adView = when (layoutType) {
             LAYOUT_FORM_1 -> Form1Builder.build(context, styleManager)
             LAYOUT_FORM_2 -> Form2Builder.build(context, styleManager)
             LAYOUT_FORM_3 -> Form3Builder.build(context, styleManager)
@@ -54,6 +55,14 @@ object AdLayoutBuilder {
             LAYOUT_FORM_12 -> Form12Builder.build(context, styleManager)
             else -> Form1Builder.build(context, styleManager) // Default to Form1
         }
+        // Apply colors after the form builders, which may set layout-specific
+        // defaults. Explicit Flutter colors must take precedence for every form.
+        (adView.headlineView as? TextView)?.setTextColor(styleOptions.headlineTextColor)
+        (adView.bodyView as? TextView)?.setTextColor(styleOptions.bodyTextColor)
+        (adView.priceView as? TextView)?.setTextColor(styleOptions.priceTextColor)
+        (adView.storeView as? TextView)?.setTextColor(styleOptions.storeTextColor)
+        (adView.advertiserView as? TextView)?.setTextColor(styleOptions.advertiserTextColor)
+        return adView
     }
 
     /**
