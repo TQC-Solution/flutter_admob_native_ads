@@ -1,66 +1,58 @@
 # Releasing to pub.dev
 
-Release Please prepares a release PR after releasable commits reach `main`.
-It updates `pubspec.yaml`, the iOS podspec, `CHANGELOG.md`, and the release
-manifest. Review the PR and merge it after CI passes. The next Release Please
-run creates a GitHub release and a tag such as `v1.1.1`. That tag starts
-`publish.yml`, which checks the version, runs analysis, tests, and a publish
-dry-run, then publishes to pub.dev using OIDC.
+Each release starts in a pull request. Before opening a new PR, increase the
+version in `pubspec.yaml`, set the same version in the iOS podspec, and add a
+dated section to `CHANGELOG.md`. Use a patch version for fixes, minor for
+compatible features, and major for breaking changes. Updates to the same PR
+keep its version unless upstream has already used that version.
 
-Release PRs are merged manually. Ordinary pushes, PR builds, and workflow
-reruns do not independently increment the package version.
+After merge to upstream `main`, CI runs formatting, release automation tests,
+Flutter analysis, Flutter tests, and a publish dry-run. Only after those checks
+pass does its release job create `v<version>` at the tested commit and dispatch
+`publish.yml` on that tag. Publishing repeats analysis, tests, and the dry-run
+before uploading with pub.dev OIDC.
 
-## One-time setup
+This uses the built-in `GITHUB_TOKEN` with Contents and Actions write permissions
+in the release job. No personal access token or `RELEASE_PLEASE_TOKEN` is needed.
+Fork CI and pull request builds cannot start the release job.
 
-1. Create a fine-grained GitHub personal access token with access to
-   `TQC-Solution/flutter_admob_native_ads` and read/write repository permissions
-   for **Contents**, **Pull requests**, and **Issues** (release labels).
-   The token owner must have permission to write to this repository. Complete
-   organization approval or SSO authorization if your organization requires it.
-2. In the repository's **Settings > Secrets and variables > Actions**, add a
-   repository secret named `RELEASE_PLEASE_TOKEN` containing that token. Renew
-   the secret when the token expires. Do not use the built-in `GITHUB_TOKEN`:
-   its PRs and tags do not start the downstream CI and publish workflows.
-3. On pub.dev, open the package's **Admin > Automated publishing** settings and
-   enable GitHub Actions publishing for:
-   - Repository: `TQC-Solution/flutter_admob_native_ads`
-   - Tag pattern: `v{{version}}`
-4. Merge these workflow/configuration files into `main`. If needed, run
-   **Actions > Release Please > Run workflow** on `main` to prepare the PR.
+## One-time pub.dev setup
 
-Publishing requires a tag push for pub.dev OIDC authentication; running the
-Release Please workflow manually only prepares a PR or tags an already merged
-release PR. It does not publish directly from a branch.
+On the package's **Admin > Automated publishing** page, configure:
 
-## Commit messages and version increments
+- GitHub repository: `TQC-Solution/flutter_admob_native_ads`
+- Tag pattern: `v{{version}}`
+- **Enable publishing from `workflow_dispatch` events**: enabled
+- Keep tag push publishing enabled if manual tag pushes should still work.
 
-Use Conventional Commits in the commits that land on `main`. When squash
-merging, use a Conventional Commit message for the resulting squash commit.
+The dispatch option is necessary because tags created with `GITHUB_TOKEN` do
+not trigger another workflow through a push event. CI explicitly dispatches the
+publish workflow using the tag as its ref. Dispatching on a branch does not
+publish. This option is supported by pub.dev's
+[automated publishing configuration](https://github.com/dart-lang/pub-dev/blob/master/app/test/package/automated_publishing_test.dart)
+and [maintainer explanation](https://github.com/dart-lang/pub-dev/issues/8507).
 
-| Commit | Version change from 1.1.0 |
-| --- | --- |
-| `fix: correct native ad colors` | 1.1.1 |
-| `feat: add another ad layout` | 1.2.0 |
-| `feat!: change the public ad API` | 2.0.0 |
-| `docs: update usage examples` or `ci: update workflows` | No release by itself |
+If repository or organization policies restrict Contents/Actions write access
+or tag creation, an administrator must allow the release job to create version
+tags and dispatch the publish workflow.
 
-Release Please chooses the largest required increment across the pending
-commits. A `BREAKING CHANGE:` footer also requests a major release.
+## Reruns and failed publishing
 
-The initial manifest starts at `1.1.0`. The bootstrap SHA is the existing
-`v1.1.0` commit, so the first release includes changes after that release.
-Existing manually written `[Unreleased]` notes should be reconciled with the
-generated release notes when reviewing the first release PR.
+CI skips a version already published on pub.dev or tagged at another commit.
+It never moves an existing tag. A rerun for the same tested commit can dispatch
+an existing tag again if that version has not yet reached pub.dev, for example
+if the first dispatch failed. Concurrent publishes for a tag are serialized.
 
-## Failed publishing
+For a failed upload, re-run the failed publish workflow or dispatch it on the
+existing tag:
 
-If publishing fails before upload, fix the cause and re-run the failed tag
-workflow when the tagged source is still valid. If code must change, release
-a new version through another release PR. A version already published to
-pub.dev cannot be overwritten; do not move an existing release tag.
+```sh
+gh workflow run publish.yml --repo TQC-Solution/flutter_admob_native_ads --ref v1.1.1
+```
+
+If source changes are needed, use a new version in another PR. Published
+versions cannot be overwritten. CI does not increase versions itself: the
+reviewed PR contains the version that will be released.
 
 Both CI and publishing use Flutter `3.47.2`. Update both pins together when
-upgrading the supported SDK and validating dependency or API migrations.
-
-References: [Release Please Action](https://github.com/googleapis/release-please-action)
-and [pub.dev automated publishing](https://dart.dev/tools/pub/automated-publishing).
+upgrading the SDK and validating dependency or API migrations.

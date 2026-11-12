@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   analyze-and-test:
     name: Analyze & Test
@@ -27,6 +30,9 @@ jobs:
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed lib test
 
+      - name: Test release automation
+        run: node --test .github/scripts/release.test.cjs
+
       - name: Analyze
         run: flutter analyze
 
@@ -35,3 +41,25 @@ jobs:
 
       - name: Publish dry-run
         run: flutter pub publish --dry-run
+
+  release:
+    name: Tag and publish new version
+    needs: analyze-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'TQC-Solution/flutter_admob_native_ads'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    concurrency:
+      group: release-main
+      cancel-in-progress: false
+    steps:
+      - name: Checkout tested commit
+        uses: actions/checkout@v4
+
+      - name: Create version tag and start publishing
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const release = require('./.github/scripts/release.cjs');
+            await release({ github, context, core });
