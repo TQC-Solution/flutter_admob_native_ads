@@ -19,9 +19,13 @@ enum Form6Builder {
         // Inner content container with background color
         let contentContainer = UIStackView()
         contentContainer.axis = .vertical
-        contentContainer.spacing = 12
+        contentContainer.spacing = 8
         contentContainer.alignment = .fill
-        contentContainer.backgroundColor = UIColor(red: 0.945, green: 0.914, blue: 0.914, alpha: 1) // #F1E9E9
+        // Keep the reference's pink inset on the default white surface. Dark
+        // and custom surfaces must follow the same style as the text colors.
+        let surface = styleManager.containerBackgroundColor
+        let isDefaultWhite = surface == .white || surface == UIColor(hex: "#FFFFFF")
+        contentContainer.backgroundColor = isDefaultWhite ? UIColor(hex: "#F1E9E9") : surface
         contentContainer.layer.cornerRadius = 8
         contentContainer.clipsToBounds = true
         contentContainer.layoutMargins = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
@@ -85,6 +89,8 @@ enum Form6Builder {
         headlineLabel.font = .systemFont(ofSize: 14, weight: .bold)
         headlineLabel.textColor = .black
         headlineLabel.numberOfLines = 1
+        headlineLabel.lineBreakMode = .byTruncatingTail
+        headlineLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         titleRow.addArrangedSubview(headlineLabel)
         rightColumn.addArrangedSubview(titleRow)
 
@@ -92,7 +98,9 @@ enum Form6Builder {
         let bodyLabel = UILabel()
         bodyLabel.font = .systemFont(ofSize: 12)
         bodyLabel.textColor = UIColor(white: 0.46, alpha: 1)
-        bodyLabel.numberOfLines = 2
+        bodyLabel.numberOfLines = 1
+        bodyLabel.lineBreakMode = .byTruncatingTail
+        bodyLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         rightColumn.addArrangedSubview(bodyLabel)
 
         headerRow.addArrangedSubview(rightColumn)
@@ -103,12 +111,17 @@ enum Form6Builder {
         mediaView.backgroundColor = UIColor(white: 0.94, alpha: 1)
         mediaView.layer.cornerRadius = 8
         mediaView.clipsToBounds = true
-        mediaView.heightAnchor.constraint(equalToConstant: 120).isActive = true
+        // Media yields first if a caller increases padding or button text size.
+        let mediaHeight = mediaView.heightAnchor.constraint(equalToConstant: 120)
+        mediaHeight.priority = .defaultHigh
+        mediaHeight.isActive = true
+        mediaView.heightAnchor.constraint(greaterThanOrEqualToConstant: 0).isActive = true
         contentContainer.addArrangedSubview(mediaView)
 
         // CTA Button
         let ctaButton = UIButton(type: .system)
         styleManager.styleButton(ctaButton)
+        ctaButton.setContentCompressionResistancePriority(.required, for: .vertical)
         contentContainer.addArrangedSubview(ctaButton)
 
         mainStack.addArrangedSubview(contentContainer)

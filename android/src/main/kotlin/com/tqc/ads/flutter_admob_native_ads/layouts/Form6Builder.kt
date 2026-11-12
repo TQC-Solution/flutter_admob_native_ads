@@ -48,7 +48,9 @@ object Form6Builder {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
             background = GradientDrawable().apply {
-                setColor(Color.parseColor("#F1E9E9"))
+                // Preserve the light reference inset; honor dark/custom surfaces.
+                val surface = styleManager.getContainerBackgroundColor()
+                setColor(if (surface == Color.WHITE) Color.parseColor("#F1E9E9") else surface)
                 cornerRadius = DimensionUtils.dpToPx(context, 8f).toFloat()
             }
             val padding = DimensionUtils.dpToPx(context, 8f)
@@ -141,7 +143,7 @@ object Form6Builder {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 DimensionUtils.dpToPx(context, 120f)
-            ).apply { topMargin = DimensionUtils.dpToPx(context, 12f) }
+            ).apply { topMargin = DimensionUtils.dpToPx(context, 8f) }
             background = GradientDrawable().apply {
                 setColor(Color.parseColor("#f0f0f0"))
                 cornerRadius = DimensionUtils.dpToPx(context, 8f).toFloat()
@@ -152,10 +154,12 @@ object Form6Builder {
 
         // CTA Button
         val ctaButton = Button(context).apply {
+            minHeight = 0
+            minimumHeight = 0
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = DimensionUtils.dpToPx(context, 12f) }
+            ).apply { topMargin = DimensionUtils.dpToPx(context, 8f) }
         }
         styleManager.styleButton(ctaButton)
         contentContainer.addView(ctaButton)

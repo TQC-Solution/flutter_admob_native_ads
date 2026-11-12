@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:convert';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -389,11 +389,18 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
     final creationParams = {
       'controllerId': _controller.id,
       'isPreloaded': _controller.isPreloaded,
-      ..._effectiveOptions.toMap(),
+      ..._effectiveOptions.toMap(brightness: Theme.of(context).brightness),
     };
 
-    if (Platform.isAndroid) {
+    // Creation parameters are only read once by native platform views. Recreate
+    // the view when its appearance changes, reusing the controller's loaded ad.
+    final viewKey = ValueKey(
+      jsonEncode([_controller.id, viewType, creationParams['style']]),
+    );
+
+    if (defaultTargetPlatform == TargetPlatform.android) {
       return AndroidView(
+        key: viewKey,
         viewType: viewType,
         creationParams: creationParams,
         creationParamsCodec: const StandardMessageCodec(),
@@ -404,8 +411,9 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
           ),
         },
       );
-    } else if (Platform.isIOS) {
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       return UiKitView(
+        key: viewKey,
         viewType: viewType,
         creationParams: creationParams,
         creationParamsCodec: const StandardMessageCodec(),

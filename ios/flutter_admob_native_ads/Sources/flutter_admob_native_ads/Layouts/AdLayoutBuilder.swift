@@ -10,34 +10,42 @@ public enum AdLayoutBuilder {
     public static func buildLayout(layoutType: Int, styleOptions: AdStyleOptions) -> NativeAdView {
         let styleManager = AdStyleManager(options: styleOptions)
         
+        let adView: NativeAdView
         switch layoutType {
         case 1:
-            return Form1Builder.build(styleManager: styleManager)
+            adView = Form1Builder.build(styleManager: styleManager)
         case 2:
-            return Form2Builder.build(styleManager: styleManager)
+            adView = Form2Builder.build(styleManager: styleManager)
         case 3:
-            return Form3Builder.build(styleManager: styleManager)
+            adView = Form3Builder.build(styleManager: styleManager)
         case 4:
-            return Form4Builder.build(styleManager: styleManager)
+            adView = Form4Builder.build(styleManager: styleManager)
         case 5:
-            return Form5Builder.build(styleManager: styleManager)
+            adView = Form5Builder.build(styleManager: styleManager)
         case 6:
-            return Form6Builder.build(styleManager: styleManager)
+            adView = Form6Builder.build(styleManager: styleManager)
         case 7:
-            return Form7Builder.build(styleManager: styleManager)
+            adView = Form7Builder.build(styleManager: styleManager)
         case 8:
-            return Form8Builder.build(styleManager: styleManager)
+            adView = Form8Builder.build(styleManager: styleManager)
         case 9:
-            return Form9Builder.build(styleManager: styleManager)
+            adView = Form9Builder.build(styleManager: styleManager)
         case 10:
-            return Form10Builder.build(styleManager: styleManager)
+            adView = Form10Builder.build(styleManager: styleManager)
         case 11:
-            return Form11Builder.build(styleManager: styleManager)
+            adView = Form11Builder.build(styleManager: styleManager)
         case 12:
-            return Form12Builder.build(styleManager: styleManager)
+            adView = Form12Builder.build(styleManager: styleManager)
         default:
-            return Form1Builder.build(styleManager: styleManager)
+            adView = Form1Builder.build(styleManager: styleManager)
         }
+        // Apply colors after layout defaults so Flutter styles win in every form.
+        (adView.headlineView as? UILabel)?.textColor = styleOptions.headlineTextColor
+        (adView.bodyView as? UILabel)?.textColor = styleOptions.bodyTextColor
+        (adView.priceView as? UILabel)?.textColor = styleOptions.priceTextColor
+        (adView.storeView as? UILabel)?.textColor = styleOptions.storeTextColor
+        (adView.advertiserView as? UILabel)?.textColor = styleOptions.advertiserTextColor
+        return adView
     }
     
     public static func getLayoutType(from name: String?) -> Int {

@@ -135,8 +135,10 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
             activeNativeAdViews[controllerId] = view
         }
 
-        fun unregisterActiveNativeAdView(controllerId: String) {
-            activeNativeAdViews.remove(controllerId)
+        fun unregisterActiveNativeAdView(controllerId: String, view: android.view.View? = null) {
+            if (view == null || activeNativeAdViews[controllerId] === view) {
+                activeNativeAdViews.remove(controllerId)
+            }
         }
 
         fun registerActiveBannerAdView(controllerId: String, view: android.view.View) {
@@ -267,8 +269,12 @@ class FlutterAdmobNativeAdsPlugin : FlutterPlugin, MethodCallHandler {
     /**
      * Unregisters the ad loaded callback for the given controller.
      */
-    fun unregisterAdLoadedCallback(controllerId: String) {
-        clearNativeAdCallbacks(controllerId)
+    fun unregisterAdLoadedCallback(controllerId: String, callback: ((NativeAd) -> Unit)? = null) {
+        if (callback == null) {
+            clearNativeAdCallbacks(controllerId)
+        } else {
+            getNativeAdCallbacks(controllerId)?.remove(callback)
+        }
     }
 
     /**

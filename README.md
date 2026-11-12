@@ -7,7 +7,7 @@ Production-ready Flutter plugin for displaying Google AdMob Native Ads with 12 c
 
 ## Features
 
-- **12 layout forms** (80dp - 320dp) optimized for various use cases
+- **12 layout forms** (65dp - 318dp) optimized for various use cases
 - **30+ style properties** with SwiftUI-style declarative API
 - **Preload & Smart Reload** for better UX and automatic ad refresh
 - **Full event callbacks** tracking (loaded, failed, clicked, impression, opened, closed, paid)
@@ -127,17 +127,17 @@ The plugin provides 12 pre-designed layouts optimized for different use cases:
 | Form | Height | Style | Best For |
 |------|--------|-------|----------|
 | **form1** | 80dp | Horizontal compact | List items, in-feed ads |
-| **form2** | 90dp | Horizontal with media | List with image preview |
-| **form3** | 320dp | Vertical large media | Full-screen feeds |
-| **form4** | 300dp | Vertical media-first | Product cards |
-| **form5** | 300dp | Article card | Blog posts, articles |
+| **form2** | 70dp | Horizontal with large icon | Compact list items |
+| **form3** | 233dp | Vertical large media | Full-screen feeds |
+| **form4** | 254dp | Vertical media-first | Product cards |
+| **form5** | 318dp | Article card | Blog posts, articles |
 | **form6** | 280dp | Standard feed | Social feeds (most popular) |
-| **form7** | 140dp | Horizontal video | Video ads |
+| **form7** | 176dp | Horizontal video | Video ads |
 | **form8** | 100dp | Horizontal compact | Compact cards |
 | **form9** | 280dp | CTA-first | Conversion-focused |
 | **form10** | 120dp | Text-only | Minimal design |
-| **form11** | 280dp | Vertical clean | Clean layout |
-| **form12** | 280dp | Vertical alternative | Alternative layout |
+| **form11** | 254dp | Vertical clean | Clean layout |
+| **form12** | 248dp | Vertical alternative | Alternative layout |
 
 ### Basic Usage with Controller
 
@@ -355,10 +355,51 @@ NativeAdWidget(
 )
 ```
 
+### Reference template gallery
+
+Run `flutter run -t lib/template_gallery.dart` from `example/` to preview forms
+2, 3, 4, 5, 7, 11 and 12 with Google test ads. These layouts follow the matching
+images in `ads_template_native/`, including the inline ad badges and CTA placement.
+The gallery uses the reference CTA blue through `NativeAdStyle`; production ads
+continue to honor your style colors. Actual images, video proportions, text and
+CTA labels depend on the ad returned by the SDK.
+
+On an iOS simulator, run the live loading/theme smoke test from `example/`:
+
+```sh
+flutter test integration_test/template_gallery_test.dart -d <simulator-id>
+```
+
+This test requests real Google test ads and needs an internet connection.
+The gallery's hourglass button holds the loading skeleton so you can inspect it
+without waiting for an ad request. Run `flutter run -t lib/existing_forms_gallery.dart`
+to inspect forms 1, 6, 8, 9 and 10.
+
+Run the form6 theme and form10 loading regression on an iOS simulator:
+
+```sh
+flutter test integration_test/form6_form10_regression_test.dart -d <simulator-id>
+```
+
 ### Built-in Themes
 
+When `style` is omitted from `NativeAdOptions`, `NativeAdWidget` follows the
+nearest Flutter `Theme` and updates when the app switches between light and dark
+mode. This also works with external and preloaded controllers without requesting
+a new ad for a theme change.
+
+An explicit `style` takes precedence over the app theme. To customize colors per
+theme, select the style when building the widget:
+
 ```dart
-// Light theme (default)
+final isDark = Theme.of(context).brightness == Brightness.dark;
+final style = (isDark ? NativeAdStyle.dark() : NativeAdStyle.light()).copyWith(
+  headlineTextColor: Theme.of(context).colorScheme.onSurface,
+);
+```
+
+```dart
+// Explicit light theme
 NativeAdStyle.light()
 
 // Dark theme

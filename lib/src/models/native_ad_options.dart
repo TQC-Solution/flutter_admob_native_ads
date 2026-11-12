@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+
 import 'ad_layout_type.dart';
 import 'native_ad_style.dart';
 
@@ -32,7 +34,8 @@ class NativeAdOptions {
     this.requestTimeout,
     this.customExtras,
     this.testDeviceIds,
-  }) : style = style ?? NativeAdStyle();
+  })  : _usesDefaultStyle = style == null,
+        style = style ?? NativeAdStyle();
 
   /// The AdMob ad unit ID.
   ///
@@ -44,7 +47,12 @@ class NativeAdOptions {
   /// The layout type determining the visual structure of the ad.
   final NativeAdLayoutType layoutType;
 
+  final bool _usesDefaultStyle;
+
   /// Styling options for the ad components.
+  ///
+  /// When omitted, NativeAdWidget adapts the default style to the Flutter theme.
+  /// An explicitly supplied style is used unchanged.
   final NativeAdStyle style;
 
   /// Whether to enable debug logging from the native side.
@@ -117,12 +125,18 @@ class NativeAdOptions {
   }
 
   /// Converts this options instance to a Map for platform channel communication.
-  Map<String, dynamic> toMap() {
+  ///
+  /// [brightness] selects a dark default when no explicit style was supplied.
+  /// Omitting it retains the light default for controller requests.
+  Map<String, dynamic> toMap({Brightness? brightness}) {
     return {
       'adUnitId': adUnitId,
       'layoutType': layoutType.toInt(),
       'layoutTypeName': layoutType.name,
-      'style': style.toMap(),
+      'style': (_usesDefaultStyle && brightness == Brightness.dark
+              ? NativeAdStyle.dark()
+              : style)
+          .toMap(),
       'enableDebugLogs': enableDebugLogs,
       'enableSmartPreload': enableSmartPreload,
       'enableSmartReload': enableSmartReload,
@@ -151,7 +165,7 @@ class NativeAdOptions {
     return NativeAdOptions(
       adUnitId: adUnitId ?? this.adUnitId,
       layoutType: layoutType ?? this.layoutType,
-      style: style ?? this.style,
+      style: style ?? (_usesDefaultStyle ? null : this.style),
       enableDebugLogs: enableDebugLogs ?? this.enableDebugLogs,
       enableSmartPreload: enableSmartPreload ?? this.enableSmartPreload,
       enableSmartReload: enableSmartReload ?? this.enableSmartReload,
@@ -204,6 +218,7 @@ class NativeAdOptions {
     return other is NativeAdOptions &&
         other.adUnitId == adUnitId &&
         other.layoutType == layoutType &&
+        other._usesDefaultStyle == _usesDefaultStyle &&
         other.style == style &&
         other.enableSmartPreload == enableSmartPreload &&
         other.enableSmartReload == enableSmartReload &&
@@ -215,6 +230,7 @@ class NativeAdOptions {
       adUnitId.hashCode ^
       layoutType.hashCode ^
       style.hashCode ^
+      _usesDefaultStyle.hashCode ^
       enableSmartPreload.hashCode ^
       enableSmartReload.hashCode ^
       reloadIntervalSeconds.hashCode;

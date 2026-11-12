@@ -7,20 +7,20 @@ enum NativeAdLayoutType {
   /// Height: 80dp. Best for: List items, compact placements
   form1,
 
-  /// Form2 - Compact horizontal: Large Media + Title + Description + CTA (Right)
-  /// Height: 90dp. Best for: List items with media preview
+  /// Form2 - Compact horizontal: Large Icon + Title + Description + CTA (Right)
+  /// Height: 70dp. Best for: List items with a large icon
   form2,
 
   /// Form3 - Vertical card: Title + Description + Large Media + CTA (Bottom)
-  /// Height: 320dp. Best for: Feed cards, story-like layout
+  /// Height: 233dp. Best for: Feed cards, story-like layout
   form3,
 
   /// Form4 - Vertical card: Large Media + Icon + Title + Description + CTA (Bottom)
-  /// Height: 300dp. Best for: Product cards, media-first layout
+  /// Height: 254dp. Best for: Product cards, media-first layout
   form4,
 
   /// Form5 - Vertical card: Icon + Title + Description + Large Media + CTA (Bottom)
-  /// Height: 300dp. Best for: Article cards
+  /// Height: 318dp. Best for: Article cards
   form5,
 
   /// Form6 - Vertical card: Icon + Title + Description + Media + CTA (Bottom)
@@ -28,7 +28,7 @@ enum NativeAdLayoutType {
   form6,
 
   /// Form7 - Horizontal card: Video/Media (Left) + Title + Description + CTA (Right)
-  /// Height: 140dp. Best for: Video ads, horizontal scrolling
+  /// Height: 176dp. Best for: Video ads, horizontal scrolling
   form7,
 
   /// Form8 - Horizontal card: Media (Left) + Title + Description + CTA (Right)
@@ -44,11 +44,11 @@ enum NativeAdLayoutType {
   form10,
 
   /// Form11 - Vertical card: Ad Label (Top) + Title + Media + CTA (Bottom)
-  /// Height: 280dp. Best for: Clean vertical layout
+  /// Height: 254dp. Best for: Clean vertical layout
   form11,
 
   /// Form12 - Vertical card: Ad Label (Top) + Title + Media + CTA (Bottom) - Alt style
-  /// Height: 280dp. Best for: Alternative vertical layout
+  /// Height: 248dp. Best for: Alternative vertical layout
   form12;
 
   /// Converts the layout type to an integer for native communication.
@@ -119,17 +119,17 @@ enum NativeAdLayoutType {
       case NativeAdLayoutType.form1:
         return 65;
       case NativeAdLayoutType.form2:
-        return 90;
+        return 70;
       case NativeAdLayoutType.form3:
-        return 320;
+        return 233;
       case NativeAdLayoutType.form4:
-        return 300;
+        return 254;
       case NativeAdLayoutType.form5:
-        return 300;
+        return 318;
       case NativeAdLayoutType.form6:
         return 253;
       case NativeAdLayoutType.form7:
-        return 140;
+        return 176;
       case NativeAdLayoutType.form8:
         return 138;
       case NativeAdLayoutType.form9:
@@ -137,9 +137,9 @@ enum NativeAdLayoutType {
       case NativeAdLayoutType.form10:
         return 120;
       case NativeAdLayoutType.form11:
-        return 280;
+        return 254;
       case NativeAdLayoutType.form12:
-        return 280;
+        return 248;
     }
   }
 

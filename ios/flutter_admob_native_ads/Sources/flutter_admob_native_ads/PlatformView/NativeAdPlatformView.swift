@@ -13,6 +13,7 @@ class NativeAdPlatformView: NSObject, FlutterPlatformView {
     private let layoutType: String
     private var isLayoutBuilt = false
     private let controllerId: String?
+    private var adLoadedCallbackToken: UUID?
 
     init(
         frame: CGRect,
@@ -64,7 +65,7 @@ class NativeAdPlatformView: NSObject, FlutterPlatformView {
         }
 
         // Register callback with plugin to receive ad when loaded
-        FlutterAdmobNativeAdsPlugin.shared()?.registerAdLoadedCallback(controllerId: controllerId) { [weak self] nativeAd in
+        adLoadedCallbackToken = FlutterAdmobNativeAdsPlugin.shared()?.registerAdLoadedCallback(controllerId: controllerId) { [weak self] nativeAd in
             self?.onAdLoaded(nativeAd)
         }
     }
@@ -188,12 +189,12 @@ class NativeAdPlatformView: NSObject, FlutterPlatformView {
     deinit {
         // Unregister from pause/resume tracking
         if let controllerId = controllerId {
-            FlutterAdmobNativeAdsPlugin.shared()?.unregisterActiveNativeAdView(controllerId: controllerId)
+            FlutterAdmobNativeAdsPlugin.shared()?.unregisterActiveNativeAdView(controllerId: controllerId, view: nativeAdView)
         }
 
         // Unregister callback from plugin when view is deallocated
-        if let controllerId = controllerId {
-            FlutterAdmobNativeAdsPlugin.shared()?.unregisterAdLoadedCallback(controllerId: controllerId)
+        if let controllerId = controllerId, let token = adLoadedCallbackToken {
+            FlutterAdmobNativeAdsPlugin.shared()?.unregisterAdLoadedCallback(controllerId: controllerId, token: token)
         }
     }
 }
